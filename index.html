@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Spotify - HiFi Lossless</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#121212">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(console.warn);
+      });
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="spotify-app">
+    <!-- Topbar (Mobile Header) -->
+    <header class="spotify-topbar">
+      <div class="topbar-left">
+        <div class="mobile-greeting" id="mobileGreeting">
+          <div class="user-avatar-circle">A</div>
+          <div class="greeting-text">
+            <span class="greeting-sub">Spotify HiFi</span>
+            <span class="greeting-main" id="greetingHeading">Welcome back</span>
+          </div>
+        </div>
+        <div class="search-input-wrapper desktop-only">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.28 7.407-7.28s7.407 3.274 7.407 7.28-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.28z"/></svg>
+          <input type="text" id="globalSearch" placeholder="Search songs, artists, albums...">
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <span class="badge-hifi">24-BIT / 96k</span>
+        <button class="icon-round-btn" id="btnToggleEQ" title="Equalizer">
+          <svg viewBox="0 0 24 24" fill="currentColor"><line x1="4" y1="21" x2="4" y2="14" stroke="currentColor" stroke-width="2"/><line x1="4" y1="10" x2="4" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="20" y1="21" x2="20" y2="16" stroke="currentColor" stroke-width="2"/><line x1="20" y1="12" x2="20" y2="3" stroke="currentColor" stroke-width="2"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="spotify-body">
+      <!-- Main Content Area with Views -->
+      <main class="spotify-main" id="mainContent">
+
+        <!-- VIEW 1: HOME -->
+        <section class="app-view active" id="viewHome">
+          <!-- Filter Chips -->
+          <div class="filter-chips-row">
+            <button class="chip-pill active" data-filter="all">All</button>
+            <button class="chip-pill" data-filter="music">Music</button>
+            <button class="chip-pill" data-filter="lossless">HiFi Lossless</button>
+          </div>
+
+          <!-- Quick Shortcuts Grid -->
+          <div class="shortcuts-grid">
+            <div class="shortcut-card" id="shortcutSick">
+              <div class="shortcut-art sick-gradient">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+              </div>
+              <div class="shortcut-title">sick 🫢 (62 songs)</div>
+              <button class="shortcut-play-btn" id="quickPlaySick">
+                <svg viewBox="0 0 16 16" fill="currentColor"><polygon points="4 2 14 8 4 14 4 2"/></svg>
+              </button>
+            </div>
+
+            <div class="shortcut-card" data-genre="Hip-Hop">
+              <div class="shortcut-art" style="background: linear-gradient(135deg, #f0932b, #eb4d4b);">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+              </div>
+              <div class="shortcut-title">Hip-Hop & Trap</div>
+            </div>
+
+            <div class="shortcut-card" data-artist="The Weeknd">
+              <div class="shortcut-art" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+              </div>
+              <div class="shortcut-title">The Weeknd Radio</div>
+            </div>
+
+            <div class="shortcut-card" data-artist="Kendrick Lamar">
+              <div class="shortcut-art" style="background: linear-gradient(135deg, #10ac84, #1dd1a1);">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+              </div>
+              <div class="shortcut-title">Kendrick Lamar Hits</div>
+            </div>
+          </div>
+
+          <!-- Section: Top Artists Carousel -->
+          <div class="section-block">
+            <div class="section-header">
+              <h3>Top Artists</h3>
+              <span class="section-sub">From your playlist</span>
+            </div>
+            <div class="artists-horizontal-scroll" id="homeArtistsScroll">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Section: Explore Browse Categories (User requested Explorer) -->
+          <div class="section-block">
+            <div class="section-header">
+              <h3>Explore & Discover</h3>
+              <span class="section-sub">Browse by vibe</span>
+            </div>
+            <div class="explore-category-grid">
+              <div class="category-card" style="background: linear-gradient(135deg, #e67e22, #d35400);" data-genre="Hip-Hop">
+                <span class="category-name">Hip-Hop & Rap</span>
+                <span class="category-desc">Travis Scott, Drake, Roddy Ricch</span>
+              </div>
+              <div class="category-card" style="background: linear-gradient(135deg, #8e44ad, #2c3e50);" data-genre="Late Night">
+                <span class="category-name">Late Night Vibes</span>
+                <span class="category-desc">The Weeknd, Post Malone</span>
+              </div>
+              <div class="category-card" style="background: linear-gradient(135deg, #16a085, #27ae60);" data-genre="Lossless">
+                <span class="category-name">Lossless Studio</span>
+                <span class="category-desc">24-bit/96kHz Hi-Res FLAC & AAC</span>
+              </div>
+              <div class="category-card" style="background: linear-gradient(135deg, #c0392b, #8e44ad);" data-genre="Drill">
+                <span class="category-name">UK Drill & Global</span>
+                <span class="category-desc">Central Cee, Dave, KR$NA</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Featured Tracks from Playlist -->
+          <div class="section-block">
+            <div class="section-header">
+              <h3>Featured Studio Tracks</h3>
+              <button class="see-all-link" id="btnSeeAllTracks">See all 62</button>
+            </div>
+            <div class="featured-tracks-list" id="homeFeaturedTracks">
+              <!-- Dynamically populated top 6 tracks -->
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 2: EXPLORE & SEARCH -->
+        <section class="app-view" id="viewSearch">
+          <div class="search-view-header">
+            <h2>Explore & Search</h2>
+            <div class="mobile-search-box">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.28 7.407-7.28s7.407 3.274 7.407 7.28-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.28z"/></svg>
+              <input type="text" id="mobileSearchInput" placeholder="What do you want to listen to?">
+              <button class="clear-search-btn" id="btnClearSearch" style="display:none;">✕</button>
+            </div>
+          </div>
+
+          <!-- Search Results or Browse Categories -->
+          <div id="searchResultsContainer">
+            <h4 class="sub-heading">Browse All Genres</h4>
+            <div class="explore-category-grid" id="searchGenreGrid">
+              <!-- Rich colored genre cards -->
+            </div>
+          </div>
+          <div id="searchDynamicResults" style="display:none;">
+            <h4 class="sub-heading" id="searchResultCount">Search Results</h4>
+            <div class="tracks-touch-list" id="searchTracksBody"></div>
+          </div>
+        </section>
+
+        <!-- VIEW 3: PLAYLIST (sick 🫢) -->
+        <section class="app-view" id="viewPlaylist">
+          <!-- Dynamic Theme Hero Header -->
+          <div class="playlist-hero" id="playlistHero">
+            <div class="playlist-cover-wrapper">
+              <div class="playlist-cover-art sick-hero-art" id="playlistCoverArt">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+              </div>
+            </div>
+            <div class="playlist-hero-info">
+              <span class="playlist-type-pill">PLAYLIST</span>
+              <h1 class="playlist-title" id="playlistTitle">sick 🫢</h1>
+              <div class="playlist-curator-row">
+                <span class="curator-avatar">A</span>
+                <span class="curator-name">Aniket</span>
+                <span class="dot-separator">•</span>
+                <span class="track-count-text" id="playlistTrackCount">62 songs</span>
+                <span class="dot-separator">•</span>
+                <span class="duration-text">3 hr 18 min</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Bar (Play, Shuffle, Autoplay, Like) -->
+          <div class="playlist-action-bar">
+            <div class="action-left">
+              <button class="big-green-play-btn" id="heroPlayBtn" title="Play Playlist">
+                <svg id="heroPlayIcon" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 19 12 6 20 6 4"/></svg>
+                <svg id="heroPauseIcon" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+              </button>
+              <button class="circle-action-btn" id="btnShufflePlaylist" title="Shuffle">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+              </button>
+              <button class="circle-action-btn active" id="btnAutoplayToggle" title="Autoplay: Continuous Playback">
+                <span class="autoplay-label">AUTOPLAY ON</span>
+              </button>
+            </div>
+            <div class="action-right">
+              <button class="circle-action-btn" id="btnDownloadAll" title="Download">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Touch-friendly Track List -->
+          <div class="tracks-touch-list" id="tracklistBody">
+            <!-- 62 tracks loaded here -->
+          </div>
+        </section>
+
+        <!-- VIEW 4: EQUALIZER & VISUALIZER -->
+        <section class="app-view" id="viewEQ">
+          <div class="eq-view-header">
+            <h2>HiFi Studio DSP</h2>
+            <span class="eq-sub">24-Bit / 96kHz Master Engine</span>
+          </div>
+
+          <div class="eq-card">
+            <div class="eq-card-header">
+              <h4>Real-time Audio Spectrum</h4>
+              <span class="hifi-green-tag" id="dspStatus">STUDIO DSP ACTIVE</span>
+            </div>
+            <canvas id="spectrumCanvas" width="340" height="100"></canvas>
+          </div>
+
+          <div class="eq-card">
+            <div class="eq-card-header">
+              <h4>10-Band Graphic Equalizer</h4>
+              <button class="reset-eq-btn" id="btnResetEQ">Reset</button>
+            </div>
+            <div class="eq-sliders-row" id="eqSlidersContainer">
+              <!-- 10 sliders dynamically generated -->
+            </div>
+          </div>
+
+          <div class="eq-presets-card">
+            <h4>Equalizer Presets</h4>
+            <div class="presets-row">
+              <button class="preset-pill active" data-preset="flat">Studio Flat</button>
+              <button class="preset-pill" data-preset="bass">Bass Boost</button>
+              <button class="preset-pill" data-preset="hiphop">Hip-Hop / Rap</button>
+              <button class="preset-pill" data-preset="vocal">Vocal Clarity</button>
+              <button class="preset-pill" data-preset="electronic">Electronic</button>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- Floating Mini-Player (Pinned above bottom nav) -->
+    <div class="spotify-player-bar" id="playerBar">
+      <div class="mini-player-content" id="miniPlayerClickZone">
+        <div class="mini-thumb-wrap">
+          <img id="playerThumb" src="https://picsum.photos/seed/thumb/100/100" class="mini-thumb-img" alt="Artwork">
+        </div>
+        <div class="mini-track-meta">
+          <div class="mini-track-title" id="currentTitle">Select a Track</div>
+          <div class="mini-track-artist" id="currentArtist">sick 🫢 • 62 songs</div>
+        </div>
+      </div>
+
+      <div class="mini-controls">
+        <span class="mini-hifi-pill">HiFi</span>
+        <button class="mini-play-pause-btn" id="btnPlayPause" title="Play/Pause">
+          <svg id="ctrlPlayIcon" viewBox="0 0 16 16" fill="currentColor"><polygon points="3 1 14 8 3 15 3 1"/></svg>
+          <svg id="ctrlPauseIcon" viewBox="0 0 16 16" fill="currentColor" style="display:none;"><rect x="3" y="2" width="3.5" height="12"/><rect x="9.5" y="2" width="3.5" height="12"/></svg>
+        </button>
+        <button class="mini-next-btn" id="btnNextTrack" title="Next Track">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M12.7 1a.7.7 0 0 0-.7.7v5.15L2.05 1.107A.7.7 0 0 0 1 1.714v12.572a.7.7 0 0 0 1.05.607L12 9.149V14.3a.7.7 0 0 0 .7.7h1.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7h-1.6z"/></svg>
+        </button>
+      </div>
+
+      <!-- Linear Progress Bar on Bottom Border -->
+      <div class="mini-progress-track">
+        <div class="mini-progress-fill" id="playbackBarFg" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="mobile-bottom-nav">
+      <button class="mobile-nav-btn active" id="mNavHome" data-target="viewHome">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h4.5v-6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v6H20V7.577l-7.5-4.33zm-2-1.732a3 3 0 0 1 3 0l7.5 4.33A2 2 0 0 1 22 7.577V21a1 1 0 0 1-1 1h-6.5a1 1 0 0 1-1-1v-5h-3v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.577a2 2 0 0 1 .9-1.732l7.6-4.33z"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="mobile-nav-btn" id="mNavSearch" data-target="viewSearch">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.28 7.407-7.28s7.407 3.274 7.407 7.28-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.28z"/></svg>
+        <span>Explore</span>
+      </button>
+      <button class="mobile-nav-btn" id="mNavPlaylist" data-target="viewPlaylist">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1.5-.866L15.5 2.134zM9 4.24a1 1 0 0 0-1.225-.733l-4 1.072A1 1 0 0 0 3 5.551V21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V4.24z"/></svg>
+        <span>sick 🫢</span>
+      </button>
+      <button class="mobile-nav-btn" id="mNavEQ" data-target="viewEQ">
+        <svg viewBox="0 0 24 24" fill="currentColor"><line x1="4" y1="21" x2="4" y2="14" stroke="currentColor" stroke-width="2"/><line x1="4" y1="10" x2="4" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="20" y1="21" x2="20" y2="16" stroke="currentColor" stroke-width="2"/><line x1="20" y1="12" x2="20" y2="3" stroke="currentColor" stroke-width="2"/></svg>
+        <span>Equalizer</span>
+      </button>
+    </nav>
+
+    <!-- FULL-SCREEN NOW PLAYING MODAL -->
+    <div class="now-playing-modal" id="nowPlayingModal">
+      <div class="modal-drag-bar" id="modalCloseBtn">
+        <div class="drag-indicator"></div>
+      </div>
+      <div class="modal-header">
+        <button class="modal-down-chevron" id="modalDismissChevron">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </button>
+        <div class="modal-header-title">
+          <span class="sub-label">PLAYING FROM PLAYLIST</span>
+          <span class="main-label">sick 🫢</span>
+        </div>
+        <button class="modal-more-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-cover-wrapper">
+        <img id="modalCoverImg" src="https://picsum.photos/seed/large/600/600" class="modal-cover-art" alt="Album Cover">
+      </div>
+
+      <div class="modal-track-info">
+        <div class="modal-text-col">
+          <h2 class="modal-song-title" id="modalSongTitle">Song Title</h2>
+          <span class="modal-artist-name" id="modalArtistName">Artist Name</span>
+        </div>
+        <button class="modal-heart-btn active" id="modalHeartBtn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-timeline">
+        <div class="modal-slider-bg" id="modalSliderBg">
+          <div class="modal-slider-fg" id="modalSliderFg" style="width: 0%;"></div>
+        </div>
+        <div class="modal-time-row">
+          <span id="modalCurrentTime">0:00</span>
+          <span class="modal-spec-tag" id="modalSpecBadge">24-BIT / 96k FLAC</span>
+          <span id="modalTotalTime">0:00</span>
+        </div>
+      </div>
+
+      <div class="modal-controls">
+        <button class="modal-ctrl-btn" id="btnModalShuffle" title="Shuffle">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+        </button>
+        <button class="modal-ctrl-btn" id="btnModalPrev" title="Previous Track">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        </button>
+        <button class="modal-play-large-circle" id="btnModalPlayPause">
+          <svg id="modalPlayIcon" viewBox="0 0 24 24" fill="currentColor"><polygon points="8 5 19 12 8 19 8 5"/></svg>
+          <svg id="modalPauseIcon" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+        </button>
+        <button class="modal-ctrl-btn" id="btnModalNext" title="Next Track">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        </button>
+        <button class="modal-ctrl-btn active" id="btnModalAutoplay" title="Autoplay: Continuous Playback">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-footer-row">
+        <button class="modal-footer-pill" id="btnModalEQ">
+          <svg viewBox="0 0 24 24" fill="currentColor"><line x1="4" y1="21" x2="4" y2="14" stroke="currentColor" stroke-width="2"/><line x1="4" y1="10" x2="4" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="20" y1="21" x2="20" y2="16" stroke="currentColor" stroke-width="2"/><line x1="20" y1="12" x2="20" y2="3" stroke="currentColor" stroke-width="2"/></svg>
+          <span>Equalizer</span>
+        </button>
+        <span class="autoplay-indicator-tag" id="autoplayStatusTag">AUTOPLAY ENABLED</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
