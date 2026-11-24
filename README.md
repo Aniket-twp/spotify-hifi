@@ -1,10 +1,10 @@
-# 🎵 Spotify HiFi — Lossless Music Experience (Web & Android)
+# 🎵 Refract — Lossless Hi-Fi (Web & Android)
 
-[![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20Android%2014+-1db954?style=for-the-badge&logo=android)](https://github.com/Aniket-twp/spotify-hifi)
-[![Audio Quality](https://img.shields.io/badge/Audio-24--bit%20%2F%2096kHz%20HiFi-gold?style=for-the-badge)](https://github.com/Aniket-twp/spotify-hifi)
+[![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20Android%2014+-0a84ff?style=for-the-badge&logo=android)](https://github.com/Aniket-twp/spotify-hifi)
+[![Audio Quality](https://img.shields.io/badge/Audio-24--bit%20%2F%2096kHz%20Lossless-8f7bff?style=for-the-badge)](https://github.com/Aniket-twp/spotify-hifi)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
-An ultra-responsive, native-feel Spotify mobile and desktop music player built for true audiophiles. Packed with studio-grade 24-bit/96kHz lossless DSP, a 10-band graphic equalizer, real-time audio spectrum analyzer, continuous autoplay, dynamic theme gradients, and the complete 62-song **"sick 🫢"** playlist.
+An ultra-responsive, native-feel music player built for true audiophiles, wearing a **Liquid Glass** interface: translucent materials that refract an ambient wallpaper, spring-driven motion, and an SF Pro type scale. Packed with studio-grade 24-bit/96kHz lossless DSP, a 10-band graphic equalizer, real-time audio spectrum analyzer, continuous autoplay, ambient artwork tinting, and the complete 62-song **"sick 🫢"** playlist.
 
 ---
 
@@ -24,13 +24,15 @@ Get the signed standalone Android APK ready for Android 8.0 through Android 14+ 
 
 ## ✨ Features
 
-- **📱 True Native Mobile UI**: Bottom navigation bar (`Home`, `Explore`, `sick 🫢 Playlist`, `Equalizer`), floating mini-player docked above tabs, and full-screen slide-up Now Playing view.
+- **🧊 Liquid Glass Design System**: One animated wallpaper behind every surface, so nav, player, sheets and modals are real `backdrop-filter` glass with refracted rims, specular sweeps and depth-aware shadows.
+- **📱 True Native Mobile UI**: Floating glass tab bar (`Home`, `Search`, `Your Library`), mini-player docked above it, and a full-screen slide-up Now Playing view with drag-to-dismiss.
+- **🔣 "Refract" Brand Mark**: Custom vector logo rendered into PWA icons, Android adaptive icons, favicons and store art by `make_icons.py`.
 - **🎧 Studio-Grade 10-Band Equalizer**: 32Hz to 16kHz DSP filters with presets for Studio Flat, Bass Boost, Hip-Hop/Rap, Vocal Clarity, and Electronic.
 - **📊 Real-Time Audio Spectrum**: Live 64-band visualizer powered by Web Audio API.
 - **🔄 Smart Autoplay Engine**: Seamless continuous playback across the entire queue without manual input.
 - **🔥 Curated 62-Track "sick 🫢" Playlist**: Featuring Travis Scott, Kendrick Lamar, The Weeknd, Drake, Central Cee, Roddy Ricch, KR$NA, Post Malone, and more.
 - **🖼️ High-Res Album & Artist Artwork**: Official 600×600 studio covers and high-resolution artist portraits.
-- **🎨 Dynamic Theme Colors**: Ambient player gradients that adapt dynamically to the currently playing song's artwork.
+- **🎨 Ambient Artwork Tint**: The whole app re-tints from the playing track's artwork via a single `--np-tint` variable.
 - **🔍 Explore & Browse Hub**: Discover by mood, vibe, and genre tags with instant live search.
 
 ---
@@ -40,9 +42,11 @@ Get the signed standalone Android APK ready for Android 8.0 through Android 14+ 
 ```text
 spotify-hifi/
 ├── index.html              # Mobile & desktop responsive web app
-├── styles.css              # Spotify Dark aesthetic & touch components
+├── styles.css              # Liquid Glass design system, materials & motion
 ├── app.js                  # Audio engine, DSP filters, autoplay & UI
 ├── sick_playlist.json      # 62 enriched studio tracks with metadata
+├── icon.svg                # "Refract" brand mark (vector source of truth)
+├── make_icons.py           # Renders the mark into PWA / Android / store art
 ├── manifest.json           # PWA installation manifest
 ├── sw.js                   # Service worker for offline caching
 ├── android/                # Native Android WebView wrapper project

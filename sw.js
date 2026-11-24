@@ -1,5 +1,5 @@
-// Service Worker for Spotify HiFi
-const CACHE_NAME = 'spotify-hifi-v4';
+// Service Worker for Refract — Lossless Hi-Fi
+const CACHE_NAME = 'refract-hifi-v5';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();

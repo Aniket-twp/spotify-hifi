@@ -1,22 +1,15 @@
 {
-  "name": "Spotify HiFi Lossless",
-  "short_name": "Spotify HiFi",
+  "name": "Refract — Lossless Hi-Fi",
+  "short_name": "Refract",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#121212",
-  "theme_color": "#000000",
+  "background_color": "#05060b",
+  "theme_color": "#05060b",
   "orientation": "any",
-  "description": "Ultra-High-Definition Lossless Music Player with 24-bit/192kHz bit-perfect audio and world music catalog search.",
+  "description": "Refract — Liquid Glass lossless music player with 24-bit/96kHz bit-perfect audio, real-time DSP and world catalog search.",
   "icons": [
-    {
-      "src": "https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/Spotify_Logo_RGB_Green.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/Spotify_Logo_RGB_Green.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

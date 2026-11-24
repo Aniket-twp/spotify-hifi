@@ -41,7 +41,7 @@ class HiFiRequestHandler(SimpleHTTPRequestHandler):
 
 def main():
     server = ThreadingHTTPServer(('0.0.0.0', PORT), HiFiRequestHandler)
-    print(f"Spotify HiFi Server running on http://localhost:{PORT}")
+    print(f"Refract server running on http://localhost:{PORT}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

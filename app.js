@@ -1,4 +1,4 @@
-// Spotify HiFi Lossless Audio Engine
+// Refract - Lossless Hi-Fi Audio Engine
 // Multi-Playlist Management, Spotify/Text/File Importer, Global Music Search, YouTube HiFi Audio Engine & Autoplay
 
 class SpotifyHiFiMobileApp {
@@ -327,7 +327,7 @@ class SpotifyHiFiMobileApp {
     const topHitsPl = {
       id: 'tophits',
       title: "Today's Top Hits",
-      curator: 'Spotify HiFi Editorial',
+      curator: 'Refract Editorial',
       type: 'featured',
       artwork: 'https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg',
       themeColor: '#1db954',
@@ -515,6 +515,9 @@ class SpotifyHiFiMobileApp {
     document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
     const target = document.getElementById(viewId);
     if (target) {
+      // restart the staggered glass reveal on every view change
+      target.classList.remove('active');
+      void target.offsetWidth;
       target.classList.add('active');
       const body = document.querySelector('.spotify-body') || document.querySelector('.spotify-main');
       if (body) body.scrollTop = 0;
@@ -934,18 +937,15 @@ class SpotifyHiFiMobileApp {
       if (qImg && nextTrack.artwork) qImg.src = nextTrack.artwork;
     }
 
-    // 4. Dynamic Theme Coloring (100% Opaque Base)
-    const themeColor = track.themeColor || '#1db954';
+    // 4. Liquid Glass tint — hand the artwork colour to CSS, which composes it
+    const themeColor = track.themeColor || '#6f7bff';
     const modal = document.getElementById('nowPlayingModal');
     if (modal) {
-      modal.style.backgroundColor = '#0d0d0d';
-      modal.style.backgroundImage = `radial-gradient(circle at 50% 25%, ${themeColor}ee 0%, #170808 60%, #0d0d0d 100%)`;
+      modal.style.setProperty('--np-tint', themeColor);
     }
 
-    const topbar = document.querySelector('.spotify-topbar');
-    if (topbar) {
-      topbar.style.borderBottom = `1px solid ${themeColor}44`;
-    }
+    const root = document.documentElement;
+    if (root) root.style.setProperty('--np-tint', themeColor);
   }
 
   highlightActiveTrack() {
@@ -1046,7 +1046,7 @@ class SpotifyHiFiMobileApp {
 
       const artHtml = pl.artwork 
         ? `<img src="${pl.artwork}" alt="${pl.title}" onerror="this.src='icon-192.png'">`
-        : `<svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>`;
+        : `<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2.6a9.4 9.4 0 1 0 0 18.8 9.4 9.4 0 0 0 0-18.8Zm-2.3 5.9a.9.9 0 0 1 1.35-.78l6.4 3.7a.9.9 0 0 1 0 1.56l-6.4 3.7A.9.9 0 0 1 9.7 16Z"/></svg>`;
 
       card.innerHTML = `
         <div class="lib-cover-art sick-gradient">${artHtml}</div>
@@ -1103,7 +1103,7 @@ class SpotifyHiFiMobileApp {
           <div class="artist-avatar-box">
             <img src="${artist.photo}" class="artist-avatar-img" alt="${artist.name}" loading="lazy" onerror="this.src='https://cdn-images.dzcdn.net/images/artist/8d8316146026d7e6ce377e314536df62/500x500-000000-80-0-0.jpg'">
             <div class="artist-verified-dot">
-              <svg viewBox="0 0 24 24" fill="#3d91f4" width="12" height="12"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5.4 12.8 4.5 4.4L18.9 7.4"/></svg>
             </div>
           </div>
           <div class="artist-bubble-name">${artist.name}</div>
@@ -1159,7 +1159,7 @@ class SpotifyHiFiMobileApp {
           <div class="trending-shelf-art-box">
             <img src="${track.artwork || 'icon-192.png'}" class="trending-shelf-img" alt="${track.title}" onerror="this.src='icon-192.png'">
             <button class="trending-shelf-play-btn" title="Play Now">
-              <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><polygon points="4 2 14 8 4 14 4 2"/></svg>
+              <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M4.4 3.3c0-1 .9-1.6 1.75-1.1l7.6 4.8c.75.5.75 1.5 0 2l-7.6 4.8c-.85.5-1.75-.1-1.75-1.1Z"/></svg>
             </button>
           </div>
           <div class="trending-shelf-title">${track.title}</div>
@@ -1229,7 +1229,7 @@ class SpotifyHiFiMobileApp {
       <div class="touch-track-actions">
         <span class="touch-track-duration">${durStr}</span>
         <button class="touch-track-btn track-add-btn" title="Options">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.6" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="18.4" cy="12" r="1.9"/></svg>
         </button>
       </div>
     `;
@@ -1762,9 +1762,9 @@ class SpotifyHiFiMobileApp {
       encodedCode = JSON.stringify(payload);
     }
 
-    const shareTitle = `Spotify HiFi - ${pl.title}`;
+    const shareTitle = `Refract · ${pl.title}`;
     const shareMessage = `🎵 Check out my HiFi Playlist "${pl.title}" (${pl.tracks.length} songs)!\n\n` +
-      `Import Code (copy & paste into Spotify HiFi -> Import Playlist -> Share Code):\n\n` +
+      `Import Code (paste into Refract -> Import Playlist -> Share Code):\n\n` +
       `${encodedCode}\n\n` +
       `Lossless 24-bit / 96kHz Master Audio`;
 
@@ -2449,7 +2449,9 @@ class SpotifyHiFiMobileApp {
         if (this.eqFilters[idx]) {
           this.eqFilters[idx].gain.value = val;
         }
+        this.updateEqFill(slider);
       });
+      this.updateEqFill(slider);
       container.appendChild(col);
     });
 
@@ -2459,6 +2461,7 @@ class SpotifyHiFiMobileApp {
         container.querySelectorAll('input[type=range]').forEach((slider, idx) => {
           slider.value = 0;
           if (this.eqFilters[idx]) this.eqFilters[idx].gain.value = 0;
+          this.updateEqFill(slider);
         });
       });
     }
@@ -2486,32 +2489,93 @@ class SpotifyHiFiMobileApp {
     sliders.forEach((slider, idx) => {
       slider.value = gains[idx];
       if (this.eqFilters[idx]) this.eqFilters[idx].gain.value = gains[idx];
+      this.updateEqFill(slider);
     });
+  }
+
+  // Fill the EQ groove outward from 0 dB, the way a hardware EQ reads
+  updateEqFill(slider) {
+    const min = parseFloat(slider.min);
+    const max = parseFloat(slider.max);
+    const p = (parseFloat(slider.value) - min) / (max - min);
+    const zero = (0 - min) / (max - min);
+    slider.style.setProperty('--eq-lo', Math.min(p, zero).toFixed(3));
+    slider.style.setProperty('--eq-hi', Math.max(p, zero).toFixed(3));
   }
 
   startSpectrumVisualizer() {
     const canvas = document.getElementById('spectrumCanvas');
-    if (!canvas || !this.analyserNode) return;
-    const ctx = canvas.getContext('2d');
-    const bufferLength = this.analyserNode.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
+    if (!canvas || !this.analyserNode || canvas._spectrumOn) return;
+    canvas._spectrumOn = true;
 
+    const ctx = canvas.getContext('2d');
+    const bins = this.analyserNode.frequencyBinCount;
+    const data = new Uint8Array(bins);
+    const smooth = new Float32Array(bins);
+
+    // Backing store follows the CSS box so bars are never stretched or clipped
+    const fit = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      if (!w || !h) return false;
+      const bw = Math.round(w * dpr);
+      const bh = Math.round(h * dpr);
+      if (canvas.width !== bw || canvas.height !== bh) {
+        canvas.width = bw;
+        canvas.height = bh;
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return true;
+    };
+    fit();
+    if (typeof ResizeObserver === 'function') {
+      this._spectrumRO = new ResizeObserver(() => fit());
+      this._spectrumRO.observe(canvas);
+    } else {
+      window.addEventListener('resize', () => fit());
+    }
+
+    let colors = ['#ff4d6d', '#c81046'];
+    let frame = 0;
     const draw = () => {
       requestAnimationFrame(draw);
-      this.analyserNode.getByteFrequencyData(dataArray);
+      if (!fit()) return; // view hidden: skip the work entirely
+      this.analyserNode.getByteFrequencyData(data);
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const barWidth = (canvas.width / bufferLength) * 2.2;
-      let x = 0;
+      if ((frame++ % 30) === 0) {
+        const css = getComputedStyle(document.documentElement);
+        colors = [
+          (css.getPropertyValue('--accent-hot') || '#ff4d6d').trim(),
+          (css.getPropertyValue('--accent-deep') || '#c81046').trim(),
+        ];
+      }
 
-      for (let i = 0; i < bufferLength; i++) {
-        const barHeight = (dataArray[i] / 255) * canvas.height;
-        const grad = ctx.createLinearGradient(0, canvas.height, 0, 0);
-        grad.addColorStop(0, '#1db954');
-        grad.addColorStop(1, '#1ed760');
-        ctx.fillStyle = grad;
-        ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
-        x += barWidth;
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+
+      const slot = w / bins;
+      const gap = Math.max(1.5, slot * 0.26);
+      const barW = slot - gap;
+      const grad = ctx.createLinearGradient(0, h, 0, 0);
+      grad.addColorStop(0, colors[1]);
+      grad.addColorStop(1, colors[0]);
+      ctx.fillStyle = grad;
+
+      for (let i = 0; i < bins; i++) {
+        const v = Math.pow(data[i] / 255, 0.82) * (0.58 + 0.42 * (i / bins));
+        // fast attack, slow release — reads as music, not static
+        smooth[i] += v > smooth[i] ? (v - smooth[i]) * 0.5 : (v - smooth[i]) * 0.11;
+        const barH = Math.max(smooth[i] * (h - 6), 2);
+        const x = i * slot + gap / 2;
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(x, h - barH, barW, barH, Math.min(barW / 2, 3));
+        } else {
+          ctx.rect(x, h - barH, barW, barH);
+        }
+        ctx.fill();
       }
     };
     draw();
@@ -2534,4 +2598,18 @@ window.onYouTubeIframeAPIReady = function() {
 // Instantiate App
 window.addEventListener('DOMContentLoaded', () => {
   window.spotifyHiFiApp = new SpotifyHiFiMobileApp();
+
+  // Liquid Glass: the topbar densifies once content scrolls beneath it.
+  const scroller = document.querySelector('.spotify-body');
+  const topbar = document.querySelector('.spotify-topbar');
+  if (scroller && topbar) {
+    let raf = 0;
+    scroller.addEventListener('scroll', () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        topbar.classList.toggle('is-scrolled', scroller.scrollTop > 6);
+      });
+    }, { passive: true });
+  }
 });
