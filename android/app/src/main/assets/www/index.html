@@ -14,36 +14,88 @@
       });
     }
   </script>
+  <!-- YouTube IFrame API for Full-Length Studio Audio (No 30s Snippet Glitch) -->
+  <script src="https://www.youtube.com/iframe_api"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- Hidden YouTube Player Container for HiFi Full-Length Audio Engine -->
+  <div id="ytPlayerContainer" style="position:fixed;bottom:-9999px;left:-9999px;width:120px;height:120px;opacity:0.001;pointer-events:none;z-index:-9999;overflow:hidden;">
+    <div id="ytPlayerTarget"></div>
+  </div>
+
   <div class="spotify-app">
-    <!-- Topbar (Mobile Header) -->
-    <header class="spotify-topbar">
-      <div class="topbar-left">
-        <div class="mobile-greeting" id="mobileGreeting">
-          <div class="user-avatar-circle">A</div>
-          <div class="greeting-text">
-            <span class="greeting-sub">Spotify HiFi</span>
-            <span class="greeting-main" id="greetingHeading">Welcome back</span>
-          </div>
+    <!-- DESKTOP SIDEBAR (Visible on Desktop / PC >= 850px) -->
+    <aside class="desktop-sidebar">
+      <div class="desktop-logo-row">
+        <svg viewBox="0 0 24 24" class="desktop-spotify-icon" fill="#1db954"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.563.387-.857.207-2.35-1.435-5.308-1.76-8.792-.963-.335.077-.67-.133-.746-.468-.077-.334.132-.67.467-.746 3.809-.871 7.077-.496 9.721 1.113.294.18.386.563.207.857zm1.224-2.72c-.226.367-.707.482-1.074.256-2.69-1.653-6.79-2.131-9.97-1.165-.413.125-.85-.107-.975-.521-.125-.414.108-.85.522-.975 3.633-1.103 8.147-.568 11.241 1.33.367.227.482.708.256 1.075zm.105-2.835C14.692 8.95 8.085 8.733 4.71 9.757c-.495.15-.99-.12-1.14-.615-.15-.494.12-.99.615-1.14 3.94-1.196 11.233-.943 15.034 1.314.444.264.589.84.325 1.284-.264.444-.84.59-1.284.325z"/></svg>
+        <div class="desktop-logo-text">
+          <span class="desktop-app-title">Spotify</span>
+          <span class="desktop-app-sub">HiFi Lossless</span>
         </div>
       </div>
 
-      <div class="topbar-right">
-        <span class="badge-hifi">24-BIT / 96k</span>
-        <button class="icon-round-btn" id="btnOpenImportTop" title="Import Playlist">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      <nav class="desktop-nav-menu">
+        <button class="desktop-nav-item active" data-target="viewHome" id="dtNavHome">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h4.5v-6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v6H20V7.577l-7.5-4.33zm-2-1.732a3 3 0 0 1 3 0l7.5 4.33A2 2 0 0 1 22 7.577V21a1 1 0 0 1-1 1h-6.5a1 1 0 0 1-1-1v-5h-3v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.577a2 2 0 0 1 .9-1.732l7.6-4.33z"/></svg>
+          <span>Home</span>
         </button>
-        <button class="icon-round-btn" id="btnToggleEQ" title="Equalizer">
+        <button class="desktop-nav-item" data-target="viewSearch" id="dtNavSearch">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.28 7.407-7.28s7.407 3.274 7.407 7.28-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.28z"/></svg>
+          <span>Explore & Search</span>
+        </button>
+        <button class="desktop-nav-item" data-target="viewLibrary" id="dtNavLibrary">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1.5-.866L15.5 2.134zM9 4.24a1 1 0 0 0-1.225-.733l-4 1.072A1 1 0 0 0 3 5.551V21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V4.24z"/></svg>
+          <span>Your Library</span>
+        </button>
+        <button class="desktop-nav-item" data-target="viewEQ" id="dtNavEQ">
           <svg viewBox="0 0 24 24" fill="currentColor"><line x1="4" y1="21" x2="4" y2="14" stroke="currentColor" stroke-width="2"/><line x1="4" y1="10" x2="4" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="20" y1="21" x2="20" y2="16" stroke="currentColor" stroke-width="2"/><line x1="20" y1="12" x2="20" y2="3" stroke="currentColor" stroke-width="2"/></svg>
+          <span>HiFi Equalizer</span>
         </button>
-      </div>
-    </header>
+      </nav>
 
+      <div class="desktop-sidebar-section">
+        <div class="desktop-section-title-row">
+          <span>YOUR PLAYLISTS</span>
+          <button class="desktop-mini-add-btn" id="desktopBtnCreatePl" title="Create Playlist">+</button>
+        </div>
+        <div class="desktop-sidebar-actions">
+          <button class="desktop-action-btn" id="desktopBtnImport">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            <span>Import Playlist</span>
+          </button>
+        </div>
+        <div class="desktop-playlists-list" id="desktopPlaylistsList"></div>
+      </div>
+    </aside>
+
+    <!-- MAIN BODY CONTAINER -->
     <div class="spotify-body">
+      <!-- Topbar (Mobile Header / Desktop Topbar) -->
+      <header class="spotify-topbar">
+        <div class="topbar-left">
+          <div class="mobile-greeting" id="mobileGreeting">
+            <div class="user-avatar-circle">A</div>
+            <div class="greeting-text">
+              <span class="greeting-sub">Spotify HiFi Master</span>
+              <span class="greeting-main" id="greetingHeading">Welcome back</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <span class="badge-hifi">24-BIT / 96k</span>
+          <button class="icon-round-btn" id="btnOpenImportTop" title="Import Playlist">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          </button>
+          <button class="icon-round-btn" id="btnToggleEQ" title="Equalizer">
+            <svg viewBox="0 0 24 24" fill="currentColor"><line x1="4" y1="21" x2="4" y2="14" stroke="currentColor" stroke-width="2"/><line x1="4" y1="10" x2="4" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="20" y1="21" x2="20" y2="16" stroke="currentColor" stroke-width="2"/><line x1="20" y1="12" x2="20" y2="3" stroke="currentColor" stroke-width="2"/></svg>
+          </button>
+        </div>
+      </header>
+
       <main class="spotify-main" id="mainContent">
 
         <!-- VIEW 1: HOME -->
@@ -90,11 +142,11 @@
             </div>
           </div>
 
-          <!-- Section: Top Artists Carousel -->
+          <!-- Section: Top Artists Carousel with Real Photos -->
           <div class="section-block">
             <div class="section-header">
               <h3>Top Artists</h3>
-              <span class="section-sub">In rotation</span>
+              <span class="section-sub">In your heavy rotation</span>
             </div>
             <div class="artists-horizontal-scroll" id="homeArtistsScroll"></div>
           </div>
@@ -105,7 +157,7 @@
               <h3>Explore & Discover</h3>
               <span class="section-sub">Browse by vibe</span>
             </div>
-            <div class="explore-category-grid">
+            <div class="explore-category-grid" id="homeExploreGrid">
               <div class="category-card" style="background: linear-gradient(135deg, #e67e22, #d35400);" data-genre="Hip-Hop">
                 <span class="category-name">Hip-Hop & Rap</span>
                 <span class="category-desc">Travis Scott, Drake, Roddy Ricch</span>
@@ -116,7 +168,7 @@
               </div>
               <div class="category-card" style="background: linear-gradient(135deg, #16a085, #27ae60);" data-genre="Lossless">
                 <span class="category-name">Lossless Studio</span>
-                <span class="category-desc">24-bit/96kHz Hi-Res Audio</span>
+                <span class="category-desc">24-bit/96kHz Hi-Res FLAC Master</span>
               </div>
               <div class="category-card" style="background: linear-gradient(135deg, #c0392b, #8e44ad);" data-genre="Drill">
                 <span class="category-name">UK Drill & Global</span>
@@ -135,26 +187,74 @@
           </div>
         </section>
 
-        <!-- VIEW 2: GLOBAL SEARCH & EXPLORE -->
+        <!-- VIEW 2: EXPLORE & GLOBAL SEARCH -->
         <section class="app-view" id="viewSearch">
           <div class="search-view-header">
-            <h2>Search Millions of Songs</h2>
+            <div class="search-header-title-row">
+              <h2>Explore & Discover</h2>
+              <span class="sub-lead">Browse full studio catalog or search millions of tracks</span>
+            </div>
             <div class="mobile-search-box">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.28 7.407-7.28s7.407 3.274 7.407 7.28-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.28z"/></svg>
               <input type="text" id="mobileSearchInput" placeholder="Search any song, artist, album globally...">
               <button class="clear-search-btn" id="btnClearSearch" style="display:none;">✕</button>
             </div>
+
+            <!-- Explorer Filter Chips -->
+            <div class="filter-chips-row explore-filters">
+              <button class="chip-pill active" data-exp-filter="all">All Tracks</button>
+              <button class="chip-pill" data-exp-filter="trending">Trending Hot</button>
+              <button class="chip-pill" data-exp-filter="hiphop">Hip-Hop & Trap</button>
+              <button class="chip-pill" data-exp-filter="latenight">Late Night</button>
+              <button class="chip-pill" data-exp-filter="drill">UK Drill</button>
+              <button class="chip-pill" data-exp-filter="lossless">HiFi Master 96k</button>
+            </div>
           </div>
 
-          <!-- Browse Categories or Live Results -->
-          <div id="searchResultsContainer">
-            <h4 class="sub-heading">Browse Genres</h4>
-            <div class="explore-category-grid" id="searchGenreGrid"></div>
+          <!-- EXPLORER FEED (Shown when search input is empty) -->
+          <div id="explorerFeedContainer">
+            <!-- Shelf 1: Trending Now -->
+            <div class="section-block">
+              <div class="section-header">
+                <h3>🔥 Trending Right Now</h3>
+                <span class="section-sub">Heavy rotation bangers</span>
+              </div>
+              <div class="explore-trending-shelf" id="exploreTrendingShelf"></div>
+            </div>
+
+            <!-- Shelf 2: Browse Categories -->
+            <div class="section-block">
+              <div class="section-header">
+                <h3>Browse by Vibe & Mood</h3>
+                <span class="section-sub">Tap any vibe to filter instantly</span>
+              </div>
+              <div class="explore-category-grid" id="searchGenreGrid"></div>
+            </div>
+
+            <!-- Shelf 3: Artists -->
+            <div class="section-block">
+              <div class="section-header">
+                <h3>Top Artists in Rotation</h3>
+                <span class="section-sub">Tap artist to play essentials</span>
+              </div>
+              <div class="artists-horizontal-scroll" id="exploreArtistsScroll"></div>
+            </div>
+
+            <!-- Shelf 4: All Studio Tracks Ready to Play -->
+            <div class="section-block">
+              <div class="section-header">
+                <h3>Explore All Available Songs</h3>
+                <span class="section-sub">Tap any song to play full studio track</span>
+              </div>
+              <div class="tracks-touch-list" id="exploreAllTracksList"></div>
+            </div>
           </div>
+
+          <!-- SEARCH RESULTS (Shown when user types query) -->
           <div id="searchDynamicResults" style="display:none;">
             <div class="search-results-bar">
               <h4 class="sub-heading" id="searchResultCount">Search Results</h4>
-              <span class="global-tag">GLOBAL CATALOG</span>
+              <span class="global-tag">FULL-LENGTH AUDIO</span>
             </div>
             <div class="tracks-touch-list" id="searchTracksBody"></div>
           </div>
@@ -188,9 +288,7 @@
           </div>
 
           <!-- Playlists Cards Grid -->
-          <div class="library-playlists-grid" id="libraryPlaylistsGrid">
-            <!-- Dynamically populated playlists -->
-          </div>
+          <div class="library-playlists-grid" id="libraryPlaylistsGrid"></div>
         </section>
 
         <!-- VIEW 4: ACTIVE PLAYLIST DETAIL -->
@@ -279,7 +377,7 @@
       </main>
     </div>
 
-    <!-- Floating Mini-Player -->
+    <!-- FLOATING MINI-PLAYER (Mobile Touch Layout) -->
     <div class="spotify-player-bar" id="playerBar">
       <div class="mini-player-content" id="miniPlayerClickZone">
         <div class="mini-thumb-wrap">
@@ -308,7 +406,7 @@
       </div>
     </div>
 
-    <!-- Bottom Navigation Bar -->
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
     <nav class="mobile-bottom-nav">
       <button class="mobile-nav-btn active" id="mNavHome" data-target="viewHome">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h4.5v-6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v6H20V7.577l-7.5-4.33zm-2-1.732a3 3 0 0 1 3 0l7.5 4.33A2 2 0 0 1 22 7.577V21a1 1 0 0 1-1 1h-6.5a1 1 0 0 1-1-1v-5h-3v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.577a2 2 0 0 1 .9-1.732l7.6-4.33z"/></svg>
@@ -316,7 +414,7 @@
       </button>
       <button class="mobile-nav-btn" id="mNavSearch" data-target="viewSearch">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.28 7.407-7.28s7.407 3.274 7.407 7.28-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.28z"/></svg>
-        <span>Search</span>
+        <span>Explore</span>
       </button>
       <button class="mobile-nav-btn" id="mNavLibrary" data-target="viewLibrary">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1.5-.866L15.5 2.134zM9 4.24a1 1 0 0 0-1.225-.733l-4 1.072A1 1 0 0 0 3 5.551V21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V4.24z"/></svg>
@@ -327,6 +425,67 @@
         <span>Equalizer</span>
       </button>
     </nav>
+
+    <!-- DESKTOP PERSISTENT BOTTOM PLAYER BAR (PC Layout) -->
+    <div class="desktop-player-bar" id="desktopPlayerBar">
+      <div class="dt-col-left">
+        <img id="desktopThumb" src="icon-192.png" class="dt-thumb" alt="Artwork" onerror="this.src='icon-192.png'">
+        <div class="dt-track-info">
+          <div class="dt-title" id="desktopTitle">Select a Track</div>
+          <div class="dt-artist" id="desktopArtist">Spotify HiFi</div>
+        </div>
+        <button class="dt-icon-btn" id="desktopBtnHeart" title="Like">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </button>
+        <button class="dt-icon-btn" id="desktopBtnAddPl" title="Add to Playlist">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </button>
+      </div>
+
+      <div class="dt-col-center">
+        <div class="dt-controls-row">
+          <button class="dt-control-btn" id="desktopBtnShuffle" title="Shuffle">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+          </button>
+          <button class="dt-control-btn" id="desktopBtnPrev" title="Previous">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </button>
+          <button class="dt-play-circle-btn" id="desktopBtnPlayPause" title="Play/Pause">
+            <svg id="desktopPlayIcon" viewBox="0 0 16 16" fill="currentColor"><polygon points="4 2 14 8 4 14 4 2"/></svg>
+            <svg id="desktopPauseIcon" viewBox="0 0 16 16" fill="currentColor" style="display:none;"><rect x="3" y="2" width="3.5" height="12"/><rect x="9.5" y="2" width="3.5" height="12"/></svg>
+          </button>
+          <button class="dt-control-btn" id="desktopBtnNext" title="Next">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </button>
+          <button class="dt-control-btn active" id="desktopBtnAutoplay" title="Autoplay">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+          </button>
+        </div>
+        <div class="dt-slider-row">
+          <span class="dt-time" id="desktopCurrentTime">0:00</span>
+          <div class="dt-slider-bar" id="desktopSliderBg">
+            <div class="dt-slider-fg" id="desktopSliderFg" style="width: 0%;"></div>
+          </div>
+          <span class="dt-time" id="desktopTotalTime">0:00</span>
+        </div>
+      </div>
+
+      <div class="dt-col-right">
+        <span class="badge-hifi">24-BIT / 96k</span>
+        <button class="dt-icon-btn" id="desktopBtnEQ" title="Equalizer">
+          <svg viewBox="0 0 24 24" fill="currentColor"><line x1="4" y1="21" x2="4" y2="14" stroke="currentColor" stroke-width="2"/><line x1="4" y1="10" x2="4" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="20" y1="21" x2="20" y2="16" stroke="currentColor" stroke-width="2"/><line x1="20" y1="12" x2="20" y2="3" stroke="currentColor" stroke-width="2"/></svg>
+        </button>
+        <div class="dt-volume-wrap">
+          <button class="dt-icon-btn" id="desktopBtnVolume" title="Mute/Unmute">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+          </button>
+          <input type="range" min="0" max="100" value="100" class="dt-volume-slider" id="desktopVolumeSlider">
+        </div>
+        <button class="dt-icon-btn" id="desktopBtnExpandModal" title="Full Screen View">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+        </button>
+      </div>
+    </div>
 
     <!-- FULL-SCREEN NOW PLAYING MODAL -->
     <div class="now-playing-modal" id="nowPlayingModal">

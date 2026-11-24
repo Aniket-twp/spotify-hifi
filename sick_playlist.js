@@ -1,4 +1,4 @@
-﻿window.SICK_PLAYLIST = [
+window.SICK_PLAYLIST = [
   {
     "title": "The Box",
     "artist": "Roddy Ricch",
@@ -7,8 +7,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/1b/63/04/1b630400-490e-245b-a26f-0120f6f253c8/20UMGIM28168.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/95/55/30/9555307b-6009-136c-aa4e-c5fb157d8dae/mzaf_6166511402374037004.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/95/55/30/9555307b-6009-136c-aa4e-c5fb157d8dae/mzaf_6166511402374037004.plus.aac.p.m4a",
-    "themeColor": "#1db954",
-    "artistPhoto": "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#e74c3c",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/c57bd89d86ac6242777632c1f41d9461/500x500-000000-80-0-0.jpg",
+    "youtubeId": "UNZqm3dxd2w"
   },
   {
     "title": "FE!N",
@@ -18,8 +19,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/7d/4f/94/7d4f9468-56e1-3a2d-7186-c8088170ef58/196871341899.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ce/61/9a/ce619acc-40f8-5bf0-c6d8-5649dacc5d3c/mzaf_9048266760750013994.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ce/61/9a/ce619acc-40f8-5bf0-c6d8-5649dacc5d3c/mzaf_9048266760750013994.plus.aac.p.m4a",
-    "themeColor": "#8a2be2",
-    "artistPhoto": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#e67e22",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/8d8316146026d7e6ce377e314536df62/500x500-000000-80-0-0.jpg",
+    "youtubeId": "U-l4ya3ejko"
   },
   {
     "title": "HIGHEST IN THE ROOM",
@@ -29,8 +31,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/d2/2d/6b/d22d6b0f-68dd-0eeb-92b4-9b6f4a43e85f/886448047452.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f5/e0/66/f5e066f4-3b33-e5a0-6328-ca1ae6742f83/mzaf_5397637265841153345.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f5/e0/66/f5e066f4-3b33-e5a0-6328-ca1ae6742f83/mzaf_5397637265841153345.plus.aac.p.m4a",
-    "themeColor": "#e50914",
-    "artistPhoto": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#f1c40f",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/8d8316146026d7e6ce377e314536df62/500x500-000000-80-0-0.jpg",
+    "youtubeId": "OWl9p3oFKgg"
   },
   {
     "title": "Starboy [feat. Daft Punk]",
@@ -40,8 +43,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/b5/92/bb/b592bb72-52e3-e756-9b26-9f56d08f47ab/16UMGIM67864.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/11/71/d6/1171d6ad-3c96-e027-2af6-58028426588c/mzaf_15137631797407745471.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/11/71/d6/1171d6ad-3c96-e027-2af6-58028426588c/mzaf_15137631797407745471.plus.aac.p.m4a",
-    "themeColor": "#ff5500",
-    "artistPhoto": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#2ecc71",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "Rif-RTvmmss"
   },
   {
     "title": "Sunflower",
@@ -51,19 +55,21 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/4b/30/2c/4b302cb6-7a14-5464-4e97-0577e9d0be49/18UMGIM82277.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/98/f0/d6/98f0d67e-f8bf-762d-cac7-1c6b3b6b35dd/mzaf_4543283896248560946.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/98/f0/d6/98f0d67e-f8bf-762d-cac7-1c6b3b6b35dd/mzaf_4543283896248560946.plus.aac.p.m4a",
-    "themeColor": "#00d2ff",
-    "artistPhoto": "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#1abc9c",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/a5a8cca44e7eab2db7d44e039bed2574/500x500-000000-80-0-0.jpg",
+    "youtubeId": "ApXoWvfEYVU"
   },
   {
-    "title": "SÃ£o Paulo",
+    "title": "São Paulo",
     "artist": "The Weeknd & Anitta",
     "album": "Hurry Up Tomorrow",
     "duration": 302,
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/c3/9f/c8/c39fc847-2d00-1b7f-7327-264436bd9957/24UM1IM21421.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/80/f3/51/80f35132-f7df-5c22-40a7-08bbf6c949ce/mzaf_3122243094963409110.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/80/f3/51/80f35132-f7df-5c22-40a7-08bbf6c949ce/mzaf_3122243094963409110.plus.aac.p.m4a",
-    "themeColor": "#f368e0",
-    "artistPhoto": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#3498db",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "2kjolTLZ_Mg"
   },
   {
     "title": "No Cap",
@@ -73,8 +79,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/de/aa/40/deaa40b0-085f-6018-e2ed-ff478b656fc6/cover.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fc/8a/3c/fc8a3c83-014e-8612-50f1-11af70325a11/mzaf_16549537450882887048.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fc/8a/3c/fc8a3c83-014e-8612-50f1-11af70325a11/mzaf_16549537450882887048.plus.aac.p.m4a",
-    "themeColor": "#ee5253",
-    "artistPhoto": "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#9b59b6",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/44dcd9d1d0be03a355c2d93c31bd8015/500x500-000000-80-0-0.jpg",
+    "youtubeId": "PejQbGZraqg"
   },
   {
     "title": "Pray For Me",
@@ -84,8 +91,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/4d/16/55/4d165549-3d11-86dc-fcbf-be7fe0bcadfb/18UMGIM00002.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f7/32/62/f7326224-4efd-cdfa-65cd-3933c42f3f4f/mzaf_8644554860966682608.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f7/32/62/f7326224-4efd-cdfa-65cd-3933c42f3f4f/mzaf_8644554860966682608.plus.aac.p.m4a",
-    "themeColor": "#10ac84",
-    "artistPhoto": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#34495e",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "XR7Ev14vUh8"
   },
   {
     "title": "Timeless",
@@ -95,8 +103,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/2d/dd/f7/2dddf721-a46d-439d-65df-b7ec60d9de7b/25UMGIM63126.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/50/08/a7/5008a7c0-44a1-18df-1967-799e07667836/mzaf_12207321641641321673.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/50/08/a7/5008a7c0-44a1-18df-1967-799e07667836/mzaf_12207321641641321673.plus.aac.p.m4a",
-    "themeColor": "#ff9f43",
-    "artistPhoto": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#e84118",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "mX19AV35PhI"
   },
   {
     "title": "Doja",
@@ -106,8 +115,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/d7/a6/40/d7a64014-8712-7ede-12d4-6fa4d87e7ce9/198001869457.png/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/b0/2f/59/b02f598c-85cd-498b-9882-c0f1e77e7244/mzaf_6283217697684218884.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/b0/2f/59/b02f598c-85cd-498b-9882-c0f1e77e7244/mzaf_6283217697684218884.plus.aac.p.m4a",
-    "themeColor": "#5f27cd",
-    "artistPhoto": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#00a8ff",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/25fe719f51af3ee2de27aa267e2a6ac9/500x500-000000-80-0-0.jpg",
+    "youtubeId": "_VuJA-VQRcY"
   },
   {
     "title": "Sprinter",
@@ -117,8 +127,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/27/ce/14/27ce14e3-18c4-6dfe-f9a5-ca6e6d1c4982/artwork.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/5c/9d/c2/5c9dc2cf-4fd0-454b-0e13-252490ed6ebc/mzaf_5356850632069400736.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/5c/9d/c2/5c9dc2cf-4fd0-454b-0e13-252490ed6ebc/mzaf_5356850632069400736.plus.aac.p.m4a",
-    "themeColor": "#1db954",
-    "artistPhoto": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#9c88ff",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/25fe719f51af3ee2de27aa267e2a6ac9/500x500-000000-80-0-0.jpg",
+    "youtubeId": "pSY3i5XHHXo"
   },
   {
     "title": "God's Plan",
@@ -128,8 +139,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/bb/6d/8f/bb6d8f67-6d04-10b5-dd62-eb5809ac54fc/00602567879152.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c6/4a/be/c64abe74-adb4-cff5-005d-0fab3d72a806/mzaf_10276154697254415719.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c6/4a/be/c64abe74-adb4-cff5-005d-0fab3d72a806/mzaf_10276154697254415719.plus.aac.p.m4a",
-    "themeColor": "#8a2be2",
-    "artistPhoto": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#fbc531",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/eb0ed5b21d1ea5af021fc074ded0e91f/500x500-000000-80-0-0.jpg",
+    "youtubeId": "m1a_GqJf02M"
   },
   {
     "title": "One Dance [feat. WizKid & Kyla]",
@@ -139,8 +151,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/f2/0d/8b/f20d8bff-a927-ae98-6784-20a1f51cb23e/16UMGIM27642.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/99/c9/02/99c90261-eee2-f9a5-f143-7496dca1583b/mzaf_3576977620384404770.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/99/c9/02/99c90261-eee2-f9a5-f143-7496dca1583b/mzaf_3576977620384404770.plus.aac.p.m4a",
-    "themeColor": "#e50914",
-    "artistPhoto": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#4cd137",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/eb0ed5b21d1ea5af021fc074ded0e91f/500x500-000000-80-0-0.jpg",
+    "youtubeId": "FOqKN-ouAUE"
   },
   {
     "title": "Not Like Us",
@@ -150,8 +163,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/31/3a/3f/313a3fbc-bb8f-80c7-b5a2-e226869a38cd/24UMGIM51924.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2d/e0/e8/2de0e874-cd0b-e9a9-e876-76be13a86662/mzaf_12385336780649591409.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2d/e0/e8/2de0e874-cd0b-e9a9-e876-76be13a86662/mzaf_12385336780649591409.plus.aac.p.m4a",
-    "themeColor": "#ff5500",
-    "artistPhoto": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#487eb0",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/be0a7c550567f4af0ed202d7235b74d6/500x500-000000-80-0-0.jpg",
+    "youtubeId": "T6eK-2OQtew"
   },
   {
     "title": "HUMBLE.",
@@ -161,8 +175,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/ab/16/ef/ab16efe9-e7f1-66ec-021c-5592a23f0f9e/17UMGIM88793.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1f/2e/37/1f2e37be-bdd0-d770-6ea4-091011a6aade/mzaf_2360827885900940865.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1f/2e/37/1f2e37be-bdd0-d770-6ea4-091011a6aade/mzaf_2360827885900940865.plus.aac.p.m4a",
-    "themeColor": "#00d2ff",
-    "artistPhoto": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#7f8fa6",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/be0a7c550567f4af0ed202d7235b74d6/500x500-000000-80-0-0.jpg",
+    "youtubeId": "tvTRZJ-4EyI"
   },
   {
     "title": "tv off [feat. Lefty Gunplay]",
@@ -172,8 +187,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/54/28/14/54281424-eece-0935-299d-fdd2ab403f92/24UM1IM28978.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fb/20/31/fb203190-148f-f2be-6ad6-47c5a165f7b9/mzaf_5391716550911069545.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fb/20/31/fb203190-148f-f2be-6ad6-47c5a165f7b9/mzaf_5391716550911069545.plus.aac.p.m4a",
-    "themeColor": "#f368e0",
-    "artistPhoto": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#273c75",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/be0a7c550567f4af0ed202d7235b74d6/500x500-000000-80-0-0.jpg",
+    "youtubeId": "U8F5G5wR1mk"
   },
   {
     "title": "BAND4BAND (feat. Lil Baby)",
@@ -183,8 +199,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e1/2d/c5/e12dc546-b50d-5a06-58cf-94227b0c78b9/196872154931.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/51/fd/8c/51fd8cb6-0236-f60d-a200-d60682e4dc43/mzaf_4439249406862772640.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/51/fd/8c/51fd8cb6-0236-f60d-a200-d60682e4dc43/mzaf_4439249406862772640.plus.aac.p.m4a",
-    "themeColor": "#ee5253",
-    "artistPhoto": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#d63031",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/25fe719f51af3ee2de27aa267e2a6ac9/500x500-000000-80-0-0.jpg",
+    "youtubeId": "pDddlvCfTiw"
   },
   {
     "title": "Blinding Lights",
@@ -194,8 +211,9 @@
     "artwork": "https://picsum.photos/seed/59/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#10ac84",
-    "artistPhoto": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#fdcb6e",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "fHI8X4OXluQ"
   },
   {
     "title": "Ransom",
@@ -205,8 +223,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/02/88/84/02888430-47ff-d97d-418c-3211d7890741/19UMGIM54321.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2a/17/cc/2a17cc34-099b-8db4-8426-6a777636b981/mzaf_2270249946485081165.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2a/17/cc/2a17cc34-099b-8db4-8426-6a777636b981/mzaf_2270249946485081165.plus.aac.p.m4a",
-    "themeColor": "#ff9f43",
-    "artistPhoto": "https://picsum.photos/seed/artist18/300/300"
+    "themeColor": "#00cec9",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/9f9692bbbbbce78c031416ad11a0d1f0/500x500-000000-80-0-0.jpg",
+    "youtubeId": "1XzY2ij_vL4"
   },
   {
     "title": "Lonely",
@@ -216,19 +235,21 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/05/cd/f8/05cdf871-c9a7-e29c-d00b-3214173806d4/14UMGIM28691.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/86/54/0d/86540d69-0859-a791-5257-6a2784f81095/mzaf_1649354300942287070.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/86/54/0d/86540d69-0859-a791-5257-6a2784f81095/mzaf_1649354300942287070.plus.aac.p.m4a",
-    "themeColor": "#5f27cd",
-    "artistPhoto": "https://picsum.photos/seed/artist19/300/300"
+    "themeColor": "#6c5ce7",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/aeabd034f3c9d75b8fe2eb5565b5d1ae/500x500-000000-80-0-0.jpg",
+    "youtubeId": "6EEW-9NDM5k"
   },
   {
     "title": "Electric Love",
-    "artist": "BÃ˜RNS",
+    "artist": "BØRNS",
     "album": "Dopamine",
     "duration": 218,
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/07/37/8e/07378ef3-7950-ba76-4280-9acb0e5d032a/15UMGIM42534.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/19/8e/bd/198ebd2a-f7b5-b82c-9db2-cadbfe2f9240/mzaf_9391082379687958798.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/19/8e/bd/198ebd2a-f7b5-b82c-9db2-cadbfe2f9240/mzaf_9391082379687958798.plus.aac.p.m4a",
-    "themeColor": "#1db954",
-    "artistPhoto": "https://picsum.photos/seed/artist20/300/300"
+    "themeColor": "#ff7675",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/1e74a88f0017e8c2ecbe256d080da5ec/500x500-000000-80-0-0.jpg",
+    "youtubeId": "6EaLlR50mmg"
   },
   {
     "title": "Superman [feat. Dina Rae]",
@@ -238,8 +259,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/dd/5c/e6/dd5ce621-f7d2-f767-7a08-e7a7eaa7870b/00602537526994.rgb.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/36/f1/43/36f143ec-c74f-21e3-5f87-9f1cfa9a8551/mzaf_4097592747624522309.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/36/f1/43/36f143ec-c74f-21e3-5f87-9f1cfa9a8551/mzaf_4097592747624522309.plus.aac.p.m4a",
-    "themeColor": "#8a2be2",
-    "artistPhoto": "https://images.unsplash.com/photo-1487180144351-b8472da7d491?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#a29bfe",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/7fa738468c9a73ff98c1e1b78d622b81/500x500-000000-80-0-0.jpg",
+    "youtubeId": "8kYkciD9VjU"
   },
   {
     "title": "Dracula",
@@ -249,19 +271,21 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/36/be/b4/36beb41f-c644-55cb-9fbb-bf0622a66653/196873644783.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/71/5d/31/715d3169-5fba-a0b7-da24-2aefc83796cf/mzaf_8089500935177582820.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/71/5d/31/715d3169-5fba-a0b7-da24-2aefc83796cf/mzaf_8089500935177582820.plus.aac.p.m4a",
-    "themeColor": "#e50914",
-    "artistPhoto": "https://picsum.photos/seed/artist22/300/300"
+    "themeColor": "#ffeaa7",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/879015e713cc6ad6ffaeec154c027505/500x500-000000-80-0-0.jpg",
+    "youtubeId": "xnP7qKxwzjg"
   },
   {
-    "title": "PenÃ©lope Charmosa 2",
+    "title": "Penélope Charmosa 2",
     "artist": "Boladin 211",
-    "album": "PenÃ©lope Charmosa 2",
+    "album": "Penélope Charmosa 2",
     "duration": 172,
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d0/5c/7f/d05c7f1b-4dc1-d1e1-ed76-442f5de218d3/1963622863677_cover.png/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2e/0b/57/2e0b572e-1fa1-0afc-3f64-54d6f751a592/mzaf_15741447494343057920.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2e/0b/57/2e0b572e-1fa1-0afc-3f64-54d6f751a592/mzaf_15741447494343057920.plus.aac.p.m4a",
-    "themeColor": "#ff5500",
-    "artistPhoto": "https://picsum.photos/seed/artist23/300/300"
+    "themeColor": "#fab1a0",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "CZnc2Lt1OxU"
   },
   {
     "title": "WE ON GO",
@@ -271,8 +295,9 @@
     "artwork": "https://picsum.photos/seed/66/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#00d2ff",
-    "artistPhoto": "https://picsum.photos/seed/artist24/300/300"
+    "themeColor": "#ff6b6b",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "Zc4r7GGXAvw"
   },
   {
     "title": "Sua Amiga Vou Pegar",
@@ -282,8 +307,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/ff/dc/93/ffdc931e-ac8e-f8c9-1f76-4ec9833393c2/859782463653_cover.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6e/5b/41/6e5b4191-0399-240e-ca7e-aabc0bded956/mzaf_7824182494842142218.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6e/5b/41/6e5b4191-0399-240e-ca7e-aabc0bded956/mzaf_7824182494842142218.plus.aac.p.m4a",
-    "themeColor": "#f368e0",
-    "artistPhoto": "https://picsum.photos/seed/artist25/300/300"
+    "themeColor": "#feca57",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "sErngyjY5fI"
   },
   {
     "title": "Century",
@@ -293,8 +319,9 @@
     "artwork": "https://picsum.photos/seed/68/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#ee5253",
-    "artistPhoto": "https://picsum.photos/seed/artist26/300/300"
+    "themeColor": "#48dbfb",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/adfbceaea52f08638b239ebcb6db85e6/500x500-000000-80-0-0.jpg",
+    "youtubeId": "StwmlDe6vE4"
   },
   {
     "title": "MALA (feat. Anuel AA)",
@@ -304,8 +331,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/09/26/e1/0926e133-7386-a38a-b942-a8310b73ab39/5063535790841_cover.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/86/b0/b3/86b0b3ca-5f36-c913-c277-ce021b831135/mzaf_11277356889579903982.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/86/b0/b3/86b0b3ca-5f36-c913-c277-ce021b831135/mzaf_11277356889579903982.plus.aac.p.m4a",
-    "themeColor": "#10ac84",
-    "artistPhoto": "https://picsum.photos/seed/artist27/300/300"
+    "themeColor": "#ff9ff3",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "bEIH0jLkBnM"
   },
   {
     "title": "Money Trees [feat. Jay Rock]",
@@ -315,8 +343,9 @@
     "artwork": "https://picsum.photos/seed/70/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#ff9f43",
-    "artistPhoto": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#54a0ff",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/be0a7c550567f4af0ed202d7235b74d6/500x500-000000-80-0-0.jpg",
+    "youtubeId": "HJNa9Ih3haA"
   },
   {
     "title": "Popular [feat. Playboi Carti & Madonna]",
@@ -327,7 +356,8 @@
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/95/b1/de/95b1def5-75f8-4c8a-9c7c-9db16a490ba8/mzaf_11621155147345130415.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/95/b1/de/95b1def5-75f8-4c8a-9c7c-9db16a490ba8/mzaf_11621155147345130415.plus.aac.p.m4a",
     "themeColor": "#5f27cd",
-    "artistPhoto": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=80"
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "K6WCcBP4lSs"
   },
   {
     "title": "Redemption (feat. Nemzzz)",
@@ -337,8 +367,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/6f/ae/e8/6faee8f8-8fe5-dc0a-b542-e2b30be77338/5034644413266.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/78/d3/ce/78d3ce14-1e31-f471-ad02-78c2c3b62da4/mzaf_5761902629806267780.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/78/d3/ce/78d3ce14-1e31-f471-ad02-78c2c3b62da4/mzaf_5761902629806267780.plus.aac.p.m4a",
-    "themeColor": "#1db954",
-    "artistPhoto": "https://picsum.photos/seed/artist30/300/300"
+    "themeColor": "#01a3a4",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "MYHrk_6qky8"
   },
   {
     "title": "Phantom",
@@ -348,8 +379,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/a9/8d/99/a98d9990-ee81-908a-5efa-2000ffba8fbb/7332900369578_cover.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/28/41/9e/28419eb1-e470-5019-8c69-7a651e47a3b9/mzaf_2832587306843271993.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/28/41/9e/28419eb1-e470-5019-8c69-7a651e47a3b9/mzaf_2832587306843271993.plus.aac.p.m4a",
-    "themeColor": "#8a2be2",
-    "artistPhoto": "https://picsum.photos/seed/artist31/300/300"
+    "themeColor": "#ee5253",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/adfbceaea52f08638b239ebcb6db85e6/500x500-000000-80-0-0.jpg",
+    "youtubeId": "hmdzniMJOZs"
   },
   {
     "title": "4 Raws",
@@ -359,8 +391,9 @@
     "artwork": "https://picsum.photos/seed/74/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#e50914",
-    "artistPhoto": "https://picsum.photos/seed/artist32/300/300"
+    "themeColor": "#e74c3c",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/adfbceaea52f08638b239ebcb6db85e6/500x500-000000-80-0-0.jpg",
+    "youtubeId": "7h_wJy1RWuE"
   },
   {
     "title": "Mist",
@@ -370,8 +403,9 @@
     "artwork": "https://picsum.photos/seed/75/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#ff5500",
-    "artistPhoto": "https://picsum.photos/seed/artist33/300/300"
+    "themeColor": "#e67e22",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/adfbceaea52f08638b239ebcb6db85e6/500x500-000000-80-0-0.jpg",
+    "youtubeId": "PsrO84vlFgc"
   },
   {
     "title": "All The Stars",
@@ -381,8 +415,9 @@
     "artwork": "https://picsum.photos/seed/76/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#00d2ff",
-    "artistPhoto": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#f1c40f",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/be0a7c550567f4af0ed202d7235b74d6/500x500-000000-80-0-0.jpg",
+    "youtubeId": "JQbjS0_ZfJ0"
   },
   {
     "title": "Embrace It",
@@ -392,8 +427,9 @@
     "artwork": "https://picsum.photos/seed/77/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#f368e0",
-    "artistPhoto": "https://picsum.photos/seed/artist35/300/300"
+    "themeColor": "#2ecc71",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "hB_yotPNS7c"
   },
   {
     "title": "SICKO MODE",
@@ -403,8 +439,9 @@
     "artwork": "https://picsum.photos/seed/78/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#ee5253",
-    "artistPhoto": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#1abc9c",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/8d8316146026d7e6ce377e314536df62/500x500-000000-80-0-0.jpg",
+    "youtubeId": "d-JBBNg8YKs"
   },
   {
     "title": "NOW OR NEVER",
@@ -414,8 +451,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/88/f5/9e/88f59e22-8b7e-12c6-4571-ac20a1757b50/075679594150.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/88/95/ed/8895edf5-dfdb-877b-3133-439ef4e94063/mzaf_11661818931638067553.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/88/95/ed/8895edf5-dfdb-877b-3133-439ef4e94063/mzaf_11661818931638067553.plus.aac.p.m4a",
-    "themeColor": "#10ac84",
-    "artistPhoto": "https://picsum.photos/seed/artist37/300/300"
+    "themeColor": "#3498db",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "BM0dbamY2Rw"
   },
   {
     "title": "goosebumps",
@@ -425,8 +463,9 @@
     "artwork": "https://picsum.photos/seed/80/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#ff9f43",
-    "artistPhoto": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#9b59b6",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/8d8316146026d7e6ce377e314536df62/500x500-000000-80-0-0.jpg",
+    "youtubeId": "Dst9gZkq1a8"
   },
   {
     "title": "LV Sandals",
@@ -436,8 +475,9 @@
     "artwork": "https://picsum.photos/seed/81/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#5f27cd",
-    "artistPhoto": "https://picsum.photos/seed/artist39/300/300"
+    "themeColor": "#34495e",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/adfbceaea52f08638b239ebcb6db85e6/500x500-000000-80-0-0.jpg",
+    "youtubeId": "K6QjQeKfmUs"
   },
   {
     "title": "The Party & The After Party",
@@ -447,8 +487,9 @@
     "artwork": "https://picsum.photos/seed/82/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#1db954",
-    "artistPhoto": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#e84118",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "yI-zb_aP0So"
   },
   {
     "title": "Copines",
@@ -458,8 +499,9 @@
     "artwork": "https://picsum.photos/seed/83/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#8a2be2",
-    "artistPhoto": "https://picsum.photos/seed/artist41/300/300"
+    "themeColor": "#00a8ff",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "EkGiGf8utCM"
   },
   {
     "title": "Mask Off",
@@ -469,8 +511,9 @@
     "artwork": "https://picsum.photos/seed/84/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#e50914",
-    "artistPhoto": "https://images.unsplash.com/photo-1520523839898-5071282543e1?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#9c88ff",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/1a695ee9c2cb49fab81d408836100ff3/500x500-000000-80-0-0.jpg",
+    "youtubeId": "hGsnX_t1yKw"
   },
   {
     "title": "Cool For The Summer (Slowed)",
@@ -480,8 +523,9 @@
     "artwork": "https://picsum.photos/seed/85/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#ff5500",
-    "artistPhoto": "https://picsum.photos/seed/artist43/300/300"
+    "themeColor": "#fbc531",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "GNy0BALU4G0"
   },
   {
     "title": "Amo aller Amos",
@@ -491,8 +535,9 @@
     "artwork": "https://picsum.photos/seed/86/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#00d2ff",
-    "artistPhoto": "https://picsum.photos/seed/artist44/300/300"
+    "themeColor": "#4cd137",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "Ps9WvjD0T3A"
   },
   {
     "title": "Princess Bubblegum",
@@ -502,8 +547,9 @@
     "artwork": "https://picsum.photos/seed/87/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#f368e0",
-    "artistPhoto": "https://picsum.photos/seed/artist45/300/300"
+    "themeColor": "#487eb0",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "fkrRUTE7aG8"
   },
   {
     "title": "Beretta",
@@ -513,19 +559,21 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/cc/2f/6e/cc2f6ef9-5762-b67c-9b45-d86265a8dfee/199538504187.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/be/78/94/be789465-3700-1c1b-0071-d6ec18e8a3ad/mzaf_15314850240725563329.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/be/78/94/be789465-3700-1c1b-0071-d6ec18e8a3ad/mzaf_15314850240725563329.plus.aac.p.m4a",
-    "themeColor": "#ee5253",
-    "artistPhoto": "https://picsum.photos/seed/artist46/300/300"
+    "themeColor": "#7f8fa6",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "jMjmnSraNe8"
   },
   {
-    "title": "Parado no BailÃ£o",
+    "title": "Parado no Bailão",
     "artist": "MC L da Vinte",
-    "album": "Parado no BailÃ£o",
+    "album": "Parado no Bailão",
     "duration": 172,
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/98/69/5c/98695c30-cad4-941d-3e12-3cb0e399f3b2/194491150334.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c2/22/63/c22263ae-0d6e-b603-6c28-4d2baf5145fa/mzaf_16330598759475235550.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c2/22/63/c22263ae-0d6e-b603-6c28-4d2baf5145fa/mzaf_16330598759475235550.plus.aac.p.m4a",
-    "themeColor": "#10ac84",
-    "artistPhoto": "https://picsum.photos/seed/artist47/300/300"
+    "themeColor": "#273c75",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "upCptHeThio"
   },
   {
     "title": "Cry For Me",
@@ -535,8 +583,9 @@
     "artwork": "https://picsum.photos/seed/90/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#ff9f43",
-    "artistPhoto": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#d63031",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "ljxYE-aJD3A"
   },
   {
     "title": "worry (ultra slowed)",
@@ -546,8 +595,9 @@
     "artwork": "https://picsum.photos/seed/91/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#5f27cd",
-    "artistPhoto": "https://picsum.photos/seed/artist49/300/300"
+    "themeColor": "#fdcb6e",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "lCKU-tI-upI"
   },
   {
     "title": "worry (Slowed)",
@@ -557,8 +607,9 @@
     "artwork": "https://picsum.photos/seed/92/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#1db954",
-    "artistPhoto": "https://picsum.photos/seed/artist50/300/300"
+    "themeColor": "#00cec9",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "f3DoKx_R1_s"
   },
   {
     "title": "Raya (Slowed)",
@@ -568,8 +619,9 @@
     "artwork": "https://picsum.photos/seed/93/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#8a2be2",
-    "artistPhoto": "https://picsum.photos/seed/artist51/300/300"
+    "themeColor": "#6c5ce7",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "D00ajmxFTBA"
   },
   {
     "title": "BREGA DO LOVE (SLOWED)",
@@ -579,8 +631,9 @@
     "artwork": "https://picsum.photos/seed/94/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#e50914",
-    "artistPhoto": "https://picsum.photos/seed/artist52/300/300"
+    "themeColor": "#ff7675",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "QuLdKy1s1y4"
   },
   {
     "title": "FREAKED OUT",
@@ -590,8 +643,9 @@
     "artwork": "https://picsum.photos/seed/95/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#ff5500",
-    "artistPhoto": "https://picsum.photos/seed/artist53/300/300"
+    "themeColor": "#a29bfe",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "Dh9lDuUPvx8"
   },
   {
     "title": "What You Saying",
@@ -601,8 +655,9 @@
     "artwork": "https://picsum.photos/seed/96/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#00d2ff",
-    "artistPhoto": "https://picsum.photos/seed/artist54/300/300"
+    "themeColor": "#ffeaa7",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "s_TUESTU7_4"
   },
   {
     "title": "Moonlight",
@@ -612,8 +667,9 @@
     "artwork": "https://picsum.photos/seed/97/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#f368e0",
-    "artistPhoto": "https://picsum.photos/seed/artist55/300/300"
+    "themeColor": "#fab1a0",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "GX8Hg6kWQYI"
   },
   {
     "title": "Did It First",
@@ -623,8 +679,9 @@
     "artwork": "https://picsum.photos/seed/98/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#ee5253",
-    "artistPhoto": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=500&auto=format&fit=crop&q=80"
+    "themeColor": "#ff6b6b",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/25fe719f51af3ee2de27aa267e2a6ac9/500x500-000000-80-0-0.jpg",
+    "youtubeId": "N2neoYs8niw"
   },
   {
     "title": "Black Beatles [feat. Gucci Mane]",
@@ -634,8 +691,9 @@
     "artwork": "https://picsum.photos/seed/99/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#10ac84",
-    "artistPhoto": "https://picsum.photos/seed/artist57/300/300"
+    "themeColor": "#feca57",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "b8m9zhNAgKs"
   },
   {
     "title": "DEATH CAN HAVE ME WHEN IT EARNS ME",
@@ -645,8 +703,9 @@
     "artwork": "https://picsum.photos/seed/100/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#ff9f43",
-    "artistPhoto": "https://picsum.photos/seed/artist58/300/300"
+    "themeColor": "#48dbfb",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "72BS917_eSI"
   },
   {
     "title": "Fendi 2",
@@ -656,8 +715,9 @@
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/cc/30/1b/cc301bcf-2af6-16f5-0d73-ef06fe476c43/cover.jpg/600x600bb.jpg",
     "streamUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/72/9c/74/729c7482-1196-5322-d4fa-cce67dd0e2c0/mzaf_8036237071754126231.plus.aac.p.m4a",
     "previewFallback": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/72/9c/74/729c7482-1196-5322-d4fa-cce67dd0e2c0/mzaf_8036237071754126231.plus.aac.p.m4a",
-    "themeColor": "#5f27cd",
-    "artistPhoto": "https://picsum.photos/seed/artist59/300/300"
+    "themeColor": "#ff9ff3",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "ZPkKfYw_cAY"
   },
   {
     "title": "Afro Trap, Pt. 4",
@@ -667,8 +727,9 @@
     "artwork": "https://picsum.photos/seed/102/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#1db954",
-    "artistPhoto": "https://picsum.photos/seed/artist60/300/300"
+    "themeColor": "#54a0ff",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "ewehZ0n7YBw"
   },
   {
     "title": "No Church In The Wild [feat. Frank Ocean]",
@@ -678,7 +739,8 @@
     "artwork": "https://picsum.photos/seed/103/600/600",
     "streamUrl": "",
     "previewFallback": "",
-    "themeColor": "#8a2be2",
-    "artistPhoto": "https://picsum.photos/seed/artist61/300/300"
+    "themeColor": "#5f27cd",
+    "artistPhoto": "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg",
+    "youtubeId": "FJt7gNi3Nr4"
   }
 ];

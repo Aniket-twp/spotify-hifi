@@ -54,8 +54,8 @@ cmd = [
     "--manifest", manifest_xml,
     "--min-sdk-version", "24",
     "--target-sdk-version", "34",
-    "--version-code", "1",
-    "--version-name", "1.0.0",
+    "--version-code", "3",
+    "--version-name", "1.0.3",
     "-o", unaligned_apk,
     "--java", GEN_DIR,
     "-A", app_assets,
@@ -125,3 +125,14 @@ cmd = [
 ]
 subprocess.run(cmd, shell=True, check=True)
 print(f"SUCCESS: Built and signed Android APK -> {final_apk}")
+
+# Copy to Downloads and Desktop
+downloads_dest = os.path.expanduser(r"C:\Users\anike\Downloads\Spotify-HiFi.apk")
+desktop_dest = os.path.expanduser(r"C:\Users\anike\OneDrive\Desktop\Spotify-HiFi.apk")
+for dest in [downloads_dest, desktop_dest]:
+    try:
+        shutil.copy2(final_apk, dest)
+        print(f"Copied APK to -> {dest}")
+    except Exception as e:
+        print(f"Could not copy to {dest}: {e}")
+

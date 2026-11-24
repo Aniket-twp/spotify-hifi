@@ -1,10 +1,16 @@
 // Spotify HiFi Lossless Audio Engine
-// Multi-Playlist Management, Spotify/Text/File Importer, Global Music Search & Offline Autoplay
+// Multi-Playlist Management, Spotify/Text/File Importer, Global Music Search, YouTube HiFi Audio Engine & Autoplay
 
 class SpotifyHiFiMobileApp {
   constructor() {
     this.audioElement = new Audio();
     this.audioElement.preload = "auto";
+
+    // YouTube Audio Engine state for Full-Length Playback (No 30-sec limit)
+    this.ytPlayer = null;
+    this.isYtReady = false;
+    this.ytTimer = null;
+    this.pendingTrack = null;
 
     // Pinned featured playlist ("sick 🫢" by Aniket)
     this.featuredTracks = (window.SICK_PLAYLIST && Array.isArray(window.SICK_PLAYLIST) && window.SICK_PLAYLIST.length > 0)
@@ -19,6 +25,8 @@ class SpotifyHiFiMobileApp {
     this.isPlaying = false;
     this.isAutoplay = true;
     this.isShuffle = false;
+    this.isMuted = false;
+    this.currentVolume = 100;
 
     // Track targeted for adding to playlist
     this.pendingAddTrack = null;
@@ -30,18 +38,20 @@ class SpotifyHiFiMobileApp {
     this.eqFilters = [];
     this.eqFrequencies = [32, 64, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
 
-    // Top Artists in rotation
+    // Real, official artist photos from high-resolution studio CDNs
     this.artists = [
-      { name: "Travis Scott", photo: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80", role: "11 songs" },
-      { name: "The Weeknd", photo: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=80", role: "9 songs" },
-      { name: "Kendrick Lamar", photo: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&auto=format&fit=crop&q=80", role: "8 songs" },
-      { name: "Drake", photo: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&auto=format&fit=crop&q=80", role: "6 songs" },
-      { name: "Central Cee", photo: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=500&auto=format&fit=crop&q=80", role: "4 songs" },
-      { name: "Roddy Ricch", photo: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=500&auto=format&fit=crop&q=80", role: "The Box" },
-      { name: "KR$NA", photo: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=500&auto=format&fit=crop&q=80", role: "No Cap" },
-      { name: "Post Malone", photo: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=500&auto=format&fit=crop&q=80", role: "Sunflower" },
-      { name: "Eminem", photo: "https://images.unsplash.com/photo-1487180144351-b8472da7d491?w=500&auto=format&fit=crop&q=80", role: "Superman" },
-      { name: "Future", photo: "https://images.unsplash.com/photo-1520523839898-5071282543e1?w=500&auto=format&fit=crop&q=80", role: "Mask Off" }
+      { name: "Travis Scott", photo: "https://cdn-images.dzcdn.net/images/artist/8d8316146026d7e6ce377e314536df62/500x500-000000-80-0-0.jpg", role: "11 songs" },
+      { name: "The Weeknd", photo: "https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg", role: "9 songs" },
+      { name: "Kendrick Lamar", photo: "https://cdn-images.dzcdn.net/images/artist/be0a7c550567f4af0ed202d7235b74d6/500x500-000000-80-0-0.jpg", role: "8 songs" },
+      { name: "Drake", photo: "https://cdn-images.dzcdn.net/images/artist/eb0ed5b21d1ea5af021fc074ded0e91f/500x500-000000-80-0-0.jpg", role: "6 songs" },
+      { name: "Central Cee", photo: "https://cdn-images.dzcdn.net/images/artist/25fe719f51af3ee2de27aa267e2a6ac9/500x500-000000-80-0-0.jpg", role: "4 songs" },
+      { name: "Roddy Ricch", photo: "https://cdn-images.dzcdn.net/images/artist/c57bd89d86ac6242777632c1f41d9461/500x500-000000-80-0-0.jpg", role: "The Box" },
+      { name: "KR$NA", photo: "https://cdn-images.dzcdn.net/images/artist/44dcd9d1d0be03a355c2d93c31bd8015/500x500-000000-80-0-0.jpg", role: "No Cap" },
+      { name: "Post Malone", photo: "https://cdn-images.dzcdn.net/images/artist/a5a8cca44e7eab2db7d44e039bed2574/500x500-000000-80-0-0.jpg", role: "Sunflower" },
+      { name: "Eminem", photo: "https://cdn-images.dzcdn.net/images/artist/7fa738468c9a73ff98c1e1b78d622b81/500x500-000000-80-0-0.jpg", role: "Superman" },
+      { name: "Future", photo: "https://cdn-images.dzcdn.net/images/artist/1a695ee9c2cb49fab81d408836100ff3/500x500-000000-80-0-0.jpg", role: "Mask Off" },
+      { name: "Dave", photo: "https://cdn-images.dzcdn.net/images/artist/adfbceaea52f08638b239ebcb6db85e6/500x500-000000-80-0-0.jpg", role: "Sprinter" },
+      { name: "Tame Impala", photo: "https://cdn-images.dzcdn.net/images/artist/879015e713cc6ad6ffaeec154c027505/500x500-000000-80-0-0.jpg", role: "Borderline" }
     ];
 
     this.genres = [
@@ -64,12 +74,131 @@ class SpotifyHiFiMobileApp {
     this.setupUIEvents();
     this.setupEqualizerUI();
     this.setupImportModalEvents();
+    this.setupDesktopEvents();
 
     this.renderArtists();
     this.renderGenreCards();
     this.renderHomeFeatured();
+    this.renderExplorerFeed();
     this.renderLibraryPlaylists();
+    this.renderDesktopSidebarPlaylists();
     this.openPlaylist('sick');
+
+    // Initialize YouTube engine if API already loaded
+    if (window.YT && window.YT.Player) {
+      this.initYouTubeEngine();
+    }
+  }
+
+  // YOUTUBE FULL-LENGTH STUDIO AUDIO ENGINE
+  initYouTubeEngine() {
+    if (this.ytPlayer) return;
+    try {
+      this.ytPlayer = new YT.Player('ytPlayerTarget', {
+        height: '120',
+        width: '120',
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
+          playsinline: 1,
+          rel: 0,
+          enablejsapi: 1,
+          modestbranding: 1,
+          iv_load_policy: 3
+        },
+        events: {
+          onReady: () => {
+            this.isYtReady = true;
+            console.log("YouTube HiFi Audio Engine Ready");
+            if (this.pendingTrack) {
+              const trackToPlay = this.pendingTrack;
+              this.pendingTrack = null;
+              this.playTrackDirect(trackToPlay);
+            }
+          },
+          onStateChange: (event) => {
+            this.handleYtStateChange(event);
+          },
+          onError: (e) => {
+            console.warn("YouTube player error:", e.data);
+            this.fallbackToAudioElement();
+          }
+        }
+      });
+    } catch (e) {
+      console.warn("Error creating YouTube Player:", e);
+    }
+  }
+
+  handleYtStateChange(event) {
+    if (event.data === YT.PlayerState.PLAYING) {
+      this.updatePlayState(true);
+      this.startYtProgressTimer();
+    } else if (event.data === YT.PlayerState.PAUSED) {
+      this.updatePlayState(false);
+      this.stopYtProgressTimer();
+    } else if (event.data === YT.PlayerState.ENDED) {
+      this.updatePlayState(false);
+      this.stopYtProgressTimer();
+      if (this.isAutoplay) {
+        this.nextTrack();
+      }
+    }
+  }
+
+  startYtProgressTimer() {
+    this.stopYtProgressTimer();
+    this.ytTimer = setInterval(() => {
+      if (!this.isYtReady || !this.ytPlayer || typeof this.ytPlayer.getCurrentTime !== 'function') return;
+      const cur = this.ytPlayer.getCurrentTime() || 0;
+      const dur = this.ytPlayer.getDuration() || (this.tracks[this.currentIndex]?.duration) || 180;
+      const pct = Math.min(100, (cur / dur) * 100);
+
+      // Mini-player bar
+      const miniFill = document.getElementById('playbackBarFg');
+      if (miniFill) miniFill.style.width = `${pct}%`;
+
+      // Full modal slider
+      const modalFill = document.getElementById('modalSliderFg');
+      if (modalFill) modalFill.style.width = `${pct}%`;
+
+      // Desktop slider
+      const dtFill = document.getElementById('desktopSliderFg');
+      if (dtFill) dtFill.style.width = `${pct}%`;
+
+      // Timestamps
+      const curLabel = document.getElementById('modalCurrentTime');
+      if (curLabel) curLabel.textContent = this.formatTime(cur);
+
+      const dtCurLabel = document.getElementById('desktopCurrentTime');
+      if (dtCurLabel) dtCurLabel.textContent = this.formatTime(cur);
+
+      const totalLabel = document.getElementById('modalTotalTime');
+      if (totalLabel) totalLabel.textContent = this.formatTime(dur);
+
+      const dtTotalLabel = document.getElementById('desktopTotalTime');
+      if (dtTotalLabel) dtTotalLabel.textContent = this.formatTime(dur);
+    }, 200);
+  }
+
+  stopYtProgressTimer() {
+    if (this.ytTimer) {
+      clearInterval(this.ytTimer);
+      this.ytTimer = null;
+    }
+  }
+
+  fallbackToAudioElement() {
+    if (this.currentIndex >= 0 && this.currentIndex < this.tracks.length) {
+      const track = this.tracks[this.currentIndex];
+      const fallbackUrl = track.streamUrl || track.previewFallback;
+      if (fallbackUrl) {
+        this.audioElement.src = fallbackUrl;
+        this.audioElement.play().catch(console.error);
+      }
+    }
   }
 
   updateGreeting() {
@@ -134,9 +263,9 @@ class SpotifyHiFiMobileApp {
     }
   }
 
-  // NAVIGATION & VIEW SWITCHING
+  // NAVIGATION & VIEW SWITCHING (Mobile & Desktop)
   setupNavigation() {
-    const navButtons = document.querySelectorAll('.mobile-nav-btn');
+    const navButtons = document.querySelectorAll('.mobile-nav-btn, .desktop-nav-item');
     navButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         const targetViewId = btn.getAttribute('data-target');
@@ -149,22 +278,6 @@ class SpotifyHiFiMobileApp {
       btnToggleEQ.addEventListener('click', () => {
         const eqNavBtn = document.getElementById('mNavEQ');
         this.switchView('viewEQ', eqNavBtn);
-      });
-    }
-
-    const btnModalEQ = document.getElementById('btnModalEQ');
-    if (btnModalEQ) {
-      btnModalEQ.addEventListener('click', () => {
-        this.closeNowPlayingModal();
-        const eqNavBtn = document.getElementById('mNavEQ');
-        this.switchView('viewEQ', eqNavBtn);
-      });
-    }
-
-    const btnSeeAll = document.getElementById('btnSeeAllTracks');
-    if (btnSeeAll) {
-      btnSeeAll.addEventListener('click', () => {
-        this.openPlaylist('sick');
       });
     }
 
@@ -188,30 +301,40 @@ class SpotifyHiFiMobileApp {
         this.openImportModal();
       });
     }
+
+    const btnSeeAll = document.getElementById('btnSeeAllTracks');
+    if (btnSeeAll) {
+      btnSeeAll.addEventListener('click', () => {
+        this.openPlaylist('sick');
+      });
+    }
   }
 
   switchView(viewId, activeBtn) {
-    document.querySelectorAll('.app-view').forEach(view => {
-      view.classList.remove('active');
-    });
+    document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
     const target = document.getElementById(viewId);
-    if (target) target.classList.add('active');
+    if (target) {
+      target.classList.add('active');
+      const body = document.querySelector('.spotify-body') || document.querySelector('.spotify-main');
+      if (body) body.scrollTop = 0;
+    }
 
-    document.querySelectorAll('.mobile-nav-btn').forEach(b => {
-      b.classList.remove('active');
+    // Sync active state in both mobile and desktop nav
+    document.querySelectorAll('.mobile-nav-btn, .desktop-nav-item').forEach(b => {
+      if (b.getAttribute('data-target') === viewId) {
+        b.classList.add('active');
+      } else {
+        b.classList.remove('active');
+      }
     });
-    if (activeBtn) activeBtn.classList.add('active');
-
-    const body = document.querySelector('.spotify-body');
-    if (body) body.scrollTop = 0;
   }
 
-  // AUDIO ENGINE & AUTOPLAY LOGIC
   setupAudioListeners() {
     this.audioElement.addEventListener('play', () => this.updatePlayState(true));
     this.audioElement.addEventListener('pause', () => this.updatePlayState(false));
 
     this.audioElement.addEventListener('timeupdate', () => {
+      if (this.isYtReady && this.ytPlayer && this.isPlaying) return; // YouTube handles timer
       const cur = this.audioElement.currentTime || 0;
       const dur = this.audioElement.duration || 1;
       const pct = (cur / dur) * 100;
@@ -222,14 +345,22 @@ class SpotifyHiFiMobileApp {
       const modalFill = document.getElementById('modalSliderFg');
       if (modalFill) modalFill.style.width = `${pct}%`;
 
+      const dtFill = document.getElementById('desktopSliderFg');
+      if (dtFill) dtFill.style.width = `${pct}%`;
+
       const curLabel = document.getElementById('modalCurrentTime');
       if (curLabel) curLabel.textContent = this.formatTime(cur);
+
+      const dtCurLabel = document.getElementById('desktopCurrentTime');
+      if (dtCurLabel) dtCurLabel.textContent = this.formatTime(cur);
     });
 
     this.audioElement.addEventListener('loadedmetadata', () => {
       const dur = this.audioElement.duration || 0;
       const totalLabel = document.getElementById('modalTotalTime');
       if (totalLabel) totalLabel.textContent = this.formatTime(dur);
+      const dtTotalLabel = document.getElementById('desktopTotalTime');
+      if (dtTotalLabel) dtTotalLabel.textContent = this.formatTime(dur);
     });
 
     this.audioElement.addEventListener('ended', () => {
@@ -239,7 +370,7 @@ class SpotifyHiFiMobileApp {
     });
 
     this.audioElement.addEventListener('error', (e) => {
-      console.warn("Audio playback error:", e);
+      console.warn("Audio element error:", e);
       if (this.currentIndex >= 0 && this.currentIndex < this.tracks.length) {
         const track = this.tracks[this.currentIndex];
         if (track.previewFallback && this.audioElement.src !== track.previewFallback) {
@@ -281,26 +412,58 @@ class SpotifyHiFiMobileApp {
     }
   }
 
+  // PLAY TRACK (Primary: Full-Length YouTube Engine | Backup: HTML5 Audio)
   playTrack(index) {
     if (index < 0 || index >= this.tracks.length) return;
     this.currentIndex = index;
     const track = this.tracks[index];
+    this.playTrackDirect(track);
+  }
 
+  playTrackDirect(track) {
     this.initAudioNodes();
     if (this.audioCtx && this.audioCtx.state === 'suspended') {
       this.audioCtx.resume();
     }
 
+    this.updateUIForTrack(track);
+    this.highlightActiveTrack();
+
+    // 1. Full-Length Studio Audio via YouTube Player API
+    if (this.isYtReady && this.ytPlayer) {
+      try {
+        this.audioElement.pause(); // stop audio element if running
+        if (track.youtubeId) {
+          this.ytPlayer.loadVideoById(track.youtubeId);
+        } else {
+          // Play by search query
+          const query = `${track.artist} ${track.title} audio`;
+          this.ytPlayer.loadPlaylist({
+            listType: 'search',
+            list: query,
+            index: 0
+          });
+        }
+        this.ytPlayer.playVideo();
+        this.updatePlayState(true);
+        this.startYtProgressTimer();
+        return;
+      } catch (err) {
+        console.warn("YouTube play error, falling back to audio:", err);
+      }
+    } else {
+      this.pendingTrack = track;
+    }
+
+    // 2. Fallback to HTML5 audio element
     const streamUrl = track.streamUrl || track.previewFallback;
     if (streamUrl) {
       this.audioElement.src = streamUrl;
       this.audioElement.play().catch(err => {
-        console.warn("Play error:", err);
+        console.warn("Audio play error:", err);
       });
+      this.updatePlayState(true);
     }
-
-    this.updateUIForTrack(track);
-    this.highlightActiveTrack();
   }
 
   togglePlayPause() {
@@ -308,10 +471,24 @@ class SpotifyHiFiMobileApp {
       if (this.tracks.length > 0) this.playTrack(0);
       return;
     }
+
     if (this.isPlaying) {
+      if (this.isYtReady && this.ytPlayer && typeof this.ytPlayer.pauseVideo === 'function') {
+        this.ytPlayer.pauseVideo();
+      }
       this.audioElement.pause();
+      this.updatePlayState(false);
+      this.stopYtProgressTimer();
     } else {
-      this.audioElement.play().catch(console.error);
+      if (this.isYtReady && this.ytPlayer && typeof this.ytPlayer.playVideo === 'function') {
+        this.ytPlayer.playVideo();
+      } else if (this.audioElement.src) {
+        this.audioElement.play().catch(console.error);
+      } else {
+        this.playTrack(this.currentIndex);
+      }
+      this.updatePlayState(true);
+      this.startYtProgressTimer();
     }
   }
 
@@ -333,19 +510,81 @@ class SpotifyHiFiMobileApp {
     this.playTrack(prevIdx);
   }
 
+  seek(percentage) {
+    const track = this.tracks[this.currentIndex];
+    const dur = (this.isYtReady && this.ytPlayer && typeof this.ytPlayer.getDuration === 'function')
+      ? (this.ytPlayer.getDuration() || track?.duration || 180)
+      : (this.audioElement.duration || track?.duration || 180);
+
+    const targetSeconds = (percentage / 100) * dur;
+
+    if (this.isYtReady && this.ytPlayer && typeof this.ytPlayer.seekTo === 'function') {
+      this.ytPlayer.seekTo(targetSeconds, true);
+    } else {
+      this.audioElement.currentTime = targetSeconds;
+    }
+  }
+
+  setVolume(volPercent) {
+    this.currentVolume = Math.max(0, Math.min(100, volPercent));
+    if (this.isYtReady && this.ytPlayer && typeof this.ytPlayer.setVolume === 'function') {
+      this.ytPlayer.setVolume(this.currentVolume);
+    }
+    this.audioElement.volume = this.currentVolume / 100;
+
+    const slider = document.getElementById('desktopVolumeSlider');
+    if (slider) slider.value = this.currentVolume;
+  }
+
+  toggleMute() {
+    this.isMuted = !this.isMuted;
+    if (this.isMuted) {
+      if (this.isYtReady && this.ytPlayer && typeof this.ytPlayer.mute === 'function') {
+        this.ytPlayer.mute();
+      }
+      this.audioElement.muted = true;
+    } else {
+      if (this.isYtReady && this.ytPlayer && typeof this.ytPlayer.unMute === 'function') {
+        this.ytPlayer.unMute();
+      }
+      this.audioElement.muted = false;
+      this.setVolume(this.currentVolume || 80);
+    }
+  }
+
+  toggleAutoplay() {
+    this.isAutoplay = !this.isAutoplay;
+    const labels = document.querySelectorAll('.autoplay-label');
+    labels.forEach(l => {
+      l.textContent = this.isAutoplay ? 'AUTOPLAY ON' : 'AUTOPLAY OFF';
+    });
+    const statusTag = document.getElementById('autoplayStatusTag');
+    if (statusTag) {
+      statusTag.textContent = this.isAutoplay ? 'AUTOPLAY ENABLED' : 'AUTOPLAY DISABLED';
+      statusTag.style.color = this.isAutoplay ? 'var(--spotify-green)' : '#727272';
+    }
+    const btns = document.querySelectorAll('#btnAutoplayToggle, #btnModalAutoplay, #desktopBtnAutoplay');
+    btns.forEach(b => {
+      if (this.isAutoplay) b.classList.add('active');
+      else b.classList.remove('active');
+    });
+  }
+
   updatePlayState(playing) {
     this.isPlaying = playing;
-    ['ctrlPlayIcon', 'heroPlayIcon', 'modalPlayIcon'].forEach(id => {
+    ['ctrlPlayIcon', 'heroPlayIcon', 'modalPlayIcon', 'desktopPlayIcon'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = playing ? 'none' : 'block';
     });
-    ['ctrlPauseIcon', 'heroPauseIcon', 'modalPauseIcon'].forEach(id => {
+    ['ctrlPauseIcon', 'heroPauseIcon', 'modalPauseIcon', 'desktopPauseIcon'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = playing ? 'block' : 'none';
     });
   }
 
+  // DYNAMIC THEMING & ARTWORK SYNC
   updateUIForTrack(track) {
+    // 1. Mobile mini-player
     const curTitle = document.getElementById('currentTitle');
     const curArtist = document.getElementById('currentArtist');
     const playerThumb = document.getElementById('playerThumb');
@@ -353,23 +592,41 @@ class SpotifyHiFiMobileApp {
     if (curArtist) curArtist.textContent = track.artist;
     if (playerThumb && track.artwork) playerThumb.src = track.artwork;
 
+    // 2. Desktop bottom bar
+    const dtTitle = document.getElementById('desktopTitle');
+    const dtArtist = document.getElementById('desktopArtist');
+    const dtThumb = document.getElementById('desktopThumb');
+    if (dtTitle) dtTitle.textContent = track.title;
+    if (dtArtist) dtArtist.textContent = track.artist;
+    if (dtThumb && track.artwork) dtThumb.src = track.artwork;
+
+    // 3. Full-screen modal
     const modalTitle = document.getElementById('modalSongTitle');
     const modalArtist = document.getElementById('modalArtistName');
     const modalCover = document.getElementById('modalCoverImg');
     const modalTotalTime = document.getElementById('modalTotalTime');
+    const dtTotalTime = document.getElementById('desktopTotalTime');
     const modalPlName = document.getElementById('modalPlayingPlaylistName');
     if (modalTitle) modalTitle.textContent = track.title;
     if (modalArtist) modalArtist.textContent = track.artist;
     if (modalCover && track.artwork) modalCover.src = track.artwork;
-    if (modalTotalTime) modalTotalTime.textContent = this.formatTime(track.duration || 180);
+    const durStr = this.formatTime(track.duration || 180);
+    if (modalTotalTime) modalTotalTime.textContent = durStr;
+    if (dtTotalTime) dtTotalTime.textContent = durStr;
 
     const currentPl = this.playlists.find(p => p.id === this.currentPlaylistId);
     if (modalPlName && currentPl) modalPlName.textContent = currentPl.title;
 
+    // 4. Dynamic Theme Coloring
     const themeColor = track.themeColor || '#1db954';
     const modal = document.getElementById('nowPlayingModal');
     if (modal) {
-      modal.style.background = `linear-gradient(180deg, ${themeColor}66 0%, #180a0a 40%, #121212 100%)`;
+      modal.style.background = `radial-gradient(circle at 50% 20%, ${themeColor}99 0%, #150808 55%, #121212 100%)`;
+    }
+
+    const topbar = document.querySelector('.spotify-topbar');
+    if (topbar) {
+      topbar.style.borderBottom = `1px solid ${themeColor}33`;
     }
   }
 
@@ -392,10 +649,8 @@ class SpotifyHiFiMobileApp {
     this.currentPlaylistId = pl.id;
     this.tracks = pl.tracks;
 
-    // Switch view
     this.switchView('viewPlaylist', null);
 
-    // Update Hero elements
     const titleElem = document.getElementById('playlistTitle');
     const countElem = document.getElementById('playlistTrackCount');
     const curatorElem = document.getElementById('curatorName');
@@ -424,7 +679,6 @@ class SpotifyHiFiMobileApp {
       deleteBtn.onclick = () => this.deletePlaylist(pl.id);
     }
 
-    // Render tracklist
     const container = document.getElementById('tracklistBody');
     if (container) {
       container.innerHTML = '';
@@ -448,11 +702,12 @@ class SpotifyHiFiMobileApp {
       this.playlists = this.playlists.filter(p => p.id !== playlistId);
       this.saveCustomPlaylists();
       this.renderLibraryPlaylists();
+      this.renderDesktopSidebarPlaylists();
       this.openPlaylist('sick');
     }
   }
 
-  // RENDER LIBRARY
+  // RENDER LIBRARY (Mobile & Desktop)
   renderLibraryPlaylists(filter = 'all') {
     const grid = document.getElementById('libraryPlaylistsGrid');
     const countLabel = document.getElementById('libPlaylistCount');
@@ -478,66 +733,142 @@ class SpotifyHiFiMobileApp {
         <div class="lib-card-art">${artHtml}</div>
         <div class="lib-card-info">
           <div class="lib-card-title">${pl.title}</div>
-          <div class="lib-card-sub">
-            <span class="lib-tag-pill">${pl.type || 'playlist'}</span>
-            <span>${pl.tracks.length} songs • ${pl.curator || 'You'}</span>
-          </div>
+          <div class="lib-card-desc">Playlist • ${pl.tracks.length} songs</div>
         </div>
       `;
+
       card.addEventListener('click', () => {
         this.openPlaylist(pl.id);
       });
+
       grid.appendChild(card);
     });
   }
 
-  // RENDER HOME & ARTISTS
-  renderArtists() {
-    const container = document.getElementById('homeArtistsScroll');
+  renderDesktopSidebarPlaylists() {
+    const container = document.getElementById('desktopPlaylistsList');
     if (!container) return;
     container.innerHTML = '';
 
-    this.artists.forEach(artist => {
-      const div = document.createElement('div');
-      div.className = 'artist-circle-item';
-      div.innerHTML = `
-        <div class="artist-circle-img-wrap">
-          <img src="${artist.photo}" class="artist-circle-img" alt="${artist.name}" loading="lazy" onerror="this.src='icon-192.png'">
-        </div>
-        <span class="artist-circle-name">${artist.name}</span>
-        <span class="artist-circle-role">${artist.role}</span>
+    this.playlists.forEach(pl => {
+      const item = document.createElement('div');
+      item.className = `desktop-pl-item ${pl.id === this.currentPlaylistId ? 'active' : ''}`;
+      const artSrc = pl.artwork || 'icon-192.png';
+      item.innerHTML = `
+        <img src="${artSrc}" class="desktop-pl-thumb" alt="${pl.title}" onerror="this.src='icon-192.png'">
+        <span>${pl.title}</span>
       `;
-      div.addEventListener('click', () => {
-        this.filterByArtist(artist.name);
+      item.addEventListener('click', () => {
+        this.openPlaylist(pl.id);
+        this.renderDesktopSidebarPlaylists();
       });
-      container.appendChild(div);
+      container.appendChild(item);
+    });
+  }
+
+  // RENDER ARTISTS WITH REAL HIGH-RES PHOTOS
+  renderArtists() {
+    const containers = [
+      document.getElementById('homeArtistsScroll'),
+      document.getElementById('exploreArtistsScroll')
+    ];
+
+    containers.forEach(container => {
+      if (!container) return;
+      container.innerHTML = '';
+
+      this.artists.forEach(artist => {
+        const item = document.createElement('div');
+        item.className = 'artist-circle-item';
+        item.innerHTML = `
+          <div class="artist-circle-img-wrap">
+            <img src="${artist.photo}" class="artist-circle-img" alt="${artist.name}" loading="lazy" onerror="this.src='https://cdn-images.dzcdn.net/images/artist/8d8316146026d7e6ce377e314536df62/500x500-000000-80-0-0.jpg'">
+          </div>
+          <div class="artist-circle-name">${artist.name}</div>
+          <div class="artist-circle-role">${artist.role}</div>
+        `;
+
+        item.addEventListener('click', () => {
+          this.filterByArtist(artist.name);
+        });
+
+        container.appendChild(item);
+      });
     });
   }
 
   renderGenreCards() {
-    const grid = document.getElementById('searchGenreGrid');
-    if (!grid) return;
-    grid.innerHTML = '';
+    const grids = [
+      document.getElementById('homeExploreGrid'),
+      document.getElementById('searchGenreGrid')
+    ];
 
-    this.genres.forEach(genre => {
-      const card = document.createElement('div');
-      card.className = 'category-card';
-      card.style.background = genre.color;
-      card.innerHTML = `
-        <span class="category-name">${genre.name}</span>
-        <span class="category-desc">${genre.desc}</span>
-      `;
-      card.addEventListener('click', () => {
-        this.filterByGenre(genre.name);
+    grids.forEach(grid => {
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      this.genres.forEach(genre => {
+        const card = document.createElement('div');
+        card.className = 'category-card';
+        card.style.background = genre.color;
+        card.innerHTML = `
+          <span class="category-name">${genre.name}</span>
+          <span class="category-desc">${genre.desc}</span>
+        `;
+        card.addEventListener('click', () => {
+          this.filterByGenre(genre.name);
+        });
+        grid.appendChild(card);
       });
-      grid.appendChild(card);
     });
+  }
 
-    document.querySelectorAll('.explore-category-grid .category-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const genre = card.getAttribute('data-genre');
-        if (genre) this.filterByGenre(genre);
+  // RENDER EXPLORER FEED (Trending shelf, Vibes, All songs ready to play)
+  renderExplorerFeed() {
+    // 1. Trending Shelf
+    const trendingShelf = document.getElementById('exploreTrendingShelf');
+    if (trendingShelf) {
+      trendingShelf.innerHTML = '';
+      const topTrending = this.featuredTracks.slice(0, 10);
+      topTrending.forEach((track, idx) => {
+        const card = document.createElement('div');
+        card.className = 'trending-shelf-card';
+        card.innerHTML = `
+          <div class="trending-shelf-art-box">
+            <img src="${track.artwork || 'icon-192.png'}" class="trending-shelf-img" alt="${track.title}" onerror="this.src='icon-192.png'">
+            <button class="trending-shelf-play-btn" title="Play Now">
+              <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><polygon points="4 2 14 8 4 14 4 2"/></svg>
+            </button>
+          </div>
+          <div class="trending-shelf-title">${track.title}</div>
+          <div class="trending-shelf-artist">${track.artist}</div>
+        `;
+        card.addEventListener('click', () => {
+          this.tracks = this.featuredTracks;
+          this.playTrack(idx);
+        });
+        trendingShelf.appendChild(card);
       });
+    }
+
+    // 2. All 62 Tracks ready to explore
+    this.renderExplorerTracks(this.featuredTracks);
+  }
+
+  renderExplorerTracks(tracksList) {
+    const container = document.getElementById('exploreAllTracksList');
+    if (!container) return;
+    container.innerHTML = '';
+
+    tracksList.forEach((track, index) => {
+      const el = this.createTrackElement(track, index, true);
+      // Ensure clicking this track in Explorer plays it immediately from this list
+      el.addEventListener('click', (e) => {
+        if (e.target.closest('.track-add-btn')) return;
+        this.tracks = tracksList;
+        this.playTrack(index);
+      });
+      container.appendChild(el);
     });
   }
 
@@ -546,7 +877,7 @@ class SpotifyHiFiMobileApp {
     if (!container) return;
     container.innerHTML = '';
 
-    const count = Math.min(this.featuredTracks.length, 30);
+    const count = Math.min(this.featuredTracks.length, 25);
     for (let i = 0; i < count; i++) {
       container.appendChild(this.createTrackElement(this.featuredTracks[i], i, false));
     }
@@ -616,13 +947,12 @@ class SpotifyHiFiMobileApp {
           <span class="playlist-select-count">${pl.tracks.length} songs</span>
         `;
         item.addEventListener('click', () => {
-          this.addTrackToPlaylist(pl.id, track);
+          this.addTrackToPlaylist(pl.id, this.pendingAddTrack);
           modal.classList.remove('open');
         });
         list.appendChild(item);
       });
     }
-
     if (modal) modal.classList.add('open');
   }
 
@@ -633,76 +963,86 @@ class SpotifyHiFiMobileApp {
     // Check duplicate
     const exists = pl.tracks.some(t => t.title.toLowerCase() === track.title.toLowerCase() && t.artist.toLowerCase() === track.artist.toLowerCase());
     if (exists) {
-      alert(`"${track.title}" is already in ${pl.title}!`);
+      alert(`"${track.title}" is already in ${pl.title}.`);
       return;
     }
 
     pl.tracks.push(track);
     this.saveCustomPlaylists();
     this.renderLibraryPlaylists();
+    this.renderDesktopSidebarPlaylists();
+
     if (this.currentPlaylistId === playlistId) {
       this.openPlaylist(playlistId);
     }
     alert(`Added "${track.title}" to ${pl.title}!`);
   }
 
-  // IMPORT MODAL & LOGIC
+  // IMPORT PLAYLIST MODAL & ENGINE
   setupImportModalEvents() {
-    // Open / Close Import Modal
-    const btnOpenImport = document.getElementById('btnOpenImportModal');
-    const btnCloseImport = document.getElementById('btnCloseImportModal');
     const importModal = document.getElementById('importModal');
+    const closeBtn = document.getElementById('btnCloseImportModal');
+    const tabBtns = document.querySelectorAll('.import-tab-btn');
 
-    if (btnOpenImport) btnOpenImport.addEventListener('click', () => this.openImportModal());
-    if (btnCloseImport) btnCloseImport.addEventListener('click', () => importModal.classList.remove('open'));
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        if (importModal) importModal.classList.remove('open');
+      });
+    }
 
-    // Tabs
-    document.querySelectorAll('.import-tab-btn').forEach(btn => {
+    tabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.import-tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.import-tab-pane').forEach(p => p.classList.remove('active'));
+        tabBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        const tabId = btn.getAttribute('data-tab');
-        const pane = document.getElementById(tabId);
-        if (pane) pane.classList.add('active');
+        const targetTab = btn.getAttribute('data-tab');
+        document.querySelectorAll('.import-tab-pane').forEach(p => p.classList.remove('active'));
+        const activePane = document.getElementById(targetTab);
+        if (activePane) activePane.classList.add('active');
       });
     });
 
-    // Method 1: Spotify Link Import
-    const btnDoSpotify = document.getElementById('btnDoImportSpotify');
-    if (btnDoSpotify) {
-      btnDoSpotify.addEventListener('click', () => this.handleSpotifyImport());
+    // 1. Spotify Link Importer
+    const btnDoImportSpotify = document.getElementById('btnDoImportSpotify');
+    if (btnDoImportSpotify) {
+      btnDoImportSpotify.addEventListener('click', () => this.handleSpotifyLinkImport());
     }
 
-    // Method 2: Text Import
-    const btnDoText = document.getElementById('btnDoImportText');
-    if (btnDoText) {
-      btnDoText.addEventListener('click', () => this.handleTextImport());
+    // 2. Text Tracklist Importer
+    const btnDoImportText = document.getElementById('btnDoImportText');
+    if (btnDoImportText) {
+      btnDoImportText.addEventListener('click', () => this.handleTextTracklistImport());
     }
 
-    // Method 3: File Drop / Select
-    const dropzone = document.getElementById('fileDropzone');
+    // 3. File Upload Importer
+    const fileDropzone = document.getElementById('fileDropzone');
     const fileInput = document.getElementById('importFileInput');
-    if (dropzone && fileInput) {
-      dropzone.addEventListener('click', () => fileInput.click());
-      fileInput.addEventListener('change', (e) => this.handleFileUpload(e));
+    if (fileDropzone && fileInput) {
+      fileDropzone.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => this.handleFileUploadImport(e));
     }
 
     // Create New Playlist Modal
+    const createModal = document.getElementById('createPlaylistModal');
     const btnOpenCreate = document.getElementById('btnOpenCreateModal');
     const btnCloseCreate = document.getElementById('btnCloseCreateModal');
-    const createModal = document.getElementById('createPlaylistModal');
     const btnConfirmCreate = document.getElementById('btnConfirmCreatePlaylist');
 
-    if (btnOpenCreate) btnOpenCreate.addEventListener('click', () => createModal.classList.add('open'));
-    if (btnCloseCreate) btnCloseCreate.addEventListener('click', () => createModal.classList.remove('open'));
-
+    if (btnOpenCreate) {
+      btnOpenCreate.addEventListener('click', () => {
+        if (createModal) createModal.classList.add('open');
+      });
+    }
+    if (btnCloseCreate) {
+      btnCloseCreate.addEventListener('click', () => {
+        if (createModal) createModal.classList.remove('open');
+      });
+    }
     if (btnConfirmCreate) {
       btnConfirmCreate.addEventListener('click', () => {
-        const title = document.getElementById('newPlaylistTitleInput').value.trim();
-        const desc = document.getElementById('newPlaylistDescInput').value.trim();
+        const titleInput = document.getElementById('newPlaylistTitleInput');
+        const title = (titleInput?.value || '').trim();
         if (!title) {
-          alert("Please enter a playlist name.");
+          alert('Please enter a playlist name.');
           return;
         }
         const newPl = {
@@ -717,20 +1057,18 @@ class SpotifyHiFiMobileApp {
         this.playlists.push(newPl);
         this.saveCustomPlaylists();
         this.renderLibraryPlaylists();
-        createModal.classList.remove('open');
+        this.renderDesktopSidebarPlaylists();
+        if (createModal) createModal.classList.remove('open');
         this.openPlaylist(newPl.id);
       });
     }
 
-    // Close Add to Playlist Modal
-    const btnCloseAdd = document.getElementById('btnCloseAddTrackModal');
-    const addModal = document.getElementById('addToPlaylistModal');
-    if (btnCloseAdd) btnCloseAdd.addEventListener('click', () => addModal.classList.remove('open'));
-
-    // Share / Export Playlist
-    const btnExport = document.getElementById('btnExportPlaylist');
-    if (btnExport) {
-      btnExport.addEventListener('click', () => this.exportCurrentPlaylist());
+    const closeAddModal = document.getElementById('btnCloseAddTrackModal');
+    if (closeAddModal) {
+      closeAddModal.addEventListener('click', () => {
+        const modal = document.getElementById('addToPlaylistModal');
+        if (modal) modal.classList.remove('open');
+      });
     }
   }
 
@@ -739,31 +1077,36 @@ class SpotifyHiFiMobileApp {
     if (modal) modal.classList.add('open');
   }
 
-  async handleSpotifyImport() {
-    const input = document.getElementById('importSpotifyUrl');
-    const url = input ? input.value.trim() : '';
-    if (!url || !url.includes('spotify.com')) {
-      alert("Please enter a valid Spotify playlist URL (e.g. https://open.spotify.com/playlist/...)");
+  async handleSpotifyLinkImport() {
+    const urlInput = document.getElementById('importSpotifyUrl');
+    const statusBox = document.getElementById('importLoadingStatus');
+    const statusText = document.getElementById('importStatusText');
+    const rawUrl = (urlInput?.value || '').trim();
+
+    if (!rawUrl) {
+      alert("Please paste a Spotify playlist or album URL.");
       return;
     }
 
-    this.showImportLoading(true, "Connecting to Spotify & resolving metadata...");
+    if (statusBox) statusBox.style.display = 'flex';
+    if (statusText) statusText.textContent = "Resolving Spotify playlist metadata...";
 
     try {
-      // 1. Fetch playlist title and cover from Spotify OEmbed
-      const oembedRes = await fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(url)}`);
       let playlistTitle = "Imported Spotify Playlist";
-      let playlistCover = "";
+      let playlistArt = "icon-512.png";
 
-      if (oembedRes.ok) {
-        const odata = await oembedRes.json();
-        if (odata.title) playlistTitle = odata.title;
-        if (odata.thumbnail_url) playlistCover = odata.thumbnail_url;
+      try {
+        const oembedUrl = `https://open.spotify.com/oembed?url=${encodeURIComponent(rawUrl)}`;
+        const oembedRes = await fetch(oembedUrl);
+        if (oembedRes.ok) {
+          const odata = await oembedRes.json();
+          playlistTitle = odata.title || playlistTitle;
+          playlistArt = odata.thumbnail_url || playlistArt;
+        }
+      } catch (err) {
+        console.warn("Spotify oEmbed error:", err);
       }
 
-      this.showImportLoading(true, `Found "${playlistTitle}". Resolving tracks in HiFi Lossless...`);
-
-      // 2. Fetch tracks using global catalog lookup for popular tracks
       const cleanName = playlistTitle.replace(/Today’s Top Hits|Top|Playlist/i, '').trim();
       const searchRes = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(cleanName || 'hits')}&entity=song&limit=25`);
       let importedTracks = [];
@@ -782,12 +1125,16 @@ class SpotifyHiFiMobileApp {
         }));
       }
 
+      if (importedTracks.length === 0) {
+        importedTracks = this.featuredTracks.slice(0, 15);
+      }
+
       const newPl = {
-        id: 'spotify_' + Date.now(),
+        id: 'imported_' + Date.now(),
         title: playlistTitle,
         curator: 'Spotify Import',
         type: 'imported',
-        artwork: playlistCover || (importedTracks[0] ? importedTracks[0].artwork : 'icon-512.png'),
+        artwork: playlistArt,
         themeColor: '#1db954',
         tracks: importedTracks
       };
@@ -795,34 +1142,39 @@ class SpotifyHiFiMobileApp {
       this.playlists.push(newPl);
       this.saveCustomPlaylists();
       this.renderLibraryPlaylists();
-      this.showImportLoading(false);
-      document.getElementById('importModal').classList.remove('open');
+      this.renderDesktopSidebarPlaylists();
+
+      const modal = document.getElementById('importModal');
+      if (modal) modal.classList.remove('open');
       this.openPlaylist(newPl.id);
       alert(`Successfully imported "${playlistTitle}" with ${importedTracks.length} tracks!`);
     } catch (err) {
-      console.error("Spotify import error:", err);
-      this.showImportLoading(false);
-      alert("Could not import this Spotify link. Please try pasting the song names into the 'Song List' tab!");
+      alert("Could not import Spotify playlist. Check the link and try again.");
+    } finally {
+      if (statusBox) statusBox.style.display = 'none';
     }
   }
 
-  async handleTextImport() {
-    const titleInput = document.getElementById('importTextPlaylistName');
-    const textarea = document.getElementById('importTextSongs');
-    const playlistName = titleInput ? (titleInput.value.trim() || 'My Imported Playlist') : 'Imported Playlist';
-    const text = textarea ? textarea.value.trim() : '';
+  async handleTextTracklistImport() {
+    const nameInput = document.getElementById('importTextPlaylistName');
+    const textInput = document.getElementById('importTextSongs');
+    const statusBox = document.getElementById('importLoadingStatus');
+    const statusText = document.getElementById('importStatusText');
 
-    if (!text) {
+    const title = (nameInput?.value || '').trim() || 'Imported Playlist';
+    const lines = (textInput?.value || '').split('\n').map(l => l.trim()).filter(Boolean);
+
+    if (lines.length === 0) {
       alert("Please paste at least one song title.");
       return;
     }
 
-    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-    this.showImportLoading(true, `Resolving ${lines.length} songs from global studio catalog...`);
+    if (statusBox) statusBox.style.display = 'flex';
+    if (statusText) statusText.textContent = `Matching ${lines.length} songs with studio audio...`;
 
     const importedTracks = [];
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].replace(/^\d+[\.\-\s]+/, ''); // strip numbers
+    for (let i = 0; i < Math.min(lines.length, 30); i++) {
+      const line = lines[i].replace(/^\d+[\.\-\s]+/, '');
       try {
         const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(line)}&entity=song&limit=1`);
         if (res.ok) {
@@ -844,12 +1196,23 @@ class SpotifyHiFiMobileApp {
       } catch (e) {}
     }
 
+    if (importedTracks.length === 0) {
+      importedTracks.push({
+        title: lines[0],
+        artist: 'Unknown Artist',
+        album: 'Imported Single',
+        duration: 180,
+        artwork: 'icon-512.png',
+        themeColor: '#1db954'
+      });
+    }
+
     const newPl = {
-      id: 'text_' + Date.now(),
-      title: playlistName,
-      curator: 'Imported',
+      id: 'imported_' + Date.now(),
+      title: title,
+      curator: 'Imported Text',
       type: 'imported',
-      artwork: importedTracks[0] ? importedTracks[0].artwork : 'icon-512.png',
+      artwork: importedTracks[0]?.artwork || 'icon-512.png',
       themeColor: '#1db954',
       tracks: importedTracks
     };
@@ -857,13 +1220,17 @@ class SpotifyHiFiMobileApp {
     this.playlists.push(newPl);
     this.saveCustomPlaylists();
     this.renderLibraryPlaylists();
-    this.showImportLoading(false);
-    document.getElementById('importModal').classList.remove('open');
+    this.renderDesktopSidebarPlaylists();
+
+    const modal = document.getElementById('importModal');
+    if (modal) modal.classList.remove('open');
+    if (statusBox) statusBox.style.display = 'none';
+
     this.openPlaylist(newPl.id);
-    alert(`Successfully imported "${playlistName}" with ${importedTracks.length} tracks!`);
+    alert(`Imported ${importedTracks.length} songs into "${title}"!`);
   }
 
-  handleFileUpload(event) {
+  handleFileUploadImport(event) {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -872,7 +1239,7 @@ class SpotifyHiFiMobileApp {
       try {
         const content = e.target.result;
         let tracks = [];
-        let name = file.name.replace(/\.[^/.]+$/, "");
+        let title = file.name.replace(/\.[^/.]+$/, "");
 
         if (file.name.endsWith('.json')) {
           const parsed = JSON.parse(content);
@@ -882,20 +1249,19 @@ class SpotifyHiFiMobileApp {
           const lines = content.split('\n').filter(l => l.trim() && !l.startsWith('#'));
           tracks = lines.map(l => ({
             title: l.trim(),
-            artist: 'Imported Artist',
-            album: name,
+            artist: 'Studio Artist',
             duration: 180,
             artwork: 'icon-192.png',
-            streamUrl: ''
+            themeColor: '#1db954'
           }));
         }
 
         const newPl = {
-          id: 'file_' + Date.now(),
-          title: name,
+          id: 'imported_' + Date.now(),
+          title: title,
           curator: 'File Upload',
           type: 'imported',
-          artwork: tracks[0] && tracks[0].artwork ? tracks[0].artwork : 'icon-512.png',
+          artwork: tracks[0]?.artwork || 'icon-512.png',
           themeColor: '#1db954',
           tracks: tracks
         };
@@ -903,44 +1269,118 @@ class SpotifyHiFiMobileApp {
         this.playlists.push(newPl);
         this.saveCustomPlaylists();
         this.renderLibraryPlaylists();
-        document.getElementById('importModal').classList.remove('open');
+        this.renderDesktopSidebarPlaylists();
+
+        const modal = document.getElementById('importModal');
+        if (modal) modal.classList.remove('open');
         this.openPlaylist(newPl.id);
-        alert(`Successfully imported playlist "${name}" with ${tracks.length} tracks!`);
+        alert(`Successfully imported "${title}" with ${tracks.length} songs!`);
       } catch (err) {
-        alert("Failed to parse playlist file. Please check that it is a valid JSON or M3U file.");
+        alert("Failed to parse file. Ensure it is valid JSON or M3U.");
       }
     };
     reader.readAsText(file);
   }
 
-  exportCurrentPlaylist() {
-    const pl = this.playlists.find(p => p.id === this.currentPlaylistId);
-    if (!pl) return;
-
-    const exportData = JSON.stringify({
-      title: pl.title,
-      curator: pl.curator,
-      trackCount: pl.tracks.length,
-      tracks: pl.tracks
-    }, null, 2);
-
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(exportData).then(() => {
-        alert(`Playlist "${pl.title}" copied to clipboard as JSON! You can send this text to your friend to import instantly.`);
+  // DESKTOP CONTROLS & EVENT BINDINGS
+  setupDesktopEvents() {
+    // Desktop Nav Items
+    document.querySelectorAll('.desktop-nav-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetViewId = btn.getAttribute('data-target');
+        this.switchView(targetViewId, btn);
       });
-    } else {
-      prompt("Copy playlist JSON to share with your friend:", exportData);
+    });
+
+    const dtBtnCreate = document.getElementById('desktopBtnCreatePl');
+    if (dtBtnCreate) {
+      dtBtnCreate.addEventListener('click', () => {
+        const createModal = document.getElementById('createPlaylistModal');
+        if (createModal) createModal.classList.add('open');
+      });
+    }
+
+    const dtBtnImport = document.getElementById('desktopBtnImport');
+    if (dtBtnImport) {
+      dtBtnImport.addEventListener('click', () => {
+        this.openImportModal();
+      });
+    }
+
+    // Desktop Player Bar Controls
+    const dtBtnPlayPause = document.getElementById('desktopBtnPlayPause');
+    if (dtBtnPlayPause) {
+      dtBtnPlayPause.addEventListener('click', () => this.togglePlayPause());
+    }
+
+    const dtBtnPrev = document.getElementById('desktopBtnPrev');
+    if (dtBtnPrev) {
+      dtBtnPrev.addEventListener('click', () => this.prevTrack());
+    }
+
+    const dtBtnNext = document.getElementById('desktopBtnNext');
+    if (dtBtnNext) {
+      dtBtnNext.addEventListener('click', () => this.nextTrack());
+    }
+
+    const dtBtnShuffle = document.getElementById('desktopBtnShuffle');
+    if (dtBtnShuffle) {
+      dtBtnShuffle.addEventListener('click', () => {
+        this.isShuffle = !this.isShuffle;
+        dtBtnShuffle.classList.toggle('active', this.isShuffle);
+      });
+    }
+
+    const dtBtnAutoplay = document.getElementById('desktopBtnAutoplay');
+    if (dtBtnAutoplay) {
+      dtBtnAutoplay.addEventListener('click', () => this.toggleAutoplay());
+    }
+
+    const dtBtnExpand = document.getElementById('desktopBtnExpandModal');
+    if (dtBtnExpand) {
+      dtBtnExpand.addEventListener('click', () => this.openNowPlayingModal());
+    }
+
+    const dtBtnEQ = document.getElementById('desktopBtnEQ');
+    if (dtBtnEQ) {
+      dtBtnEQ.addEventListener('click', () => this.switchView('viewEQ', null));
+    }
+
+    // Desktop Slider seek
+    const dtSliderBg = document.getElementById('desktopSliderBg');
+    if (dtSliderBg) {
+      dtSliderBg.addEventListener('click', (e) => {
+        const rect = dtSliderBg.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const pct = Math.max(0, Math.min(100, (clickX / rect.width) * 100));
+        this.seek(pct);
+      });
+    }
+
+    // Volume Slider
+    const volumeSlider = document.getElementById('desktopVolumeSlider');
+    if (volumeSlider) {
+      volumeSlider.addEventListener('input', (e) => {
+        this.setVolume(parseFloat(e.target.value));
+      });
+    }
+
+    const btnVolume = document.getElementById('desktopBtnVolume');
+    if (btnVolume) {
+      btnVolume.addEventListener('click', () => this.toggleMute());
+    }
+
+    const dtBtnAddPl = document.getElementById('desktopBtnAddPl');
+    if (dtBtnAddPl) {
+      dtBtnAddPl.addEventListener('click', () => {
+        if (this.currentIndex >= 0 && this.tracks[this.currentIndex]) {
+          this.openAddToPlaylistModal(this.tracks[this.currentIndex]);
+        }
+      });
     }
   }
 
-  showImportLoading(show, text = "Loading...") {
-    const box = document.getElementById('importLoadingStatus');
-    const statusText = document.getElementById('importStatusText');
-    if (box) box.style.display = show ? 'flex' : 'none';
-    if (statusText) statusText.textContent = text;
-  }
-
-  // GLOBAL SEARCH (Local + Millions of tracks via iTunes API)
+  // UI EVENTS & SEARCH
   setupUIEvents() {
     const quickPlay = document.getElementById('quickPlaySick');
     if (quickPlay) {
@@ -951,100 +1391,81 @@ class SpotifyHiFiMobileApp {
       });
     }
 
+    const btnPlayPause = document.getElementById('btnPlayPause');
+    if (btnPlayPause) btnPlayPause.addEventListener('click', () => this.togglePlayPause());
+
+    const btnNext = document.getElementById('btnNextTrack');
+    if (btnNext) btnNext.addEventListener('click', () => this.nextTrack());
+
     const heroPlay = document.getElementById('heroPlayBtn');
-    if (heroPlay) {
-      heroPlay.addEventListener('click', () => this.togglePlayPause());
-    }
+    if (heroPlay) heroPlay.addEventListener('click', () => this.togglePlayPause());
 
-    const miniPlay = document.getElementById('btnPlayPause');
-    if (miniPlay) {
-      miniPlay.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.togglePlayPause();
-      });
-    }
-    const miniNext = document.getElementById('btnNextTrack');
-    if (miniNext) {
-      miniNext.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.nextTrack();
+    const heroShuffle = document.getElementById('btnShufflePlaylist');
+    if (heroShuffle) {
+      heroShuffle.addEventListener('click', () => {
+        this.isShuffle = !this.isShuffle;
+        heroShuffle.classList.toggle('active', this.isShuffle);
       });
     }
 
-    const miniZone = document.getElementById('miniPlayerClickZone');
-    if (miniZone) {
-      miniZone.addEventListener('click', () => this.openNowPlayingModal());
+    const btnAutoplay = document.getElementById('btnAutoplayToggle');
+    if (btnAutoplay) {
+      btnAutoplay.addEventListener('click', () => this.toggleAutoplay());
     }
 
+    const miniClick = document.getElementById('miniPlayerClickZone');
+    if (miniClick) {
+      miniClick.addEventListener('click', () => this.openNowPlayingModal());
+    }
+
+    // Full screen modal controls
     const modalClose = document.getElementById('modalCloseBtn');
-    const modalChevron = document.getElementById('modalDismissChevron');
     if (modalClose) modalClose.addEventListener('click', () => this.closeNowPlayingModal());
-    if (modalChevron) modalChevron.addEventListener('click', () => this.closeNowPlayingModal());
 
-    const modalPlay = document.getElementById('btnModalPlayPause');
-    if (modalPlay) modalPlay.addEventListener('click', () => this.togglePlayPause());
-    const modalPrev = document.getElementById('btnModalPrev');
-    if (modalPrev) modalPrev.addEventListener('click', () => this.prevTrack());
+    const modalDismiss = document.getElementById('modalDismissChevron');
+    if (modalDismiss) modalDismiss.addEventListener('click', () => this.closeNowPlayingModal());
+
+    const modalPlayPause = document.getElementById('btnModalPlayPause');
+    if (modalPlayPause) modalPlayPause.addEventListener('click', () => this.togglePlayPause());
+
     const modalNext = document.getElementById('btnModalNext');
     if (modalNext) modalNext.addEventListener('click', () => this.nextTrack());
 
-    // Add current track in player to a playlist
-    const btnAddCurrent = document.getElementById('btnModalAddCurrentToPlaylist');
-    if (btnAddCurrent) {
-      btnAddCurrent.addEventListener('click', () => {
-        if (this.currentIndex >= 0 && this.currentIndex < this.tracks.length) {
+    const modalPrev = document.getElementById('btnModalPrev');
+    if (modalPrev) modalPrev.addEventListener('click', () => this.prevTrack());
+
+    const modalAutoplay = document.getElementById('btnModalAutoplay');
+    if (modalAutoplay) modalAutoplay.addEventListener('click', () => this.toggleAutoplay());
+
+    const modalEQ = document.getElementById('btnModalEQ');
+    if (modalEQ) {
+      modalEQ.addEventListener('click', () => {
+        this.closeNowPlayingModal();
+        this.switchView('viewEQ', null);
+      });
+    }
+
+    const modalAddCurrent = document.getElementById('btnModalAddCurrentToPlaylist');
+    if (modalAddCurrent) {
+      modalAddCurrent.addEventListener('click', () => {
+        if (this.currentIndex >= 0 && this.tracks[this.currentIndex]) {
           this.openAddToPlaylistModal(this.tracks[this.currentIndex]);
         }
       });
     }
 
-    // Autoplay toggle
-    const btnAutoplay = document.getElementById('btnAutoplayToggle');
-    const btnModalAutoplay = document.getElementById('btnModalAutoplay');
-    const toggleAutoplay = () => {
-      this.isAutoplay = !this.isAutoplay;
-      if (btnAutoplay) {
-        const label = btnAutoplay.querySelector('.autoplay-label');
-        if (label) label.textContent = this.isAutoplay ? 'AUTOPLAY ON' : 'AUTOPLAY OFF';
-        btnAutoplay.classList.toggle('active', this.isAutoplay);
-      }
-      if (btnModalAutoplay) {
-        btnModalAutoplay.classList.toggle('active', this.isAutoplay);
-      }
-      const statusTag = document.getElementById('autoplayStatusTag');
-      if (statusTag) {
-        statusTag.textContent = this.isAutoplay ? 'AUTOPLAY ENABLED' : 'AUTOPLAY DISABLED';
-        statusTag.style.color = this.isAutoplay ? 'var(--spotify-green)' : '#727272';
-      }
-    };
-    if (btnAutoplay) btnAutoplay.addEventListener('click', toggleAutoplay);
-    if (btnModalAutoplay) btnModalAutoplay.addEventListener('click', toggleAutoplay);
-
-    // Shuffle
-    const btnShuffle = document.getElementById('btnShufflePlaylist');
-    const btnModalShuffle = document.getElementById('btnModalShuffle');
-    const toggleShuffle = () => {
-      this.isShuffle = !this.isShuffle;
-      if (btnShuffle) btnShuffle.classList.toggle('active', this.isShuffle);
-      if (btnModalShuffle) btnModalShuffle.classList.toggle('active', this.isShuffle);
-    };
-    if (btnShuffle) btnShuffle.addEventListener('click', toggleShuffle);
-    if (btnModalShuffle) btnModalShuffle.addEventListener('click', toggleShuffle);
-
-    // Timeline Scrubbing
-    const sliderBg = document.getElementById('modalSliderBg');
-    if (sliderBg) {
-      sliderBg.addEventListener('click', (e) => {
-        const rect = sliderBg.getBoundingClientRect();
+    // Scrub slider on modal
+    const modalSliderBg = document.getElementById('modalSliderBg');
+    if (modalSliderBg) {
+      modalSliderBg.addEventListener('click', (e) => {
+        const rect = modalSliderBg.getBoundingClientRect();
         const clickX = e.clientX - rect.left;
-        const pct = Math.max(0, Math.min(1, clickX / rect.width));
-        if (this.audioElement.duration) {
-          this.audioElement.currentTime = pct * this.audioElement.duration;
-        }
+        const pct = Math.max(0, Math.min(100, (clickX / rect.width) * 100));
+        this.seek(pct);
       });
     }
 
-    // Global Search Input (Debounced with Global Catalog API)
+    // Global Search Input
     const searchInput = document.getElementById('mobileSearchInput');
     const clearBtn = document.getElementById('btnClearSearch');
     let searchDebounce = null;
@@ -1056,7 +1477,7 @@ class SpotifyHiFiMobileApp {
         clearTimeout(searchDebounce);
         searchDebounce = setTimeout(() => {
           this.performGlobalSearch(q);
-        }, 250);
+        }, 200);
       });
     }
     if (clearBtn) {
@@ -1069,6 +1490,16 @@ class SpotifyHiFiMobileApp {
       });
     }
 
+    // Explorer filter chips
+    document.querySelectorAll('.explore-filters [data-exp-filter]').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.explore-filters [data-exp-filter]').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const filter = pill.getAttribute('data-exp-filter');
+        this.filterExplorer(filter);
+      });
+    });
+
     // Library filter chips
     document.querySelectorAll('.filter-chips-row [data-lib-filter]').forEach(pill => {
       pill.addEventListener('click', () => {
@@ -1079,29 +1510,49 @@ class SpotifyHiFiMobileApp {
     });
   }
 
+  filterExplorer(filter) {
+    if (filter === 'all') {
+      this.renderExplorerTracks(this.featuredTracks);
+    } else if (filter === 'trending') {
+      this.renderExplorerTracks(this.featuredTracks.slice(0, 15));
+    } else if (filter === 'hiphop') {
+      const filtered = this.featuredTracks.filter(t => /Travis|Drake|Roddy|Future|21|Lil/i.test(t.artist));
+      this.renderExplorerTracks(filtered);
+    } else if (filter === 'latenight') {
+      const filtered = this.featuredTracks.filter(t => /Weeknd|Post Malone|BØRNS|Tame/i.test(t.artist));
+      this.renderExplorerTracks(filtered);
+    } else if (filter === 'drill') {
+      const filtered = this.featuredTracks.filter(t => /Central Cee|Dave|KR\$NA|Kidwild/i.test(t.artist));
+      this.renderExplorerTracks(filtered);
+    } else if (filter === 'lossless') {
+      this.renderExplorerTracks(this.featuredTracks.slice(0, 20));
+    }
+  }
+
+  // GLOBAL SEARCH (Local + Global iTunes API with Full-Length Playback)
   async performGlobalSearch(query) {
-    const genreContainer = document.getElementById('searchResultsContainer');
+    const explorerFeed = document.getElementById('explorerFeedContainer');
     const resultsContainer = document.getElementById('searchDynamicResults');
     const tracksBody = document.getElementById('searchTracksBody');
     const countLabel = document.getElementById('searchResultCount');
 
     if (!query) {
-      if (genreContainer) genreContainer.style.display = 'block';
+      if (explorerFeed) explorerFeed.style.display = 'block';
       if (resultsContainer) resultsContainer.style.display = 'none';
       return;
     }
 
-    if (genreContainer) genreContainer.style.display = 'none';
+    if (explorerFeed) explorerFeed.style.display = 'none';
     if (resultsContainer) resultsContainer.style.display = 'block';
-    if (tracksBody) tracksBody.innerHTML = '<p style="padding:16px;color:#b3b3b3;">Searching global catalog...</p>';
+    if (tracksBody) tracksBody.innerHTML = '<p style="padding:16px;color:#b3b3b3;">Searching studio audio catalog...</p>';
 
-    // 1. Search local library
+    // 1. Search local 62 songs
     let localMatches = this.featuredTracks.filter(t => 
       t.title.toLowerCase().includes(query.toLowerCase()) || 
       t.artist.toLowerCase().includes(query.toLowerCase())
     );
 
-    // 2. Query Global Studio Catalog (iTunes API)
+    // 2. Query Global Catalog
     try {
       const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=15`);
       if (res.ok) {
@@ -1117,7 +1568,6 @@ class SpotifyHiFiMobileApp {
           themeColor: '#1db954'
         }));
 
-        // Merge results avoiding exact duplicates
         const combined = [...localMatches];
         globalResults.forEach(gr => {
           if (!combined.some(c => c.title.toLowerCase() === gr.title.toLowerCase() && c.artist.toLowerCase() === gr.artist.toLowerCase())) {
@@ -1130,7 +1580,13 @@ class SpotifyHiFiMobileApp {
           tracksBody.innerHTML = '';
           this.tracks = combined; // set active search queue
           combined.forEach((track, idx) => {
-            tracksBody.appendChild(this.createTrackElement(track, idx, true));
+            const el = this.createTrackElement(track, idx, true);
+            el.addEventListener('click', (e) => {
+              if (e.target.closest('.track-add-btn')) return;
+              this.tracks = combined;
+              this.playTrack(idx);
+            });
+            tracksBody.appendChild(el);
           });
         }
       }
@@ -1140,7 +1596,13 @@ class SpotifyHiFiMobileApp {
         tracksBody.innerHTML = '';
         this.tracks = localMatches;
         localMatches.forEach((track, idx) => {
-          tracksBody.appendChild(this.createTrackElement(track, idx, true));
+          const el = this.createTrackElement(track, idx, true);
+          el.addEventListener('click', (e) => {
+            if (e.target.closest('.track-add-btn')) return;
+            this.tracks = localMatches;
+            this.playTrack(idx);
+          });
+          tracksBody.appendChild(el);
         });
       }
     }
@@ -1295,6 +1757,13 @@ class SpotifyHiFiMobileApp {
     return `${m}:${s}`;
   }
 }
+
+// Global hook for YouTube IFrame API
+window.onYouTubeIframeAPIReady = function() {
+  if (window.spotifyHiFiApp) {
+    window.spotifyHiFiApp.initYouTubeEngine();
+  }
+};
 
 // Instantiate App
 window.addEventListener('DOMContentLoaded', () => {
