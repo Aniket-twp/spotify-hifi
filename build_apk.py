@@ -33,7 +33,7 @@ os.makedirs(OBJ_DIR, exist_ok=True)
 # Prepare assets for APK
 assets_dir = os.path.join(BASE_DIR, "android", "app", "src", "main", "assets", "www")
 os.makedirs(assets_dir, exist_ok=True)
-for item in ["index.html", "styles.css", "app.js", "artists_data.js", "sick_playlist.js", "sick_playlist.json", "manifest.json", "sw.js", "icon-192.png", "icon-512.png", "favicon.png"]:
+for item in ["index.html", "styles.css", "app.js", "artists_data.js", "sick_playlist.js", "sick_playlist.json", "manifest.json", "manifest.webmanifest", "sw.js", "icon.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "favicon.png", "favicon.ico"]:
     src = os.path.join(BASE_DIR, item)
     if os.path.exists(src):
         shutil.copy2(src, os.path.join(assets_dir, item))
@@ -54,8 +54,8 @@ cmd = [
     "--manifest", manifest_xml,
     "--min-sdk-version", "24",
     "--target-sdk-version", "34",
-    "--version-code", "6",
-    "--version-name", "1.0.6",
+    "--version-code", "7",
+    "--version-name", "1.0.7",
     "-o", unaligned_apk,
     "--java", GEN_DIR,
     "-A", app_assets,

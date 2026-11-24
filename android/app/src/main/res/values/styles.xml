@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Liquid Glass chrome: the window itself is the wallpaper colour, so there is
+         no white flash on cold start and the system bars disappear into the glass. -->
+    <style name="Theme.Refract" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#05060b</item>
+        <item name="android:colorBackground">#05060b</item>
+        <item name="android:statusBarColor">#05060b</item>
+        <item name="android:navigationBarColor">#05060b</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:textColorPrimary">#ffffffff</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Activity</item>
+    </style>
+</resources>

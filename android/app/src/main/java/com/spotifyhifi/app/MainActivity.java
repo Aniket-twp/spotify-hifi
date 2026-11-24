@@ -1,6 +1,8 @@
 package com.spotifyhifi.app;
 
 import android.app.Activity;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -19,6 +21,10 @@ public class MainActivity extends Activity {
 
         // Keep screen on during music playback
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        // Edge-to-edge: the Liquid Glass wallpaper runs underneath the status and
+        // gesture bars, and the page reads them through env(safe-area-inset-*).
+        goEdgeToEdge();
 
         // Enable Chrome DevTools remote debugging
         WebView.setWebContentsDebuggingEnabled(true);
@@ -53,6 +59,34 @@ public class MainActivity extends Activity {
 
         setContentView(webView);
         webView.loadUrl("https://spotify-hifi.local/index.html");
+    }
+
+    private void goEdgeToEdge() {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(Color.TRANSPARENT);
+        window.setNavigationBarColor(Color.TRANSPARENT);
+
+        View decor = window.getDecorView();
+        int vis = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+        // White system icons: the material is always dark glass.
+        vis &= ~(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+        decor.setSystemUiVisibility(vis);
+
+        if (Build.VERSION.SDK_INT >= 30) {
+            window.setDecorFitsSystemWindows(false);
+        }
+        if (Build.VERSION.SDK_INT >= 29) {
+            window.setNavigationBarDividerColor(0x00000000);
+        }
+        if (Build.VERSION.SDK_INT >= 27) {
+            // Full-bleed glass: the wallpaper continues behind punch-holes and notches
+            // and the page receives them as env(safe-area-inset-*).
+            window.getAttributes().layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+        }
     }
 
     @Override
