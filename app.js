@@ -12,6 +12,9 @@ class SpotifyHiFiMobileApp {
     this.ytTimer = null;
     this.pendingTrack = null;
 
+    // Multi-User Profile (Customizable for User & Friends)
+    this.userProfile = { name: 'Aniket', avatar: 'A' };
+
     // Pinned featured playlist ("sick 🫢" by Aniket)
     this.featuredTracks = (window.SICK_PLAYLIST && Array.isArray(window.SICK_PLAYLIST) && window.SICK_PLAYLIST.length > 0)
       ? window.SICK_PLAYLIST
@@ -67,6 +70,7 @@ class SpotifyHiFiMobileApp {
   }
 
   async init() {
+    this.loadUserProfile();
     this.updateGreeting();
     this.loadPlaylistsFromStorage();
     this.setupNavigation();
@@ -74,6 +78,7 @@ class SpotifyHiFiMobileApp {
     this.setupUIEvents();
     this.setupEqualizerUI();
     this.setupImportModalEvents();
+    this.setupProfileModalEvents();
     this.setupDesktopEvents();
 
     this.renderArtists();
@@ -84,7 +89,16 @@ class SpotifyHiFiMobileApp {
     this.renderDesktopSidebarPlaylists();
     this.setupArtistProfileEvents();
     this.setupCanvasEvents();
-    this.openPlaylist('sick');
+
+    // Prepare active playlist data
+    const sickPl = this.playlists.find(p => p.id === 'sick');
+    if (sickPl) {
+      this.currentPlaylistId = 'sick';
+      this.tracks = sickPl.tracks;
+      this.renderPlaylistTracks(sickPl);
+    }
+    // Start strictly on Home view
+    this.switchView('viewHome', document.getElementById('mNavHome'));
 
     // Initialize YouTube engine if API already loaded
     if (window.YT && window.YT.Player) {
@@ -99,6 +113,7 @@ class SpotifyHiFiMobileApp {
       this.ytPlayer = new YT.Player('ytPlayerTarget', {
         height: '120',
         width: '120',
+        host: 'https://www.youtube-nocookie.com',
         playerVars: {
           autoplay: 1,
           controls: 0,
@@ -108,7 +123,9 @@ class SpotifyHiFiMobileApp {
           rel: 0,
           enablejsapi: 1,
           modestbranding: 1,
-          iv_load_policy: 3
+          iv_load_policy: 3,
+          origin: window.location.origin || 'https://spotify-hifi.local',
+          widget_referrer: window.location.origin || 'https://spotify-hifi.local'
         },
         events: {
           onReady: () => {
@@ -169,10 +186,11 @@ class SpotifyHiFiMobileApp {
       }
 
       const activeTrack = this.tracks[this.currentIndex];
-      if ((!dur || dur <= 30) && activeTrack && activeTrack.duration) {
+      if (activeTrack && activeTrack.duration > 35) {
         dur = activeTrack.duration;
+      } else if (!dur || dur <= 35) {
+        dur = 180;
       }
-      if (!dur) dur = 180;
 
       const pct = Math.min(100, Math.max(0, (cur / dur) * 100));
 
@@ -204,6 +222,11 @@ class SpotifyHiFiMobileApp {
   }
 
   handleBackPressed() {
+    const profileModal = document.getElementById('profileModal');
+    if (profileModal && profileModal.classList.contains('open')) {
+      profileModal.classList.remove('open');
+      return true;
+    }
     const modal = document.getElementById('nowPlayingModal');
     if (modal && modal.classList.contains('open')) {
       this.closeNowPlayingModal();
@@ -255,17 +278,40 @@ class SpotifyHiFiMobileApp {
     }
   }
 
+  loadUserProfile() {
+    let profile = { name: 'Aniket', avatar: 'A' };
+    try {
+      const saved = localStorage.getItem('spotify_hifi_user_profile');
+      if (saved) profile = JSON.parse(saved);
+    } catch (e) {}
+    this.userProfile = profile;
+    this.applyUserProfile();
+  }
+
+  applyUserProfile() {
+    const topAvatar = document.getElementById('topbarUserAvatar');
+    if (topAvatar) topAvatar.textContent = this.userProfile.avatar || (this.userProfile.name ? this.userProfile.name[0].toUpperCase() : 'A');
+
+    const libAvatar = document.getElementById('libUserAvatar');
+    if (libAvatar) libAvatar.textContent = this.userProfile.avatar || (this.userProfile.name ? this.userProfile.name[0].toUpperCase() : 'A');
+
+    this.updateGreeting();
+  }
+
   updateGreeting() {
     const hours = new Date().getHours();
     let text = "Good evening";
     if (hours < 12) text = "Good morning";
     else if (hours < 18) text = "Good afternoon";
+    if (this.userProfile && this.userProfile.name && this.userProfile.name.trim() !== '') {
+      text = `${text}, ${this.userProfile.name}`;
+    }
     const elem = document.getElementById('greetingHeading');
     if (elem) elem.textContent = text;
   }
 
   // PLAYLIST STORAGE & MANAGEMENT
-  loadPlaylistsFromStorage() {
+  loadPlaylistsFromStorage(forceRestore = false) {
     // 1. Featured "sick 🫢"
     const sickPl = {
       id: 'sick',
@@ -277,31 +323,54 @@ class SpotifyHiFiMobileApp {
       tracks: this.featuredTracks
     };
 
-    // 2. Liked Songs
+    // 2. Built-in "Today's Top Hits" (Lossless Master)
+    const topHitsPl = {
+      id: 'tophits',
+      title: "Today's Top Hits",
+      curator: 'Spotify HiFi Editorial',
+      type: 'featured',
+      artwork: 'https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg',
+      themeColor: '#1db954',
+      tracks: this.featuredTracks.slice(0, 20)
+    };
+
+    // 3. Built-in "RapCaviar 2026"
+    const rapTracks = this.featuredTracks.filter(t => /Travis|Kendrick|Roddy|Drake|Future|21|Lil/i.test(t.artist));
+    const rapCaviarPl = {
+      id: 'rapcaviar',
+      title: 'RapCaviar 2026',
+      curator: 'HiFi Hip-Hop',
+      type: 'featured',
+      artwork: 'https://cdn-images.dzcdn.net/images/artist/8d8316146026d7e6ce377e314536df62/500x500-000000-80-0-0.jpg',
+      themeColor: '#ff7700',
+      tracks: rapTracks.length > 0 ? rapTracks : this.featuredTracks.slice(0, 15)
+    };
+
+    // 4. Liked Songs
     let likedSongs = [];
     try {
       const savedLiked = localStorage.getItem('spotify_hifi_liked_songs');
-      if (savedLiked) likedSongs = JSON.parse(savedLiked);
+      if (savedLiked && !forceRestore) likedSongs = JSON.parse(savedLiked);
     } catch (e) {}
 
     const likedPl = {
       id: 'liked',
       title: 'Liked Songs',
-      curator: 'You',
+      curator: this.userProfile ? this.userProfile.name : 'You',
       type: 'custom',
       artwork: 'icon-512.png',
       themeColor: '#1db954',
       tracks: likedSongs
     };
 
-    // 3. User Custom / Imported Playlists
+    // 5. User Custom / Imported Playlists
     let customPlaylists = [];
     try {
       const savedCustom = localStorage.getItem('spotify_hifi_custom_playlists');
-      if (savedCustom) customPlaylists = JSON.parse(savedCustom);
+      if (savedCustom && !forceRestore) customPlaylists = JSON.parse(savedCustom);
     } catch (e) {}
 
-    this.playlists = [sickPl, likedPl, ...customPlaylists];
+    this.playlists = [sickPl, topHitsPl, rapCaviarPl, likedPl, ...customPlaylists];
   }
 
   saveCustomPlaylists() {
@@ -335,10 +404,54 @@ class SpotifyHiFiMobileApp {
       });
     }
 
+    const btnEQBack = document.getElementById('btnEQBack');
+    if (btnEQBack) {
+      btnEQBack.addEventListener('click', () => {
+        this.switchView('viewHome', document.getElementById('mNavHome'));
+      });
+    }
+
+    const btnPlaylistBack = document.getElementById('btnPlaylistBackToPrev');
+    if (btnPlaylistBack) {
+      btnPlaylistBack.addEventListener('click', () => {
+        this.switchView('viewHome', document.getElementById('mNavHome'));
+      });
+    }
+
     const shortcutSick = document.getElementById('shortcutSick');
     if (shortcutSick) {
       shortcutSick.addEventListener('click', () => {
         this.openPlaylist('sick');
+      });
+    }
+
+    const quickPlaySick = document.getElementById('quickPlaySick');
+    if (quickPlaySick) {
+      quickPlaySick.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openPlaylist('sick');
+        this.playTrack(0);
+      });
+    }
+
+    const shortcutLiked = document.getElementById('shortcutLiked');
+    if (shortcutLiked) {
+      shortcutLiked.addEventListener('click', () => {
+        this.openPlaylist('liked');
+      });
+    }
+
+    const cardSickJump = document.getElementById('cardSickJump');
+    if (cardSickJump) {
+      cardSickJump.addEventListener('click', () => {
+        this.openPlaylist('sick');
+      });
+    }
+
+    const cardImportJump = document.getElementById('cardImportJump');
+    if (cardImportJump) {
+      cardImportJump.addEventListener('click', () => {
+        this.openImportModal();
       });
     }
 
@@ -356,11 +469,45 @@ class SpotifyHiFiMobileApp {
       });
     }
 
+    const btnOpenImportModal = document.getElementById('btnOpenImportModal');
+    if (btnOpenImportModal) {
+      btnOpenImportModal.addEventListener('click', () => {
+        this.openImportModal();
+      });
+    }
+
     const btnSeeAll = document.getElementById('btnSeeAllTracks');
     if (btnSeeAll) {
       btnSeeAll.addEventListener('click', () => {
         this.openPlaylist('sick');
       });
+    }
+
+    // Topbar category chips
+    document.querySelectorAll('.topbar-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.topbar-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const filter = chip.getAttribute('data-filter');
+        this.filterHomeByChip(filter);
+      });
+    });
+  }
+
+  filterHomeByChip(filter) {
+    if (filter === 'all') {
+      this.renderHomeFeatured();
+    } else if (filter === 'music') {
+      this.renderHomeFeatured();
+    } else if (filter === 'lossless') {
+      const lossless = this.featuredTracks.filter(t => t.duration > 180);
+      const container = document.getElementById('homeFeaturedTracks');
+      if (container) {
+        container.innerHTML = '';
+        lossless.slice(0, 20).forEach((t, i) => {
+          container.appendChild(this.createTrackElement(t, i, false));
+        });
+      }
     }
   }
 
@@ -412,18 +559,23 @@ class SpotifyHiFiMobileApp {
 
     this.audioElement.addEventListener('loadedmetadata', () => {
       const activeTrack = this.tracks[this.currentIndex];
-      if (!activeTrack || !activeTrack.duration || activeTrack.duration <= 35) {
-        const dur = this.audioElement.duration || 0;
-        const totalLabel = document.getElementById('modalTotalTime');
-        if (totalLabel) totalLabel.textContent = this.formatTime(dur);
-        const dtTotalLabel = document.getElementById('desktopTotalTime');
-        if (dtTotalLabel) dtTotalLabel.textContent = this.formatTime(dur);
-      }
+      const dur = (activeTrack && activeTrack.duration > 35) 
+        ? activeTrack.duration 
+        : (this.audioElement.duration > 35 ? this.audioElement.duration : 180);
+      const totalLabel = document.getElementById('modalTotalTime');
+      if (totalLabel) totalLabel.textContent = this.formatTime(dur);
+      const dtTotalLabel = document.getElementById('desktopTotalTime');
+      if (dtTotalLabel) dtTotalLabel.textContent = this.formatTime(dur);
     });
 
     this.audioElement.addEventListener('ended', () => {
       if (this.isYtReady && this.ytPlayer && this.isPlaying) return;
-      if (this.isAutoplay) {
+      const activeTrack = this.tracks[this.currentIndex];
+      if (activeTrack && activeTrack.duration > 35) {
+        // Smoothly loop preview so audio NEVER abruptly stops or terminates
+        this.audioElement.currentTime = 0;
+        this.audioElement.play().catch(console.warn);
+      } else if (this.isAutoplay) {
         this.nextTrack();
       }
     });
@@ -505,30 +657,45 @@ class SpotifyHiFiMobileApp {
   }
 
   playYouTubeVideo(videoId) {
-    if (this.isYtReady && this.ytPlayer && typeof this.ytPlayer.loadVideoById === 'function') {
-      try {
-        this.audioElement.pause();
-        this.audioElement.currentTime = 0;
-        this.ytPlayer.loadVideoById({
-          videoId: videoId,
-          startSeconds: 0
-        });
-        this.ytPlayer.playVideo();
-        this.updatePlayState(true);
-        this.startYtProgressTimer();
-      } catch (err) {
-        console.warn("YouTube play error:", err);
-        this.fallbackToAudioElement();
+    this.currentEngine = 'youtube';
+    const target = document.getElementById('ytPlayerTarget');
+
+    try {
+      this.audioElement.pause();
+      this.audioElement.currentTime = 0;
+    } catch (e) {}
+
+    if (!this.isYtReady || !this.ytPlayer || typeof this.ytPlayer.loadVideoById !== 'function') {
+      if (target) {
+        target.innerHTML = `<iframe id="ytActiveIframe" width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&playsinline=1&enablejsapi=1&controls=0" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
       }
-    } else {
-      this.pendingTrack = this.tracks[this.currentIndex];
+      this.updatePlayState(true);
+      this.startYtProgressTimer();
+      return;
+    }
+
+    try {
+      this.ytPlayer.loadVideoById({
+        videoId: videoId,
+        startSeconds: 0
+      });
+      this.ytPlayer.playVideo();
+      this.updatePlayState(true);
+      this.startYtProgressTimer();
+    } catch (err) {
+      console.warn("YouTube play error:", err);
+      if (target) {
+        target.innerHTML = `<iframe id="ytActiveIframe" width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&playsinline=1&enablejsapi=1&controls=0" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
+      }
+      this.updatePlayState(true);
+      this.startYtProgressTimer();
     }
   }
 
   async resolveAndPlayYouTube(track) {
     let resolvedId = null;
 
-    // 1. AndroidBridge (200ms background thread via native Java with zero CORS)
+    // 1. AndroidBridge (Ultra-fast Innertube API via Java with zero CORS)
     if (window.AndroidBridge && typeof window.AndroidBridge.resolveYouTubeId === 'function') {
       try {
         const query = `${track.artist} ${track.title} audio`;
@@ -541,18 +708,44 @@ class SpotifyHiFiMobileApp {
       }
     }
 
+    // 2. Direct Web Innertube API Fallback
+    if (!resolvedId) {
+      try {
+        const query = `${track.artist} ${track.title} audio`;
+        const resp = await fetch('https://www.youtube.com/youtubei/v1/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            context: { client: { clientName: 'WEB', clientVersion: '2.20240101.01.00' } },
+            query: query
+          })
+        });
+        if (resp.ok) {
+          const text = await resp.text();
+          const match = text.match(/"videoId":\s*"([a-zA-Z0-9_-]{11})"/);
+          if (match && match[1]) {
+            resolvedId = match[1];
+          }
+        }
+      } catch (e) {
+        console.warn("JS Innertube search error:", e);
+      }
+    }
+
     if (resolvedId) {
       track.youtubeId = resolvedId;
       this.playYouTubeVideo(resolvedId);
       return;
     }
 
-    // 2. Fallback to HTML5 audio preview if offline or resolution fails
+    // 3. Fallback to HTML5 audio preview if offline or resolution fails
     const streamUrl = track.streamUrl || track.previewFallback;
     if (streamUrl) {
+      this.currentEngine = 'html5';
       this.audioElement.src = streamUrl;
       this.audioElement.play().catch(console.warn);
       this.updatePlayState(true);
+      this.startYtProgressTimer();
     }
   }
 
@@ -775,27 +968,28 @@ class SpotifyHiFiMobileApp {
     this.tracks = pl.tracks;
 
     this.switchView('viewPlaylist', null);
+    this.renderPlaylistTracks(pl);
+  }
 
+  renderPlaylistTracks(pl) {
     const titleElem = document.getElementById('playlistTitle');
+    const stickyNavTitle = document.getElementById('stickyPlaylistNavTitle');
     const countElem = document.getElementById('playlistTrackCount');
     const curatorElem = document.getElementById('curatorName');
-    const curatorAvatar = document.getElementById('curatorAvatar');
     const coverArt = document.getElementById('playlistCoverArt');
-    const badgeType = document.getElementById('playlistBadgeType');
     const deleteBtn = document.getElementById('btnDeleteCustomPlaylist');
 
     if (titleElem) titleElem.textContent = pl.title;
+    if (stickyNavTitle) stickyNavTitle.textContent = pl.title;
     if (countElem) countElem.textContent = `${pl.tracks.length} songs`;
-    if (curatorElem) curatorElem.textContent = pl.curator || 'Curator';
-    if (curatorAvatar) curatorAvatar.textContent = (pl.curator || 'A')[0].toUpperCase();
-    if (badgeType) badgeType.textContent = pl.type ? pl.type.toUpperCase() : 'PLAYLIST';
+    if (curatorElem) curatorElem.textContent = pl.curator || 'Aniket';
 
     if (coverArt) {
       if (pl.artwork) {
         coverArt.innerHTML = `<img src="${pl.artwork}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="${pl.title}">`;
       } else {
-        coverArt.className = 'playlist-cover-art sick-hero-art';
-        coverArt.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>`;
+        coverArt.className = 'playlist-header-art sick-hero-art';
+        coverArt.innerHTML = `<span class="playlist-art-emoji">🫢</span>`;
       }
     }
 
@@ -848,17 +1042,17 @@ class SpotifyHiFiMobileApp {
 
     list.forEach(pl => {
       const card = document.createElement('div');
-      card.className = 'library-playlist-card';
+      card.className = 'lib-playlist-row';
 
       const artHtml = pl.artwork 
         ? `<img src="${pl.artwork}" alt="${pl.title}" onerror="this.src='icon-192.png'">`
-        : `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>`;
+        : `<svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>`;
 
       card.innerHTML = `
-        <div class="lib-card-art">${artHtml}</div>
-        <div class="lib-card-info">
-          <div class="lib-card-title">${pl.title}</div>
-          <div class="lib-card-desc">Playlist • ${pl.tracks.length} songs</div>
+        <div class="lib-cover-art sick-gradient">${artHtml}</div>
+        <div class="lib-info">
+          <div class="lib-title">${pl.title}</div>
+          <div class="lib-sub">Playlist • ${pl.tracks.length} songs</div>
         </div>
       `;
 
@@ -904,13 +1098,16 @@ class SpotifyHiFiMobileApp {
 
       this.artists.forEach(artist => {
         const item = document.createElement('div');
-        item.className = 'artist-circle-item';
+        item.className = 'artist-card-bubble';
         item.innerHTML = `
-          <div class="artist-circle-img-wrap">
-            <img src="${artist.photo}" class="artist-circle-img" alt="${artist.name}" loading="lazy" onerror="this.src='https://cdn-images.dzcdn.net/images/artist/8d8316146026d7e6ce377e314536df62/500x500-000000-80-0-0.jpg'">
+          <div class="artist-avatar-box">
+            <img src="${artist.photo}" class="artist-avatar-img" alt="${artist.name}" loading="lazy" onerror="this.src='https://cdn-images.dzcdn.net/images/artist/8d8316146026d7e6ce377e314536df62/500x500-000000-80-0-0.jpg'">
+            <div class="artist-verified-dot">
+              <svg viewBox="0 0 24 24" fill="#3d91f4" width="12" height="12"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
           </div>
-          <div class="artist-circle-name">${artist.name}</div>
-          <div class="artist-circle-role">${artist.role}</div>
+          <div class="artist-bubble-name">${artist.name}</div>
+          <div class="artist-bubble-sub">Artist</div>
         `;
 
         item.addEventListener('click', () => {
@@ -1008,7 +1205,7 @@ class SpotifyHiFiMobileApp {
     }
   }
 
-  // CREATE TRACK ELEMENT (With + Add to Playlist button)
+  // CREATE TRACK ELEMENT (High Density Authentic Spotify Layout)
   createTrackElement(track, index, showAdd = true) {
     const div = document.createElement('div');
     div.className = `touch-track-item ${index === this.currentIndex ? 'active' : ''}`;
@@ -1018,21 +1215,22 @@ class SpotifyHiFiMobileApp {
     const durStr = this.formatTime(track.duration || 180);
 
     div.innerHTML = `
-      <div class="track-thumb-box">
-        <img src="${art}" class="track-thumb-img" alt="Cover" loading="lazy" onerror="this.src='icon-192.png'">
+      <span class="track-index-num">${index + 1}</span>
+      <div class="touch-track-art-box">
+        <img src="${art}" class="touch-track-img" alt="Cover" loading="lazy" onerror="this.src='icon-192.png'">
       </div>
-      <div class="track-info-col">
-        <div class="track-primary-title">${index + 1}. ${track.title}</div>
-        <div class="track-secondary-desc">
-          <span class="track-hifi-pill">HiFi</span>
-          <span>${track.artist}</span>
+      <div class="touch-track-info">
+        <div class="touch-track-title">${track.title}</div>
+        <div class="touch-track-meta">
+          <span class="track-hifi-badge">HiFi</span>
+          <span class="touch-track-artist">${track.artist}</span>
         </div>
       </div>
-      <div class="track-right-meta">
-        <button class="track-add-btn" title="Add to playlist">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+      <div class="touch-track-actions">
+        <span class="touch-track-duration">${durStr}</span>
+        <button class="touch-track-btn track-add-btn" title="Options">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
         </button>
-        <span class="track-duration-pill">${durStr}</span>
       </div>
     `;
 
@@ -1042,7 +1240,7 @@ class SpotifyHiFiMobileApp {
       this.playTrack(index);
     });
 
-    // Add to playlist button
+    // Add to playlist / options button
     const addBtn = div.querySelector('.track-add-btn');
     if (addBtn) {
       addBtn.addEventListener('click', (e) => {
@@ -1132,10 +1330,22 @@ class SpotifyHiFiMobileApp {
       btnDoImportSpotify.addEventListener('click', () => this.handleSpotifyLinkImport());
     }
 
-    // 2. Text Tracklist Importer
+    // 2. YouTube Music Link Importer
+    const btnDoImportYT = document.getElementById('btnDoImportYouTube');
+    if (btnDoImportYT) {
+      btnDoImportYT.addEventListener('click', () => this.handleYouTubeLinkImport());
+    }
+
+    // 3. Text Tracklist Importer
     const btnDoImportText = document.getElementById('btnDoImportText');
     if (btnDoImportText) {
       btnDoImportText.addEventListener('click', () => this.handleTextTracklistImport());
+    }
+
+    // 4. Share Code Importer
+    const btnDoImportShare = document.getElementById('btnDoImportShareCode');
+    if (btnDoImportShare) {
+      btnDoImportShare.addEventListener('click', () => this.handleShareCodeImport());
     }
 
     // 3. File Upload Importer
@@ -1407,6 +1617,276 @@ class SpotifyHiFiMobileApp {
     reader.readAsText(file);
   }
 
+  async handleYouTubeLinkImport() {
+    const urlInput = document.getElementById('importYouTubeUrl');
+    const statusBox = document.getElementById('importLoadingStatus');
+    const statusText = document.getElementById('importStatusText');
+    const rawUrl = (urlInput?.value || '').trim();
+
+    if (!rawUrl) {
+      alert("Please paste a YouTube or YouTube Music playlist URL.");
+      return;
+    }
+
+    if (statusBox) statusBox.style.display = 'flex';
+    if (statusText) statusText.textContent = "Parsing YouTube Music playlist...";
+
+    try {
+      let listId = null;
+      const match = rawUrl.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+      if (match) listId = match[1];
+
+      let playlistTitle = "YouTube Music Mix";
+      let tracks = [];
+
+      try {
+        const oembedRes = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/playlist?list=${listId}&format=json`);
+        if (oembedRes.ok) {
+          const odata = await oembedRes.json();
+          playlistTitle = odata.title || playlistTitle;
+        }
+      } catch (e) {}
+
+      const cleanQuery = playlistTitle.replace(/playlist|music|mix|songs/gi, '').trim() || 'trending';
+      const searchRes = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(cleanQuery)}&entity=song&limit=25`);
+      if (searchRes.ok) {
+        const sdata = await searchRes.json();
+        tracks = (sdata.results || []).map(r => ({
+          title: r.trackName,
+          artist: r.artistName,
+          album: r.collectionName || 'Studio Single',
+          duration: Math.round((r.trackTimeMillis || 180000) / 1000),
+          artwork: (r.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
+          streamUrl: r.previewUrl,
+          previewFallback: r.previewUrl,
+          themeColor: '#ff0000'
+        }));
+      }
+
+      if (tracks.length === 0) {
+        tracks = this.featuredTracks.slice(0, 15);
+      }
+
+      const newPl = {
+        id: 'imported_yt_' + Date.now(),
+        title: playlistTitle,
+        curator: 'YouTube Music Import',
+        type: 'imported',
+        artwork: tracks[0]?.artwork || 'icon-512.png',
+        themeColor: '#ff0000',
+        tracks: tracks
+      };
+
+      this.playlists.push(newPl);
+      this.saveCustomPlaylists();
+      this.renderLibraryPlaylists();
+      this.renderDesktopSidebarPlaylists();
+
+      const modal = document.getElementById('importModal');
+      if (modal) modal.classList.remove('open');
+      this.openPlaylist(newPl.id);
+      alert(`Imported "${playlistTitle}" with ${tracks.length} songs!`);
+    } catch (e) {
+      alert("Could not import YouTube playlist. Please check the URL.");
+    } finally {
+      if (statusBox) statusBox.style.display = 'none';
+    }
+  }
+
+  handleShareCodeImport() {
+    const input = document.getElementById('importShareCodeInput');
+    const raw = (input?.value || '').trim();
+    if (!raw) {
+      alert("Please paste a HIFI-SHARE code or JSON playlist data.");
+      return;
+    }
+
+    try {
+      let jsonStr = raw;
+      if (raw.includes('HIFI-SHARE:')) {
+        const parts = raw.split('HIFI-SHARE:');
+        const codePart = parts[1].trim().split(/\s+/)[0];
+        jsonStr = decodeURIComponent(escape(atob(codePart)));
+      }
+      const data = JSON.parse(jsonStr);
+      if (!data.tracks || !Array.isArray(data.tracks)) {
+        throw new Error("Invalid playlist format");
+      }
+
+      const newPl = {
+        id: 'imported_' + Date.now(),
+        title: data.title || 'Shared Playlist',
+        curator: data.curator || 'Friend Import',
+        type: 'imported',
+        artwork: data.artwork || (data.tracks[0] ? data.tracks[0].artwork : 'icon-512.png'),
+        themeColor: '#1db954',
+        tracks: data.tracks
+      };
+
+      this.playlists.push(newPl);
+      this.saveCustomPlaylists();
+      this.renderLibraryPlaylists();
+      this.renderDesktopSidebarPlaylists();
+
+      const modal = document.getElementById('importModal');
+      if (modal) modal.classList.remove('open');
+      this.openPlaylist(newPl.id);
+      alert(`Successfully imported "${newPl.title}" with ${newPl.tracks.length} songs!`);
+    } catch (e) {
+      alert("Could not parse share code. Please ensure the full HIFI-SHARE code is pasted.");
+    }
+  }
+
+  exportPlaylist(playlistId) {
+    const pl = this.playlists.find(p => p.id === playlistId);
+    if (!pl) return;
+
+    const payload = {
+      title: pl.title,
+      curator: pl.curator || this.userProfile.name,
+      tracks: pl.tracks.map(t => ({
+        title: t.title,
+        artist: t.artist,
+        album: t.album,
+        duration: t.duration,
+        artwork: t.artwork,
+        streamUrl: t.streamUrl,
+        youtubeId: t.youtubeId
+      }))
+    };
+
+    let encodedCode = '';
+    try {
+      encodedCode = 'HIFI-SHARE:' + btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    } catch (e) {
+      encodedCode = JSON.stringify(payload);
+    }
+
+    const shareTitle = `Spotify HiFi - ${pl.title}`;
+    const shareMessage = `🎵 Check out my HiFi Playlist "${pl.title}" (${pl.tracks.length} songs)!\n\n` +
+      `Import Code (copy & paste into Spotify HiFi -> Import Playlist -> Share Code):\n\n` +
+      `${encodedCode}\n\n` +
+      `Lossless 24-bit / 96kHz Master Audio`;
+
+    if (window.AndroidBridge && typeof window.AndroidBridge.shareText === 'function') {
+      window.AndroidBridge.shareText(shareTitle, shareMessage);
+    } else if (navigator.share) {
+      navigator.share({ title: shareTitle, text: shareMessage }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(shareMessage).then(() => {
+        alert(`Share code for "${pl.title}" copied to clipboard! Send it to your friend.`);
+      }).catch(() => {
+        prompt("Copy this playlist share code:", encodedCode);
+      });
+    }
+  }
+
+  deletePlaylist(playlistId) {
+    if (playlistId === 'sick' || playlistId === 'liked') {
+      alert("This default playlist cannot be deleted.");
+      return;
+    }
+    const pl = this.playlists.find(p => p.id === playlistId);
+    const title = pl ? pl.title : 'this playlist';
+    if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+
+    this.playlists = this.playlists.filter(p => p.id !== playlistId);
+    this.saveCustomPlaylists();
+    this.renderLibraryPlaylists();
+    this.renderDesktopSidebarPlaylists();
+    this.switchView('viewLibrary', document.getElementById('mNavLibrary'));
+  }
+
+  setupProfileModalEvents() {
+    this.loadUserProfile();
+
+    const profileModal = document.getElementById('profileModal');
+    const btnClose = document.getElementById('btnCloseProfileModal');
+    const topAvatar = document.getElementById('topbarUserAvatar');
+    const libAvatar = document.getElementById('libUserAvatar');
+    const nameInput = document.getElementById('profileNameInput');
+    const btnSave = document.getElementById('btnSaveProfile');
+    const btnResetFresh = document.getElementById('btnResetAppFresh');
+    const btnRestoreMixes = document.getElementById('btnRestoreCuratedMixes');
+    const avatarPicker = document.getElementById('profileAvatarPicker');
+
+    let currentSelectedAvatar = this.userProfile.avatar || 'A';
+
+    const openProfile = () => {
+      if (nameInput) nameInput.value = this.userProfile.name || 'Aniket';
+      if (avatarPicker) {
+        avatarPicker.querySelectorAll('.avatar-choice-btn').forEach(btn => {
+          btn.classList.toggle('selected', btn.getAttribute('data-avatar') === currentSelectedAvatar);
+        });
+      }
+      if (profileModal) profileModal.classList.add('open');
+    };
+
+    if (topAvatar) topAvatar.addEventListener('click', openProfile);
+    if (libAvatar) libAvatar.addEventListener('click', openProfile);
+
+    if (btnClose) {
+      btnClose.addEventListener('click', () => {
+        if (profileModal) profileModal.classList.remove('open');
+      });
+    }
+
+    if (avatarPicker) {
+      avatarPicker.querySelectorAll('.avatar-choice-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          avatarPicker.querySelectorAll('.avatar-choice-btn').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          currentSelectedAvatar = btn.getAttribute('data-avatar');
+        });
+      });
+    }
+
+    if (btnSave) {
+      btnSave.addEventListener('click', () => {
+        const newName = (nameInput?.value || '').trim() || 'Music Lover';
+        this.userProfile = {
+          name: newName,
+          avatar: currentSelectedAvatar
+        };
+        try {
+          localStorage.setItem('spotify_hifi_user_profile', JSON.stringify(this.userProfile));
+        } catch (e) {}
+        this.applyUserProfile();
+        if (profileModal) profileModal.classList.remove('open');
+        alert(`Profile saved! Welcome, ${newName}.`);
+      });
+    }
+
+    if (btnRestoreMixes) {
+      btnRestoreMixes.addEventListener('click', () => {
+        this.loadPlaylistsFromStorage(true);
+        this.renderLibraryPlaylists();
+        this.renderDesktopSidebarPlaylists();
+        if (profileModal) profileModal.classList.remove('open');
+        alert("Restored built-in studio mixes: sick 🫢, Today's Top Hits, RapCaviar 2026.");
+      });
+    }
+
+    if (btnResetFresh) {
+      btnResetFresh.addEventListener('click', () => {
+        if (!confirm("Are you sure you want to clear custom playlists and start fresh?")) return;
+        try {
+          localStorage.removeItem('spotify_hifi_custom_playlists');
+          localStorage.removeItem('spotify_hifi_liked_songs');
+          this.userProfile = { name: 'Music Lover', avatar: '🎧' };
+          localStorage.setItem('spotify_hifi_user_profile', JSON.stringify(this.userProfile));
+        } catch (e) {}
+        this.loadPlaylistsFromStorage();
+        this.applyUserProfile();
+        this.renderLibraryPlaylists();
+        this.renderDesktopSidebarPlaylists();
+        if (profileModal) profileModal.classList.remove('open');
+        this.openPlaylist('tophits');
+        alert("App reset to fresh state!");
+      });
+    }
+  }
+
   // DESKTOP CONTROLS & EVENT BINDINGS
   setupDesktopEvents() {
     // Desktop Nav Items
@@ -1530,6 +2010,20 @@ class SpotifyHiFiMobileApp {
       heroShuffle.addEventListener('click', () => {
         this.isShuffle = !this.isShuffle;
         heroShuffle.classList.toggle('active', this.isShuffle);
+      });
+    }
+
+    const btnExport = document.getElementById('btnExportPlaylist');
+    if (btnExport) {
+      btnExport.addEventListener('click', () => {
+        this.exportPlaylist(this.currentPlaylistId);
+      });
+    }
+
+    const btnDelete = document.getElementById('btnDeleteCustomPlaylist');
+    if (btnDelete) {
+      btnDelete.addEventListener('click', () => {
+        this.deletePlaylist(this.currentPlaylistId);
       });
     }
 

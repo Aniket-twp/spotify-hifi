@@ -48,11 +48,11 @@ public class MainActivity extends Activity {
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
         webView.setWebChromeClient(new SpotifyWebChromeClient());
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new SpotifyWebViewClient(this));
         webView.addJavascriptInterface(new AndroidBridge(this), "AndroidBridge");
 
         setContentView(webView);
-        webView.loadUrl("file:///android_asset/www/index.html");
+        webView.loadUrl("https://spotify-hifi.local/index.html");
     }
 
     @Override

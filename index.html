@@ -14,7 +14,7 @@
       });
     }
   </script>
-  <!-- YouTube IFrame API for Full-Length Studio Audio (No 30s Snippet Glitch) -->
+  <!-- YouTube IFrame API for Full-Length Studio Audio -->
   <script>
     window.onYouTubeIframeAPIReady = function() {
       window.isYTAPILoaded = true;
@@ -30,8 +30,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Hidden YouTube Player Container for HiFi Full-Length Audio Engine -->
-  <div id="ytPlayerContainer" style="position:fixed;bottom:-9999px;left:-9999px;width:120px;height:120px;opacity:0.001;pointer-events:none;z-index:-9999;overflow:hidden;">
+  <!-- On-Screen Active Hardware-Accelerated Audio Engine (Keeps playing seamlessly) -->
+  <div id="ytPlayerContainer" style="position:fixed;bottom:0;right:0;width:240px;height:180px;opacity:0.005;pointer-events:none;z-index:-999;overflow:hidden;">
     <div id="ytPlayerTarget"></div>
   </div>
 
@@ -53,7 +53,7 @@
         </button>
         <button class="desktop-nav-item" data-target="viewSearch" id="dtNavSearch">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.28 7.407-7.28s7.407 3.274 7.407 7.28-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.28z"/></svg>
-          <span>Explore & Search</span>
+          <span>Search</span>
         </button>
         <button class="desktop-nav-item" data-target="viewLibrary" id="dtNavLibrary">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1.5-.866L15.5 2.134zM9 4.24a1 1 0 0 0-1.225-.733l-4 1.072A1 1 0 0 0 3 5.551V21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V4.24z"/></svg>
@@ -82,24 +82,22 @@
 
     <!-- MAIN BODY CONTAINER -->
     <div class="spotify-body">
-      <!-- Topbar (Mobile Header / Desktop Topbar) -->
+      <!-- Topbar (Authentic Spotify Mobile Header) -->
       <header class="spotify-topbar">
         <div class="topbar-left">
-          <div class="mobile-greeting" id="mobileGreeting">
-            <div class="user-avatar-circle">A</div>
-            <div class="greeting-text">
-              <span class="greeting-sub">Spotify HiFi Master</span>
-              <span class="greeting-main" id="greetingHeading">Welcome back</span>
-            </div>
+          <div class="user-avatar-circle" id="topbarUserAvatar">A</div>
+          <div class="topbar-filter-chips">
+            <button class="topbar-chip active" data-filter="all">All</button>
+            <button class="topbar-chip" data-filter="music">Music</button>
+            <button class="topbar-chip" data-filter="lossless">HiFi</button>
           </div>
         </div>
 
         <div class="topbar-right">
-          <span class="badge-hifi">24-BIT / 96k</span>
-          <button class="icon-round-btn" id="btnOpenImportTop" title="Import Playlist">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          <button class="topbar-icon-btn" id="btnOpenImportTop" title="Import Playlist">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
           </button>
-          <button class="icon-round-btn" id="btnToggleEQ" title="Equalizer">
+          <button class="topbar-icon-btn" id="btnToggleEQ" title="Equalizer DSP">
             <svg viewBox="0 0 24 24" fill="currentColor"><line x1="4" y1="21" x2="4" y2="14" stroke="currentColor" stroke-width="2"/><line x1="4" y1="10" x2="4" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="20" y1="21" x2="20" y2="16" stroke="currentColor" stroke-width="2"/><line x1="20" y1="12" x2="20" y2="3" stroke="currentColor" stroke-width="2"/></svg>
           </button>
         </div>
@@ -107,159 +105,201 @@
 
       <main class="spotify-main" id="mainContent">
 
-        <!-- VIEW 1: HOME -->
+        <!-- VIEW 1: HOME (DEFAULT VIEW) -->
         <section class="app-view active" id="viewHome">
-          <!-- Filter Chips -->
-          <div class="filter-chips-row">
-            <button class="chip-pill active" data-filter="all">All</button>
-            <button class="chip-pill" data-filter="featured">Featured (sick 🫢)</button>
-            <button class="chip-pill" data-filter="hiphop">Hip-Hop & Rap</button>
-            <button class="chip-pill" data-filter="latenight">Late Night</button>
+          <!-- Ambient Dynamic Header Banner -->
+          <div class="home-hero-greeting">
+            <h2 id="greetingHeading">Good afternoon</h2>
+            <span class="home-hifi-status">● 24-BIT / 96kHz LOSSLESS MASTER</span>
           </div>
 
-          <!-- Quick Shortcuts Grid -->
+          <!-- Quick Shortcuts 2x3 Grid -->
           <div class="shortcuts-grid">
             <div class="shortcut-card" id="shortcutSick">
               <div class="shortcut-art sick-gradient">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
               </div>
-              <div class="shortcut-title">sick 🫢 (62 songs)</div>
+              <div class="shortcut-title">sick 🫢</div>
               <button class="shortcut-play-btn" id="quickPlaySick">
                 <svg viewBox="0 0 16 16" fill="currentColor"><polygon points="4 2 14 8 4 14 4 2"/></svg>
               </button>
             </div>
 
+            <div class="shortcut-card" id="shortcutLiked">
+              <div class="shortcut-art liked-gradient">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              </div>
+              <div class="shortcut-title">Liked Songs</div>
+            </div>
+
+            <div class="shortcut-card" data-artist="The Weeknd">
+              <div class="shortcut-art" style="background: url('https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg') center/cover;"></div>
+              <div class="shortcut-title">The Weeknd</div>
+            </div>
+
+            <div class="shortcut-card" data-artist="Travis Scott">
+              <div class="shortcut-art" style="background: url('https://cdn-images.dzcdn.net/images/artist/8d8316146026d7e6ce377e314536df62/500x500-000000-80-0-0.jpg') center/cover;"></div>
+              <div class="shortcut-title">Travis Scott</div>
+            </div>
+
             <div class="shortcut-card" id="shortcutImport">
-              <div class="shortcut-art" style="background: linear-gradient(135deg, #10ac84, #1dd1a1);">
+              <div class="shortcut-art import-gradient">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
               </div>
               <div class="shortcut-title">Import Playlist</div>
             </div>
 
             <div class="shortcut-card" data-genre="Hip-Hop">
-              <div class="shortcut-art" style="background: linear-gradient(135deg, #f0932b, #eb4d4b);">
+              <div class="shortcut-art hiphop-gradient">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
               </div>
-              <div class="shortcut-title">Hip-Hop & Trap</div>
-            </div>
-
-            <div class="shortcut-card" data-artist="The Weeknd">
-              <div class="shortcut-art" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
-              </div>
-              <div class="shortcut-title">The Weeknd Radio</div>
+              <div class="shortcut-title">RapCaviar 2026</div>
             </div>
           </div>
 
-          <!-- Section: Top Artists Carousel with Real Photos -->
+          <!-- Section: Top Artists with High-Res Official CDN Portraits -->
           <div class="section-block">
             <div class="section-header">
-              <h3>Top Artists</h3>
-              <span class="section-sub">In your heavy rotation</span>
+              <div class="section-header-text">
+                <h3>Top Artists</h3>
+                <span class="section-sub">In your heavy rotation</span>
+              </div>
             </div>
             <div class="artists-horizontal-scroll" id="homeArtistsScroll"></div>
           </div>
 
-          <!-- Section: Explore Browse Categories -->
+          <!-- Section: Jump Back In (Square Playlist Cards) -->
           <div class="section-block">
             <div class="section-header">
-              <h3>Explore & Discover</h3>
-              <span class="section-sub">Browse by vibe</span>
+              <div class="section-header-text">
+                <h3>Jump Back In</h3>
+                <span class="section-sub">Featured studio collections</span>
+              </div>
             </div>
-            <div class="explore-category-grid" id="homeExploreGrid">
-              <div class="category-card" style="background: linear-gradient(135deg, #e67e22, #d35400);" data-genre="Hip-Hop">
-                <span class="category-name">Hip-Hop & Rap</span>
-                <span class="category-desc">Travis Scott, Drake, Roddy Ricch</span>
+            <div class="playlists-horizontal-scroll">
+              <div class="playlist-card-item" id="cardSickJump">
+                <div class="card-cover-art sick-gradient">
+                  <span class="card-emoji">🫢</span>
+                </div>
+                <div class="card-title">sick 🫢</div>
+                <div class="card-subtitle">By Aniket • 62 songs</div>
               </div>
-              <div class="category-card" style="background: linear-gradient(135deg, #8e44ad, #2c3e50);" data-genre="Late Night">
-                <span class="category-name">Late Night Vibes</span>
-                <span class="category-desc">The Weeknd, Post Malone</span>
+
+              <div class="playlist-card-item" data-genre="Hip-Hop">
+                <div class="card-cover-art" style="background: linear-gradient(135deg, #f0932b, #eb4d4b);">
+                  <span class="card-emoji">🔥</span>
+                </div>
+                <div class="card-title">Hip-Hop & Trap</div>
+                <div class="card-subtitle">Travis, Carti, 21 Savage</div>
               </div>
-              <div class="category-card" style="background: linear-gradient(135deg, #16a085, #27ae60);" data-genre="Lossless">
-                <span class="category-name">Lossless Studio</span>
-                <span class="category-desc">24-bit/96kHz Hi-Res FLAC Master</span>
+
+              <div class="playlist-card-item" data-genre="Late Night">
+                <div class="card-cover-art" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">
+                  <span class="card-emoji">🌙</span>
+                </div>
+                <div class="card-title">Late Night Drive</div>
+                <div class="card-subtitle">The Weeknd, Post Malone</div>
               </div>
-              <div class="category-card" style="background: linear-gradient(135deg, #c0392b, #8e44ad);" data-genre="Drill">
-                <span class="category-name">UK Drill & Global</span>
-                <span class="category-desc">Central Cee, Dave, KR$NA</span>
+
+              <div class="playlist-card-item" id="cardImportJump">
+                <div class="card-cover-art" style="background: linear-gradient(135deg, #10ac84, #1dd1a1);">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="36" height="36"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                </div>
+                <div class="card-title">Import Any Playlist</div>
+                <div class="card-subtitle">Spotify link, text, or file</div>
               </div>
             </div>
           </div>
 
-          <!-- Section: Featured Playlist Tracks -->
+          <!-- Section: Heavy Rotation Studio Tracks -->
           <div class="section-block">
             <div class="section-header">
-              <h3>Featured Studio Tracks</h3>
+              <div class="section-header-text">
+                <h3>Heavy Rotation</h3>
+                <span class="section-sub">Studio Master Quality</span>
+              </div>
               <button class="see-all-link" id="btnSeeAllTracks">View all 62</button>
             </div>
             <div class="tracks-touch-list" id="homeFeaturedTracks"></div>
           </div>
         </section>
 
-        <!-- VIEW 2: EXPLORE & GLOBAL SEARCH -->
+        <!-- VIEW 2: SEARCH & DISCOVER (TRUE SPOTIFY SEARCH) -->
         <section class="app-view" id="viewSearch">
           <div class="search-view-header">
-            <div class="search-header-title-row">
-              <h2>Explore & Discover</h2>
-              <span class="sub-lead">Browse full studio catalog or search millions of tracks</span>
-            </div>
-            <div class="mobile-search-box">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.28 7.407-7.28s7.407 3.274 7.407 7.28-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.28z"/></svg>
-              <input type="text" id="mobileSearchInput" placeholder="Search any song, artist, album globally...">
+            <h2 class="search-main-title">Search</h2>
+            <div class="spotify-search-bar">
+              <svg viewBox="0 0 24 24" fill="currentColor" class="search-bar-icon"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.28 7.407-7.28s7.407 3.274 7.407 7.28-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.28z"/></svg>
+              <input type="text" id="mobileSearchInput" placeholder="What do you want to listen to?" autocomplete="off">
               <button class="clear-search-btn" id="btnClearSearch" style="display:none;">✕</button>
             </div>
 
             <!-- Explorer Filter Chips -->
             <div class="filter-chips-row explore-filters">
-              <button class="chip-pill active" data-exp-filter="all">All Tracks</button>
-              <button class="chip-pill" data-exp-filter="trending">Trending Hot</button>
-              <button class="chip-pill" data-exp-filter="hiphop">Hip-Hop & Trap</button>
+              <button class="chip-pill active" data-exp-filter="all">All</button>
+              <button class="chip-pill" data-exp-filter="trending">Trending</button>
+              <button class="chip-pill" data-exp-filter="hiphop">Hip-Hop</button>
               <button class="chip-pill" data-exp-filter="latenight">Late Night</button>
               <button class="chip-pill" data-exp-filter="drill">UK Drill</button>
-              <button class="chip-pill" data-exp-filter="lossless">HiFi Master 96k</button>
             </div>
           </div>
 
           <!-- EXPLORER FEED (Shown when search input is empty) -->
           <div id="explorerFeedContainer">
-            <!-- Shelf 1: Trending Now -->
+            <!-- Shelf 1: Browse Categories (Iconic Spotify 2-Column Angled Cards) -->
             <div class="section-block">
               <div class="section-header">
-                <h3>🔥 Trending Right Now</h3>
-                <span class="section-sub">Heavy rotation bangers</span>
+                <h3>Browse all</h3>
               </div>
-              <div class="explore-trending-shelf" id="exploreTrendingShelf"></div>
+              <div class="browse-categories-grid" id="searchGenreGrid">
+                <div class="browse-category-card" style="background:#8c1932;" data-genre="Hip-Hop">
+                  <span class="browse-title">Hip-Hop & Rap</span>
+                  <div class="browse-angled-cover" style="background: url('https://cdn-images.dzcdn.net/images/artist/8d8316146026d7e6ce377e314536df62/500x500-000000-80-0-0.jpg') center/cover;"></div>
+                </div>
+
+                <div class="browse-category-card" style="background:#1e3264;" data-genre="Late Night">
+                  <span class="browse-title">Late Night</span>
+                  <div class="browse-angled-cover" style="background: url('https://cdn-images.dzcdn.net/images/artist/581693b4724a7fcfa754455101e13a44/500x500-000000-80-0-0.jpg') center/cover;"></div>
+                </div>
+
+                <div class="browse-category-card" style="background:#27856a;" data-genre="Lossless">
+                  <span class="browse-title">HiFi Lossless</span>
+                  <div class="browse-angled-cover" style="background: url('https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/1b/63/04/1b630400-490e-245b-a26f-0120f6f253c8/20UMGIM28168.rgb.jpg/600x600bb.jpg') center/cover;"></div>
+                </div>
+
+                <div class="browse-category-card" style="background:#e13300;" data-genre="Drill">
+                  <span class="browse-title">UK Drill</span>
+                  <div class="browse-angled-cover" style="background: url('https://cdn-images.dzcdn.net/images/artist/6b68b98b0f81d11ffbe8ef03577d611b/500x500-000000-80-0-0.jpg') center/cover;"></div>
+                </div>
+              </div>
             </div>
 
-            <!-- Shelf 2: Browse Categories -->
+            <!-- Shelf 2: Trending Now -->
             <div class="section-block">
               <div class="section-header">
-                <h3>Browse by Vibe & Mood</h3>
-                <span class="section-sub">Tap any vibe to filter instantly</span>
+                <h3>🔥 Trending Hits</h3>
               </div>
-              <div class="explore-category-grid" id="searchGenreGrid"></div>
+              <div class="explore-trending-shelf" id="exploreTrendingShelf"></div>
             </div>
 
             <!-- Shelf 3: Artists -->
             <div class="section-block">
               <div class="section-header">
-                <h3>Top Artists in Rotation</h3>
-                <span class="section-sub">Tap artist to play essentials</span>
+                <h3>Top Artists</h3>
               </div>
               <div class="artists-horizontal-scroll" id="exploreArtistsScroll"></div>
             </div>
 
-            <!-- Shelf 4: All Studio Tracks Ready to Play -->
+            <!-- Shelf 4: All Studio Tracks -->
             <div class="section-block">
               <div class="section-header">
-                <h3>Explore All Available Songs</h3>
-                <span class="section-sub">Tap any song to play full studio track</span>
+                <h3>All Studio Tracks (62)</h3>
               </div>
               <div class="tracks-touch-list" id="exploreAllTracksList"></div>
             </div>
           </div>
 
-          <!-- SEARCH RESULTS (Shown when user types query) -->
+          <!-- SEARCH RESULTS (Instant Global Search) -->
           <div id="searchDynamicResults" style="display:none;">
             <div class="search-results-bar">
               <h4 class="sub-heading" id="searchResultCount">Search Results</h4>
@@ -269,28 +309,26 @@
           </div>
         </section>
 
-        <!-- VIEW 3: YOUR LIBRARY (Multiple Playlists & Import) -->
+        <!-- VIEW 3: YOUR LIBRARY -->
         <section class="app-view" id="viewLibrary">
           <div class="library-view-header">
             <div class="lib-header-left">
+              <div class="user-avatar-circle" id="libUserAvatar" style="cursor:pointer;" title="Profile & Settings">A</div>
               <h2>Your Library</h2>
-              <span class="lib-sub" id="libPlaylistCount">Playlists</span>
             </div>
             <div class="lib-header-actions">
-              <button class="lib-action-pill" id="btnOpenCreateModal" title="Create Playlist">
+              <button class="lib-action-btn" id="btnOpenCreateModal" title="New Playlist">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                <span>New</span>
               </button>
-              <button class="lib-action-pill primary" id="btnOpenImportModal" title="Import Playlist">
+              <button class="lib-action-btn primary" id="btnOpenImportModal" title="Import Playlist">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                <span>Import</span>
               </button>
             </div>
           </div>
 
           <!-- Filter Pills -->
           <div class="filter-chips-row">
-            <button class="chip-pill active" data-lib-filter="all">All</button>
+            <button class="chip-pill active" data-lib-filter="all">Playlists</button>
             <button class="chip-pill" data-lib-filter="featured">Featured</button>
             <button class="chip-pill" data-lib-filter="custom">Custom</button>
             <button class="chip-pill" data-lib-filter="imported">Imported</button>
@@ -300,59 +338,71 @@
           <div class="library-playlists-grid" id="libraryPlaylistsGrid"></div>
         </section>
 
-        <!-- VIEW 4: ACTIVE PLAYLIST DETAIL -->
+        <!-- VIEW 4: ACTIVE PLAYLIST DETAIL (COMPACT SPOTIFY HEADER + MULTI-SONG VIEW) -->
         <section class="app-view" id="viewPlaylist">
-          <div class="playlist-hero" id="playlistHero">
-            <div class="playlist-cover-wrapper">
-              <div class="playlist-cover-art sick-hero-art" id="playlistCoverArt">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+          <!-- Back button row -->
+          <div class="playlist-nav-top">
+            <button class="playlist-back-chevron" id="btnPlaylistBackToPrev">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </button>
+            <div class="playlist-nav-title" id="stickyPlaylistNavTitle">sick 🫢</div>
+          </div>
+
+          <!-- Modern Spotify Playlist Header -->
+          <div class="playlist-modern-header">
+            <div class="playlist-header-media">
+              <div class="playlist-header-art sick-hero-art" id="playlistCoverArt">
+                <span class="playlist-art-emoji">🫢</span>
               </div>
             </div>
-            <div class="playlist-hero-info">
-              <span class="playlist-type-pill" id="playlistBadgeType">PLAYLIST</span>
-              <h1 class="playlist-title" id="playlistTitle">sick 🫢</h1>
-              <div class="playlist-curator-row">
-                <span class="curator-avatar" id="curatorAvatar">A</span>
-                <span class="curator-name" id="curatorName">Aniket</span>
-                <span class="dot-separator">•</span>
-                <span class="track-count-text" id="playlistTrackCount">62 songs</span>
+            <div class="playlist-header-details">
+              <h1 class="playlist-main-title" id="playlistTitle">sick 🫢</h1>
+              <div class="playlist-meta-line">
+                <span class="curator-badge" id="curatorName">Aniket</span>
+                <span class="meta-dot">•</span>
+                <span id="playlistTrackCount">62 songs</span>
               </div>
+              <span class="playlist-hifi-tag">HiFi Lossless • 24-Bit / 96kHz</span>
             </div>
           </div>
 
-          <!-- Action Bar (Play, Shuffle, Autoplay, Share/Export) -->
+          <!-- Action Bar (Shuffle + Big Green Play Button on RIGHT) -->
           <div class="playlist-action-bar">
             <div class="action-left">
-              <button class="big-green-play-btn" id="heroPlayBtn" title="Play Playlist">
-                <svg id="heroPlayIcon" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 19 12 6 20 6 4"/></svg>
-                <svg id="heroPauseIcon" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
-              </button>
-              <button class="circle-action-btn" id="btnShufflePlaylist" title="Shuffle">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
-              </button>
-              <button class="circle-action-btn active" id="btnAutoplayToggle" title="Autoplay">
-                <span class="autoplay-label">AUTOPLAY ON</span>
-              </button>
-            </div>
-            <div class="action-right">
-              <button class="circle-action-btn" id="btnExportPlaylist" title="Share / Export Playlist">
+              <button class="circle-action-btn" id="btnExportPlaylist" title="Share / Export">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
               </button>
               <button class="circle-action-btn" id="btnDeleteCustomPlaylist" title="Delete Playlist" style="display:none;">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
               </button>
             </div>
+            <div class="action-right">
+              <button class="circle-action-btn" id="btnShufflePlaylist" title="Shuffle">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+              </button>
+              <button class="big-green-play-btn" id="heroPlayBtn" title="Play Playlist">
+                <svg id="heroPlayIcon" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 19 12 6 20 6 4"/></svg>
+                <svg id="heroPauseIcon" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+              </button>
+            </div>
           </div>
 
-          <!-- Tracklist -->
+          <!-- Compact High-Density Tracklist (Shows 6-8 songs at once!) -->
           <div class="tracks-touch-list" id="tracklistBody"></div>
         </section>
 
         <!-- VIEW 5: EQUALIZER & VISUALIZER -->
         <section class="app-view" id="viewEQ">
+          <div class="playlist-nav-top">
+            <button class="playlist-back-chevron" id="btnEQBack">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </button>
+            <div class="playlist-nav-title">Equalizer</div>
+          </div>
+
           <div class="eq-view-header">
             <h2>HiFi Studio DSP</h2>
-            <span class="eq-sub">24-Bit / 96kHz Master Engine</span>
+            <span class="eq-sub">24-Bit / 96kHz Lossless Master Engine</span>
           </div>
 
           <div class="eq-card">
@@ -388,6 +438,9 @@
           <div class="artist-profile-hero">
             <img id="artistProfileHeaderImg" src="icon-512.png" alt="Artist Banner" class="artist-hero-bg">
             <div class="artist-hero-overlay"></div>
+            <button class="artist-hero-back-btn" id="btnArtistBackToPrev">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </button>
             <div class="artist-hero-content">
               <div class="artist-hero-badge">
                 <svg viewBox="0 0 24 24" fill="#3d91f4" width="18" height="18"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
@@ -403,7 +456,6 @@
               <svg viewBox="0 0 16 16" fill="currentColor"><polygon points="4 2 14 8 4 14 4 2"/></svg>
             </button>
             <button class="follow-pill-btn" id="btnProfileFollowArtist">Follow</button>
-            <button class="artist-back-btn" id="btnArtistBackToPrev">← Back</button>
           </div>
 
           <div class="section-block">
@@ -428,7 +480,7 @@
       </main>
     </div>
 
-    <!-- FLOATING MINI-PLAYER (Mobile Touch Layout) -->
+    <!-- FLOATING FROSTED GLASS MINI-PLAYER -->
     <div class="spotify-player-bar" id="playerBar">
       <div class="mini-player-content" id="miniPlayerClickZone">
         <div class="mini-thumb-wrap">
@@ -441,7 +493,9 @@
       </div>
 
       <div class="mini-controls">
-        <span class="mini-hifi-pill">HiFi</span>
+        <button class="mini-heart-btn" id="miniHeartBtn" title="Like">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </button>
         <button class="mini-play-pause-btn" id="btnPlayPause" title="Play/Pause">
           <svg id="ctrlPlayIcon" viewBox="0 0 16 16" fill="currentColor"><polygon points="3 1 14 8 3 15 3 1"/></svg>
           <svg id="ctrlPauseIcon" viewBox="0 0 16 16" fill="currentColor" style="display:none;"><rect x="3" y="2" width="3.5" height="12"/><rect x="9.5" y="2" width="3.5" height="12"/></svg>
@@ -451,13 +505,13 @@
         </button>
       </div>
 
-      <!-- Linear Progress Bar -->
+      <!-- Linear Micro Progress Bar -->
       <div class="mini-progress-track">
         <div class="mini-progress-fill" id="playbackBarFg" style="width: 0%;"></div>
       </div>
     </div>
 
-    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <!-- CLEAN 3-TAB SPOTIFY MOBILE BOTTOM NAVIGATION -->
     <nav class="mobile-bottom-nav">
       <button class="mobile-nav-btn active" id="mNavHome" data-target="viewHome">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h4.5v-6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v6H20V7.577l-7.5-4.33zm-2-1.732a3 3 0 0 1 3 0l7.5 4.33A2 2 0 0 1 22 7.577V21a1 1 0 0 1-1 1h-6.5a1 1 0 0 1-1-1v-5h-3v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.577a2 2 0 0 1 .9-1.732l7.6-4.33z"/></svg>
@@ -465,15 +519,11 @@
       </button>
       <button class="mobile-nav-btn" id="mNavSearch" data-target="viewSearch">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.28 7.407-7.28s7.407 3.274 7.407 7.28-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.28z"/></svg>
-        <span>Explore</span>
+        <span>Search</span>
       </button>
       <button class="mobile-nav-btn" id="mNavLibrary" data-target="viewLibrary">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1.5-.866L15.5 2.134zM9 4.24a1 1 0 0 0-1.225-.733l-4 1.072A1 1 0 0 0 3 5.551V21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V4.24z"/></svg>
-        <span>Library</span>
-      </button>
-      <button class="mobile-nav-btn" id="mNavEQ" data-target="viewEQ">
-        <svg viewBox="0 0 24 24" fill="currentColor"><line x1="4" y1="21" x2="4" y2="14" stroke="currentColor" stroke-width="2"/><line x1="4" y1="10" x2="4" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="20" y1="21" x2="20" y2="16" stroke="currentColor" stroke-width="2"/><line x1="20" y1="12" x2="20" y2="3" stroke="currentColor" stroke-width="2"/></svg>
-        <span>Equalizer</span>
+        <span>Your Library</span>
       </button>
     </nav>
 
@@ -487,9 +537,6 @@
         </div>
         <button class="dt-icon-btn" id="desktopBtnHeart" title="Like">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-        </button>
-        <button class="dt-icon-btn" id="desktopBtnAddPl" title="Add to Playlist">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         </button>
       </div>
 
@@ -508,9 +555,6 @@
           <button class="dt-control-btn" id="desktopBtnNext" title="Next">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
           </button>
-          <button class="dt-control-btn active" id="desktopBtnAutoplay" title="Autoplay">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
-          </button>
         </div>
         <div class="dt-slider-row">
           <span class="dt-time" id="desktopCurrentTime">0:00</span>
@@ -526,20 +570,14 @@
         <button class="dt-icon-btn" id="desktopBtnEQ" title="Equalizer">
           <svg viewBox="0 0 24 24" fill="currentColor"><line x1="4" y1="21" x2="4" y2="14" stroke="currentColor" stroke-width="2"/><line x1="4" y1="10" x2="4" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="20" y1="21" x2="20" y2="16" stroke="currentColor" stroke-width="2"/><line x1="20" y1="12" x2="20" y2="3" stroke="currentColor" stroke-width="2"/></svg>
         </button>
-        <div class="dt-volume-wrap">
-          <button class="dt-icon-btn" id="desktopBtnVolume" title="Mute/Unmute">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-          </button>
-          <input type="range" min="0" max="100" value="100" class="dt-volume-slider" id="desktopVolumeSlider">
-        </div>
-        <button class="dt-icon-btn" id="desktopBtnExpandModal" title="Full Screen View">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-        </button>
       </div>
     </div>
 
-    <!-- FULL-SCREEN NOW PLAYING MODAL -->
+    <!-- FULL-SCREEN NOW PLAYING MODAL (PREMIUM DYNAMIC BLURRED SPOTIFY EXPERIENCE) -->
     <div class="now-playing-modal" id="nowPlayingModal">
+      <!-- Dynamic Ambient Glow Backdrop -->
+      <div class="modal-ambient-glow" id="modalAmbientGlow"></div>
+
       <div class="modal-drag-bar" id="modalCloseBtn">
         <div class="drag-indicator"></div>
       </div>
@@ -552,7 +590,7 @@
           <span class="main-label" id="modalPlayingPlaylistName">sick 🫢</span>
         </div>
         <button class="modal-more-btn" id="btnModalAddCurrentToPlaylist">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
         </button>
       </div>
 
@@ -587,7 +625,7 @@
         <div class="modal-time-row">
           <span id="modalCurrentTime">0:00</span>
           <span class="modal-spec-tag">24-BIT / 96k FLAC</span>
-          <span id="modalTotalTime">0:00</span>
+          <span id="modalTotalTime">3:17</span>
         </div>
       </div>
 
@@ -615,7 +653,7 @@
           <svg viewBox="0 0 24 24" fill="currentColor"><line x1="4" y1="21" x2="4" y2="14" stroke="currentColor" stroke-width="2"/><line x1="4" y1="10" x2="4" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="20" y1="21" x2="20" y2="16" stroke="currentColor" stroke-width="2"/><line x1="20" y1="12" x2="20" y2="3" stroke="currentColor" stroke-width="2"/></svg>
           <span>Equalizer</span>
         </button>
-        <span class="autoplay-indicator-tag" id="autoplayStatusTag">AUTOPLAY ENABLED</span>
+        <span class="device-output-indicator">🎧 Spotify HiFi 96k</span>
       </div>
 
       <!-- SCROLLABLE LOWER CONTENT: LYRICS, ABOUT ARTIST, CREDITS, NEXT IN QUEUE -->
@@ -699,7 +737,7 @@
       </div>
     </div>
 
-    <!-- MODAL 1: IMPORT PLAYLIST FROM OTHER APPS -->
+    <!-- MODAL 1: IMPORT PLAYLIST (MULTI-SOURCE: SPOTIFY, YT MUSIC, APPLE, TEXT, SHARE CODE) -->
     <div class="app-popup-modal" id="importModal">
       <div class="popup-modal-content">
         <div class="popup-modal-header">
@@ -708,36 +746,51 @@
         </div>
 
         <div class="import-tabs-row">
-          <button class="import-tab-btn active" data-tab="tabSpotify">Spotify Link</button>
+          <button class="import-tab-btn active" data-tab="tabSpotify">Spotify</button>
+          <button class="import-tab-btn" data-tab="tabYouTube">YouTube Music</button>
           <button class="import-tab-btn" data-tab="tabText">Song List</button>
-          <button class="import-tab-btn" data-tab="tabFile">File Upload</button>
+          <button class="import-tab-btn" data-tab="tabShareCode">Share Code</button>
         </div>
 
         <!-- Tab 1: Spotify Link -->
         <div class="import-tab-pane active" id="tabSpotify">
-          <label class="import-input-label">Paste Spotify Playlist URL:</label>
+          <label class="import-input-label">Paste Spotify Playlist or Album URL:</label>
           <input type="text" id="importSpotifyUrl" class="import-text-input" placeholder="https://open.spotify.com/playlist/...">
-          <p class="import-hint">Supports public Spotify playlists and album links.</p>
+          <p class="import-hint">Supports any public Spotify playlist, album, or song link.</p>
           <button class="import-action-btn" id="btnDoImportSpotify">
             <span class="btn-text">Import from Spotify</span>
           </button>
         </div>
 
-        <!-- Tab 2: Plain Text Tracklist -->
-        <div class="import-tab-pane" id="tabText">
-          <label class="import-input-label">Playlist Name:</label>
-          <input type="text" id="importTextPlaylistName" class="import-text-input" placeholder="e.g. My Gym Bangers" value="My Imported Playlist">
-          <label class="import-input-label" style="margin-top: 10px;">Paste Song Titles (one per line):</label>
-          <textarea id="importTextSongs" class="import-textarea" rows="6" placeholder="Travis Scott - SICKO MODE&#10;Drake - God's Plan&#10;The Weeknd - Blinding Lights&#10;Kendrick Lamar - Not Like Us"></textarea>
-          <button class="import-action-btn" id="btnDoImportText">Import Songs</button>
+        <!-- Tab 2: YouTube / YouTube Music Playlist -->
+        <div class="import-tab-pane" id="tabYouTube">
+          <label class="import-input-label">Paste YouTube / YT Music Playlist URL:</label>
+          <input type="text" id="importYouTubeUrl" class="import-text-input" placeholder="https://music.youtube.com/playlist?list=...">
+          <p class="import-hint">Supports YouTube & YouTube Music public playlist links.</p>
+          <button class="import-action-btn" id="btnDoImportYouTube">
+            <span class="btn-text">Import from YouTube Music</span>
+          </button>
         </div>
 
-        <!-- Tab 3: File Upload (.json / .m3u) -->
-        <div class="import-tab-pane" id="tabFile">
-          <label class="import-input-label">Select .JSON or .M3U Playlist File:</label>
+        <!-- Tab 3: Plain Text Tracklist -->
+        <div class="import-tab-pane" id="tabText">
+          <label class="import-input-label">Playlist Name:</label>
+          <input type="text" id="importTextPlaylistName" class="import-text-input" placeholder="e.g. My Heavy Rotation" value="My Imported Mix">
+          <label class="import-input-label" style="margin-top: 10px;">Paste Songs (Song - Artist or one title per line):</label>
+          <textarea id="importTextSongs" class="import-textarea" rows="5" placeholder="Travis Scott - SICKO MODE&#10;Drake - God's Plan&#10;The Weeknd - Starboy&#10;Kendrick Lamar - Not Like Us&#10;Roddy Ricch - The Box"></textarea>
+          <button class="import-action-btn" id="btnDoImportText">Import Song List</button>
+        </div>
+
+        <!-- Tab 4: HiFi Share Code / File Upload -->
+        <div class="import-tab-pane" id="tabShareCode">
+          <label class="import-input-label">Paste Friend's Share Code (HIFI-SHARE:...):</label>
+          <textarea id="importShareCodeInput" class="import-textarea" rows="3" placeholder="Paste the HIFI-SHARE code sent by your friend..."></textarea>
+          <button class="import-action-btn" id="btnDoImportShareCode" style="margin-bottom: 12px;">Import from Code</button>
+
+          <label class="import-input-label">Or Upload .JSON / .M3U File:</label>
           <div class="file-dropzone" id="fileDropzone">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-            <span>Tap to choose file (.json / .m3u)</span>
+            <span>Tap to choose .json or .m3u</span>
             <input type="file" id="importFileInput" accept=".json,.m3u,.txt" style="display:none;">
           </div>
         </div>
@@ -773,6 +826,43 @@
         </div>
         <p class="import-hint" id="addTrackTargetName">Select which playlist to add this song to:</p>
         <div class="playlist-select-list" id="playlistsSelectList"></div>
+      </div>
+    </div>
+
+    <!-- MODAL 4: USER PROFILE & APP SETTINGS (FOR USER & FRIENDS) -->
+    <div class="app-popup-modal" id="profileModal">
+      <div class="popup-modal-content">
+        <div class="popup-modal-header">
+          <h3>👤 Profile & Settings</h3>
+          <button class="popup-close-btn" id="btnCloseProfileModal">✕</button>
+        </div>
+
+        <label class="import-input-label">Your Display Name:</label>
+        <input type="text" id="profileNameInput" class="import-text-input" placeholder="Enter your name" value="Aniket">
+
+        <label class="import-input-label" style="margin-top: 12px;">Choose Avatar Icon:</label>
+        <div class="profile-avatar-options" id="profileAvatarPicker">
+          <button class="avatar-choice-btn selected" data-avatar="A">A</button>
+          <button class="avatar-choice-btn" data-avatar="⚡">⚡</button>
+          <button class="avatar-choice-btn" data-avatar="🔥">🔥</button>
+          <button class="avatar-choice-btn" data-avatar="🎧">🎧</button>
+          <button class="avatar-choice-btn" data-avatar="👑">👑</button>
+          <button class="avatar-choice-btn" data-avatar="💎">💎</button>
+          <button class="avatar-choice-btn" data-avatar="🚀">🚀</button>
+          <button class="avatar-choice-btn" data-avatar="🎵">🎵</button>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 12px; margin-top: 8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:13px; font-weight:700;">Audio Quality</span>
+            <span style="color:#1db954; font-size:12px; font-weight:800;">24-BIT / 96kHz</span>
+          </div>
+          <p style="font-size:11px; color:#b3b3b3; margin-top:4px;">Direct lossless streaming with hardware DSP acceleration.</p>
+        </div>
+
+        <button class="import-action-btn" id="btnSaveProfile" style="margin-top: 16px;">Save Changes</button>
+        <button class="import-action-btn" id="btnRestoreCuratedMixes" style="margin-top: 8px; background: #333; color: #fff;">Restore Built-in Mixes</button>
+        <button class="danger-action-btn" id="btnResetAppFresh">Start Fresh (Clear All Data)</button>
       </div>
     </div>
 
