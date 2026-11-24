@@ -82,6 +82,8 @@ class SpotifyHiFiMobileApp {
     this.renderExplorerFeed();
     this.renderLibraryPlaylists();
     this.renderDesktopSidebarPlaylists();
+    this.setupArtistProfileEvents();
+    this.setupCanvasEvents();
     this.openPlaylist('sick');
 
     // Initialize YouTube engine if API already loaded
@@ -151,10 +153,28 @@ class SpotifyHiFiMobileApp {
   startYtProgressTimer() {
     this.stopYtProgressTimer();
     this.ytTimer = setInterval(() => {
-      if (!this.isYtReady || !this.ytPlayer || typeof this.ytPlayer.getCurrentTime !== 'function') return;
-      const cur = this.ytPlayer.getCurrentTime() || 0;
-      const dur = this.ytPlayer.getDuration() || (this.tracks[this.currentIndex]?.duration) || 180;
-      const pct = Math.min(100, (cur / dur) * 100);
+      let cur = 0;
+      let dur = 0;
+
+      if (this.isYtReady && this.ytPlayer && typeof this.ytPlayer.getCurrentTime === 'function') {
+        try {
+          cur = this.ytPlayer.getCurrentTime() || 0;
+          dur = this.ytPlayer.getDuration() || 0;
+        } catch (e) {}
+      }
+
+      if (!cur && this.audioElement && this.audioElement.currentTime) {
+        cur = this.audioElement.currentTime || 0;
+        dur = this.audioElement.duration || 0;
+      }
+
+      const activeTrack = this.tracks[this.currentIndex];
+      if ((!dur || dur <= 30) && activeTrack && activeTrack.duration) {
+        dur = activeTrack.duration;
+      }
+      if (!dur) dur = 180;
+
+      const pct = Math.min(100, Math.max(0, (cur / dur) * 100));
 
       // Mini-player bar
       const miniFill = document.getElementById('playbackBarFg');
@@ -180,7 +200,41 @@ class SpotifyHiFiMobileApp {
 
       const dtTotalLabel = document.getElementById('desktopTotalTime');
       if (dtTotalLabel) dtTotalLabel.textContent = this.formatTime(dur);
-    }, 200);
+    }, 250);
+  }
+
+  handleBackPressed() {
+    const modal = document.getElementById('nowPlayingModal');
+    if (modal && modal.classList.contains('open')) {
+      this.closeNowPlayingModal();
+      return true;
+    }
+    const importModal = document.getElementById('importModal');
+    if (importModal && importModal.classList.contains('open')) {
+      importModal.classList.remove('open');
+      return true;
+    }
+    const createModal = document.getElementById('createPlaylistModal');
+    if (createModal && createModal.classList.contains('open')) {
+      createModal.classList.remove('open');
+      return true;
+    }
+    const addModal = document.getElementById('addToPlaylistModal');
+    if (addModal && addModal.classList.contains('open')) {
+      addModal.classList.remove('open');
+      return true;
+    }
+    const artistView = document.getElementById('viewArtist');
+    if (artistView && artistView.classList.contains('active')) {
+      this.switchView('viewHome', document.getElementById('mNavHome'));
+      return true;
+    }
+    const homeView = document.getElementById('viewHome');
+    if (homeView && !homeView.classList.contains('active')) {
+      this.switchView('viewHome', document.getElementById('mNavHome'));
+      return true;
+    }
+    return false;
   }
 
   stopYtProgressTimer() {
@@ -336,8 +390,9 @@ class SpotifyHiFiMobileApp {
     this.audioElement.addEventListener('timeupdate', () => {
       if (this.isYtReady && this.ytPlayer && this.isPlaying) return; // YouTube handles timer
       const cur = this.audioElement.currentTime || 0;
-      const dur = this.audioElement.duration || 1;
-      const pct = (cur / dur) * 100;
+      const activeTrack = this.tracks[this.currentIndex];
+      const dur = (activeTrack && activeTrack.duration > 35) ? activeTrack.duration : (this.audioElement.duration || 180);
+      const pct = Math.min(100, Math.max(0, (cur / dur) * 100));
 
       const miniFill = document.getElementById('playbackBarFg');
       if (miniFill) miniFill.style.width = `${pct}%`;
@@ -356,14 +411,18 @@ class SpotifyHiFiMobileApp {
     });
 
     this.audioElement.addEventListener('loadedmetadata', () => {
-      const dur = this.audioElement.duration || 0;
-      const totalLabel = document.getElementById('modalTotalTime');
-      if (totalLabel) totalLabel.textContent = this.formatTime(dur);
-      const dtTotalLabel = document.getElementById('desktopTotalTime');
-      if (dtTotalLabel) dtTotalLabel.textContent = this.formatTime(dur);
+      const activeTrack = this.tracks[this.currentIndex];
+      if (!activeTrack || !activeTrack.duration || activeTrack.duration <= 35) {
+        const dur = this.audioElement.duration || 0;
+        const totalLabel = document.getElementById('modalTotalTime');
+        if (totalLabel) totalLabel.textContent = this.formatTime(dur);
+        const dtTotalLabel = document.getElementById('desktopTotalTime');
+        if (dtTotalLabel) dtTotalLabel.textContent = this.formatTime(dur);
+      }
     });
 
     this.audioElement.addEventListener('ended', () => {
+      if (this.isYtReady && this.ytPlayer && this.isPlaying) return;
       if (this.isAutoplay) {
         this.nextTrack();
       }
@@ -429,39 +488,70 @@ class SpotifyHiFiMobileApp {
     this.updateUIForTrack(track);
     this.highlightActiveTrack();
 
-    // 1. Full-Length Studio Audio via YouTube Player API
-    if (this.isYtReady && this.ytPlayer) {
+    // Stop HTML5 audio element immediately
+    try {
+      this.audioElement.pause();
+      this.audioElement.currentTime = 0;
+    } catch (e) {}
+
+    // Check if we have a direct YouTube ID
+    if (track.youtubeId) {
+      this.playYouTubeVideo(track.youtubeId);
+      return;
+    }
+
+    // Otherwise resolve via native AndroidBridge in background
+    this.resolveAndPlayYouTube(track);
+  }
+
+  playYouTubeVideo(videoId) {
+    if (this.isYtReady && this.ytPlayer && typeof this.ytPlayer.loadVideoById === 'function') {
       try {
-        this.audioElement.pause(); // stop audio element if running
-        if (track.youtubeId) {
-          this.ytPlayer.loadVideoById(track.youtubeId);
-        } else {
-          // Play by search query
-          const query = `${track.artist} ${track.title} audio`;
-          this.ytPlayer.loadPlaylist({
-            listType: 'search',
-            list: query,
-            index: 0
-          });
-        }
+        this.audioElement.pause();
+        this.audioElement.currentTime = 0;
+        this.ytPlayer.loadVideoById({
+          videoId: videoId,
+          startSeconds: 0
+        });
         this.ytPlayer.playVideo();
         this.updatePlayState(true);
         this.startYtProgressTimer();
-        return;
       } catch (err) {
-        console.warn("YouTube play error, falling back to audio:", err);
+        console.warn("YouTube play error:", err);
+        this.fallbackToAudioElement();
       }
     } else {
-      this.pendingTrack = track;
+      this.pendingTrack = this.tracks[this.currentIndex];
+    }
+  }
+
+  async resolveAndPlayYouTube(track) {
+    let resolvedId = null;
+
+    // 1. AndroidBridge (200ms background thread via native Java with zero CORS)
+    if (window.AndroidBridge && typeof window.AndroidBridge.resolveYouTubeId === 'function') {
+      try {
+        const query = `${track.artist} ${track.title} audio`;
+        const vid = window.AndroidBridge.resolveYouTubeId(query);
+        if (vid && vid.length === 11) {
+          resolvedId = vid;
+        }
+      } catch (err) {
+        console.warn("AndroidBridge resolve error:", err);
+      }
     }
 
-    // 2. Fallback to HTML5 audio element
+    if (resolvedId) {
+      track.youtubeId = resolvedId;
+      this.playYouTubeVideo(resolvedId);
+      return;
+    }
+
+    // 2. Fallback to HTML5 audio preview if offline or resolution fails
     const streamUrl = track.streamUrl || track.previewFallback;
     if (streamUrl) {
       this.audioElement.src = streamUrl;
-      this.audioElement.play().catch(err => {
-        console.warn("Audio play error:", err);
-      });
+      this.audioElement.play().catch(console.warn);
       this.updatePlayState(true);
     }
   }
@@ -617,16 +707,51 @@ class SpotifyHiFiMobileApp {
     const currentPl = this.playlists.find(p => p.id === this.currentPlaylistId);
     if (modalPlName && currentPl) modalPlName.textContent = currentPl.title;
 
-    // 4. Dynamic Theme Coloring
+    // Artist Profile & Real High-Res Portraits
+    const profile = (window.getArtistProfile) ? window.getArtistProfile(track.artist) : null;
+    this.currentArtistProfile = profile;
+
+    const avatarImg = document.getElementById('modalArtistAvatarImg');
+    if (avatarImg && profile) avatarImg.src = profile.photo;
+
+    const artistCardImg = document.getElementById('artistCardImg');
+    if (artistCardImg && profile) artistCardImg.src = profile.headerPhoto || profile.photo;
+
+    const artistCardName = document.getElementById('artistCardName');
+    if (artistCardName && profile) artistCardName.textContent = profile.name;
+
+    const artistCardListeners = document.getElementById('artistCardListeners');
+    if (artistCardListeners && profile) artistCardListeners.textContent = profile.monthlyListeners;
+
+    const artistCardBio = document.getElementById('artistCardBio');
+    if (artistCardBio && profile) artistCardBio.textContent = profile.bio;
+
+    const creditsPerformer = document.getElementById('creditsPerformer');
+    if (creditsPerformer) creditsPerformer.textContent = track.artist;
+
+    // Next in queue preview
+    const nextIdx = (this.currentIndex + 1) % this.tracks.length;
+    const nextTrack = this.tracks[nextIdx];
+    if (nextTrack) {
+      const qTitle = document.getElementById('queueNextTitle');
+      const qArtist = document.getElementById('queueNextArtist');
+      const qImg = document.getElementById('queueNextImg');
+      if (qTitle) qTitle.textContent = nextTrack.title;
+      if (qArtist) qArtist.textContent = nextTrack.artist;
+      if (qImg && nextTrack.artwork) qImg.src = nextTrack.artwork;
+    }
+
+    // 4. Dynamic Theme Coloring (100% Opaque Base)
     const themeColor = track.themeColor || '#1db954';
     const modal = document.getElementById('nowPlayingModal');
     if (modal) {
-      modal.style.background = `radial-gradient(circle at 50% 20%, ${themeColor}99 0%, #150808 55%, #121212 100%)`;
+      modal.style.backgroundColor = '#0d0d0d';
+      modal.style.backgroundImage = `radial-gradient(circle at 50% 25%, ${themeColor}ee 0%, #170808 60%, #0d0d0d 100%)`;
     }
 
     const topbar = document.querySelector('.spotify-topbar');
     if (topbar) {
-      topbar.style.borderBottom = `1px solid ${themeColor}33`;
+      topbar.style.borderBottom = `1px solid ${themeColor}44`;
     }
   }
 
@@ -1413,9 +1538,12 @@ class SpotifyHiFiMobileApp {
       btnAutoplay.addEventListener('click', () => this.toggleAutoplay());
     }
 
-    const miniClick = document.getElementById('miniPlayerClickZone');
-    if (miniClick) {
-      miniClick.addEventListener('click', () => this.openNowPlayingModal());
+    const playerBar = document.getElementById('playerBar');
+    if (playerBar) {
+      playerBar.addEventListener('click', (e) => {
+        if (e.target.closest('.mini-controls')) return;
+        this.openNowPlayingModal();
+      });
     }
 
     // Full screen modal controls
@@ -1609,21 +1737,162 @@ class SpotifyHiFiMobileApp {
   }
 
   filterByArtist(artistName) {
-    this.openPlaylist('sick');
-    const heroTitle = document.getElementById('playlistTitle');
-    if (heroTitle) heroTitle.textContent = `${artistName} Essentials`;
+    this.openArtistProfile(artistName);
+  }
 
-    const filtered = this.featuredTracks.filter(t => t.artist.toLowerCase().includes(artistName.toLowerCase()));
-    this.tracks = filtered;
+  openArtistProfile(artistName) {
+    const profile = (window.getArtistProfile) ? window.getArtistProfile(artistName) : null;
+    if (!profile) return;
 
-    const container = document.getElementById('tracklistBody');
+    this.currentArtistProfile = profile;
+    this.closeNowPlayingModal();
+    this.switchView('viewArtist', null);
+
+    const banner = document.getElementById('artistProfileHeaderImg');
+    const name = document.getElementById('artistProfileName');
+    const listeners = document.getElementById('artistProfileListeners');
+    const bio = document.getElementById('artistProfileBioText');
+    const rank = document.getElementById('artistProfileRankTag');
+
+    if (banner) banner.src = profile.headerPhoto || profile.photo;
+    if (name) name.textContent = profile.name;
+    if (listeners) listeners.textContent = profile.monthlyListeners;
+    if (bio) bio.textContent = profile.bio;
+    if (rank) rank.textContent = profile.rank || 'Verified Artist';
+
+    const artistSongs = this.featuredTracks.filter(t => 
+      t.artist.toLowerCase().includes(artistName.toLowerCase()) || 
+      artistName.toLowerCase().includes(t.artist.toLowerCase())
+    );
+
+    const container = document.getElementById('artistPopularTracks');
     if (container) {
       container.innerHTML = '';
-      filtered.forEach((track, index) => {
-        container.appendChild(this.createTrackElement(track, index, true));
+      if (artistSongs.length === 0) {
+        container.innerHTML = '<p style="padding:16px;color:#b3b3b3;">No tracks found for this artist in local catalog.</p>';
+      } else {
+        artistSongs.forEach((track, index) => {
+          const el = this.createTrackElement(track, index, true);
+          el.addEventListener('click', (e) => {
+            if (e.target.closest('.track-add-btn')) return;
+            this.tracks = artistSongs;
+            this.playTrack(index);
+          });
+          container.appendChild(el);
+        });
+      }
+    }
+
+    const playAllBtn = document.getElementById('btnArtistPlayAll');
+    if (playAllBtn && artistSongs.length > 0) {
+      playAllBtn.onclick = () => {
+        this.tracks = artistSongs;
+        this.playTrack(0);
+      };
+    }
+  }
+
+  setupArtistProfileEvents() {
+    const modalAvatar = document.getElementById('modalArtistAvatarWrap');
+    if (modalAvatar) {
+      modalAvatar.addEventListener('click', () => {
+        const curTrack = this.tracks[this.currentIndex];
+        if (curTrack) this.openArtistProfile(curTrack.artist);
       });
     }
-    if (filtered.length > 0) this.playTrack(0);
+
+    const modalArtistLink = document.getElementById('modalArtistName');
+    if (modalArtistLink) {
+      modalArtistLink.addEventListener('click', () => {
+        const curTrack = this.tracks[this.currentIndex];
+        if (curTrack) this.openArtistProfile(curTrack.artist);
+      });
+    }
+
+    const btnViewProfile = document.getElementById('btnViewArtistProfile');
+    if (btnViewProfile) {
+      btnViewProfile.addEventListener('click', () => {
+        const curTrack = this.tracks[this.currentIndex];
+        if (curTrack) this.openArtistProfile(curTrack.artist);
+      });
+    }
+
+    const artistCardHero = document.getElementById('artistCardHero');
+    if (artistCardHero) {
+      artistCardHero.addEventListener('click', () => {
+        const curTrack = this.tracks[this.currentIndex];
+        if (curTrack) this.openArtistProfile(curTrack.artist);
+      });
+    }
+
+    const btnArtistBack = document.getElementById('btnArtistBackToPrev');
+    if (btnArtistBack) {
+      btnArtistBack.addEventListener('click', () => {
+        this.switchView('viewHome', document.getElementById('mNavHome'));
+      });
+    }
+
+    const btnFollow = document.getElementById('btnFollowArtist');
+    if (btnFollow) {
+      btnFollow.addEventListener('click', (e) => {
+        e.stopPropagation();
+        btnFollow.classList.toggle('following');
+        btnFollow.textContent = btnFollow.classList.contains('following') ? 'Following' : 'Follow';
+      });
+    }
+
+    const btnProfileFollow = document.getElementById('btnProfileFollowArtist');
+    if (btnProfileFollow) {
+      btnProfileFollow.addEventListener('click', () => {
+        btnProfileFollow.classList.toggle('following');
+        btnProfileFollow.textContent = btnProfileFollow.classList.contains('following') ? 'Following' : 'Follow';
+      });
+    }
+
+    const btnQueueSkip = document.getElementById('btnQueueSkipNext');
+    if (btnQueueSkip) {
+      btnQueueSkip.addEventListener('click', () => {
+        this.nextTrack();
+      });
+    }
+  }
+
+  setupCanvasEvents() {
+    const btnAlbum = document.getElementById('btnModeAlbumArt');
+    const btnCanvas = document.getElementById('btnModeCanvas');
+    const coverImg = document.getElementById('modalCoverImg');
+    const canvasTarget = document.getElementById('modalCanvasTarget');
+
+    if (btnAlbum && btnCanvas) {
+      btnAlbum.addEventListener('click', () => {
+        btnAlbum.classList.add('active');
+        btnCanvas.classList.remove('active');
+        if (coverImg) coverImg.style.display = 'block';
+        if (canvasTarget) canvasTarget.style.display = 'none';
+        this.isCanvasMode = false;
+      });
+
+      btnCanvas.addEventListener('click', () => {
+        btnCanvas.classList.add('active');
+        btnAlbum.classList.remove('active');
+        if (coverImg) coverImg.style.display = 'none';
+        if (canvasTarget) {
+          canvasTarget.style.display = 'flex';
+          const ytContainer = document.getElementById('ytPlayerContainer');
+          if (ytContainer) {
+            ytContainer.style.position = 'relative';
+            ytContainer.style.top = '0';
+            ytContainer.style.left = '0';
+            ytContainer.style.width = '100%';
+            ytContainer.style.height = '100%';
+            ytContainer.style.opacity = '1';
+            ytContainer.style.pointerEvents = 'auto';
+            canvasTarget.appendChild(ytContainer);
+          }
+        }
+        this.isCanvasMode = true;
+      });
+    }
   }
 
   filterByGenre(genreName) {
@@ -1654,6 +1923,9 @@ class SpotifyHiFiMobileApp {
   }
 
   openNowPlayingModal() {
+    if (this.currentIndex === -1 && this.tracks.length > 0) {
+      this.playTrack(0);
+    }
     const modal = document.getElementById('nowPlayingModal');
     if (modal) modal.classList.add('open');
   }

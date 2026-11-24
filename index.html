@@ -15,6 +15,15 @@
     }
   </script>
   <!-- YouTube IFrame API for Full-Length Studio Audio (No 30s Snippet Glitch) -->
+  <script>
+    window.onYouTubeIframeAPIReady = function() {
+      window.isYTAPILoaded = true;
+      console.log("Global onYouTubeIframeAPIReady fired!");
+      if (window.spotifyHiFiApp) {
+        window.spotifyHiFiApp.initYouTubeEngine();
+      }
+    };
+  </script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -374,6 +383,48 @@
           </div>
         </section>
 
+        <!-- VIEW 6: ARTIST PROFILE PAGE -->
+        <section class="app-view" id="viewArtist">
+          <div class="artist-profile-hero">
+            <img id="artistProfileHeaderImg" src="icon-512.png" alt="Artist Banner" class="artist-hero-bg">
+            <div class="artist-hero-overlay"></div>
+            <div class="artist-hero-content">
+              <div class="artist-hero-badge">
+                <svg viewBox="0 0 24 24" fill="#3d91f4" width="18" height="18"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                <span>Verified Artist</span>
+              </div>
+              <h1 class="artist-hero-name" id="artistProfileName">Artist Name</h1>
+              <span class="artist-hero-listeners" id="artistProfileListeners">75,000,000 monthly listeners</span>
+            </div>
+          </div>
+
+          <div class="artist-profile-actions">
+            <button class="artist-play-circle-btn" id="btnArtistPlayAll" title="Play Top Songs">
+              <svg viewBox="0 0 16 16" fill="currentColor"><polygon points="4 2 14 8 4 14 4 2"/></svg>
+            </button>
+            <button class="follow-pill-btn" id="btnProfileFollowArtist">Follow</button>
+            <button class="artist-back-btn" id="btnArtistBackToPrev">← Back</button>
+          </div>
+
+          <div class="section-block">
+            <div class="section-header">
+              <h3>Popular Releases</h3>
+              <span class="section-sub">Studio Master Tracks</span>
+            </div>
+            <div class="tracks-touch-list" id="artistPopularTracks"></div>
+          </div>
+
+          <div class="section-block">
+            <div class="section-header">
+              <h3>About the Artist</h3>
+            </div>
+            <div class="artist-full-bio-card">
+              <p id="artistProfileBioText">Artist biography...</p>
+              <div class="artist-rank-tag" id="artistProfileRankTag">#1 in the world</div>
+            </div>
+          </div>
+        </section>
+
       </main>
     </div>
 
@@ -505,14 +556,24 @@
         </button>
       </div>
 
-      <div class="modal-cover-wrapper">
+      <!-- Mode Toggle: Album Cover vs Video Canvas -->
+      <div class="modal-mode-toggle-row">
+        <button class="mode-pill active" id="btnModeAlbumArt">Album Cover</button>
+        <button class="mode-pill" id="btnModeCanvas">Video Canvas</button>
+      </div>
+
+      <div class="modal-cover-wrapper" id="modalMediaContainer">
         <img id="modalCoverImg" src="icon-512.png" class="modal-cover-art" alt="Album Cover" onerror="this.src='icon-512.png'">
+        <div id="modalCanvasTarget" class="modal-canvas-frame" style="display:none;"></div>
       </div>
 
       <div class="modal-track-info">
+        <div class="modal-artist-avatar-wrap" id="modalArtistAvatarWrap" title="View Artist Profile">
+          <img id="modalArtistAvatarImg" src="icon-192.png" alt="Artist Avatar" class="modal-artist-avatar-thumb">
+        </div>
         <div class="modal-text-col">
           <h2 class="modal-song-title" id="modalSongTitle">Song Title</h2>
-          <span class="modal-artist-name" id="modalArtistName">Artist Name</span>
+          <span class="modal-artist-name-link" id="modalArtistName" title="Open Artist Page">Artist Name</span>
         </div>
         <button class="modal-heart-btn active" id="modalHeartBtn">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
@@ -555,6 +616,86 @@
           <span>Equalizer</span>
         </button>
         <span class="autoplay-indicator-tag" id="autoplayStatusTag">AUTOPLAY ENABLED</span>
+      </div>
+
+      <!-- SCROLLABLE LOWER CONTENT: LYRICS, ABOUT ARTIST, CREDITS, NEXT IN QUEUE -->
+      <div class="now-playing-extra-content">
+
+        <!-- CARD 1: SPOTIFY LIVE SYNCED LYRICS -->
+        <div class="now-playing-card lyrics-card" id="nowPlayingLyricsCard">
+          <div class="card-top-row">
+            <span class="card-tag">LYRICS</span>
+            <button class="card-action-link" id="btnExpandLyrics">Full screen</button>
+          </div>
+          <div class="lyrics-preview-body" id="lyricsPreviewLines">
+            <p class="lyric-line passed">I've been praying for a light to guide me</p>
+            <p class="lyric-line active">Tell me who's gonna save me from myself</p>
+            <p class="lyric-line upcoming">When this life is getting crazy</p>
+            <p class="lyric-line upcoming">Are you gonna be there when I fall?</p>
+          </div>
+        </div>
+
+        <!-- CARD 2: ABOUT THE ARTIST (HIGH-RES OFFICIAL PORTRAIT + BIO) -->
+        <div class="now-playing-card artist-card" id="nowPlayingArtistCard">
+          <div class="artist-card-hero" id="artistCardHero">
+            <img id="artistCardImg" src="https://cdn-images.dzcdn.net/images/artist/8d8316146026d7e6ce377e314536df62/1000x1000-000000-80-0-0.jpg" alt="Artist" class="artist-card-hero-img">
+            <div class="artist-card-hero-gradient"></div>
+            <div class="artist-card-badge-row">
+              <span class="verified-badge">
+                <svg viewBox="0 0 24 24" fill="#3d91f4" width="16" height="16"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                Verified Artist
+              </span>
+            </div>
+            <h3 class="artist-card-name" id="artistCardName">Travis Scott</h3>
+            <span class="artist-card-listeners" id="artistCardListeners">78,219,450 monthly listeners</span>
+          </div>
+          <div class="artist-card-body">
+            <p class="artist-card-bio" id="artistCardBio">Travis Scott is an American rapper, singer, songwriter, and record producer known for his atmospheric soundscapes, historic stadium tours, and genre-defining albums like ASTROWORLD, Rodeo, and UTOPIA.</p>
+            <div class="artist-card-actions">
+              <button class="follow-pill-btn" id="btnFollowArtist">Follow</button>
+              <button class="view-profile-btn" id="btnViewArtistProfile">View Artist Profile →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 3: CREDITS -->
+        <div class="now-playing-card credits-card">
+          <div class="card-top-row">
+            <span class="card-tag">CREDITS</span>
+            <span class="credits-source-tag">HiFi Lossless Master</span>
+          </div>
+          <div class="credits-item">
+            <span class="credits-title" id="creditsPerformer">Travis Scott</span>
+            <span class="credits-role">Main Artist, Performer</span>
+          </div>
+          <div class="credits-item">
+            <span class="credits-title">Metro Boomin, Mike Dean, Boi-1da</span>
+            <span class="credits-role">Producers, Composers</span>
+          </div>
+          <div class="credits-item">
+            <span class="credits-title">Spotify HiFi 24-Bit / 96kHz</span>
+            <span class="credits-role">Studio Master Source</span>
+          </div>
+        </div>
+
+        <!-- CARD 4: NEXT IN QUEUE -->
+        <div class="now-playing-card queue-card" id="nowPlayingQueueCard">
+          <div class="card-top-row">
+            <span class="card-tag">NEXT IN QUEUE</span>
+            <span class="queue-playlist-tag" id="queuePlaylistTag">From sick 🫢</span>
+          </div>
+          <div class="queue-track-row" id="queueNextTrackRow">
+            <img id="queueNextImg" src="icon-192.png" class="queue-track-thumb" alt="Upcoming Track">
+            <div class="queue-track-info">
+              <span class="queue-track-title" id="queueNextTitle">Next Song</span>
+              <span class="queue-track-artist" id="queueNextArtist">Next Artist</span>
+            </div>
+            <button class="queue-skip-btn" id="btnQueueSkipNext" title="Skip to this song">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -637,6 +778,7 @@
 
   </div>
 
+  <script src="artists_data.js"></script>
   <script src="sick_playlist.js"></script>
   <script src="app.js"></script>
 </body>

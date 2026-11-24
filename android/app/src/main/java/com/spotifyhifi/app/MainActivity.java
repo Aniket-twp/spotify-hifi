@@ -2,10 +2,10 @@ package com.spotifyhifi.app;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -19,6 +19,9 @@ public class MainActivity extends Activity {
 
         // Keep screen on during music playback
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        // Enable Chrome DevTools remote debugging
+        WebView.setWebContentsDebuggingEnabled(true);
 
         webView = new WebView(this);
         WebSettings settings = webView.getSettings();
@@ -41,19 +44,21 @@ public class MainActivity extends Activity {
 
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
-        webView.setWebChromeClient(new WebChromeClient());
+        // Hardware accelerated layer for 60/120fps video and canvas animations
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+
+        webView.setWebChromeClient(new SpotifyWebChromeClient());
         webView.setWebViewClient(new WebViewClient());
+        webView.addJavascriptInterface(new AndroidBridge(this), "AndroidBridge");
 
         setContentView(webView);
-
-        // Load bundled offline-capable Spotify HiFi mobile client
         webView.loadUrl("file:///android_asset/www/index.html");
     }
 
     @Override
     public void onBackPressed() {
-        if (webView != null && webView.canGoBack()) {
-            webView.goBack();
+        if (webView != null) {
+            webView.loadUrl("javascript:(function(){if(window.spotifyHiFiApp&&window.spotifyHiFiApp.handleBackPressed){if(!window.spotifyHiFiApp.handleBackPressed()){if(window.AndroidBridge&&window.AndroidBridge.closeApp){window.AndroidBridge.closeApp();}}}})();");
         } else {
             super.onBackPressed();
         }

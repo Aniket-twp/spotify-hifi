@@ -33,7 +33,7 @@ os.makedirs(OBJ_DIR, exist_ok=True)
 # Prepare assets for APK
 assets_dir = os.path.join(BASE_DIR, "android", "app", "src", "main", "assets", "www")
 os.makedirs(assets_dir, exist_ok=True)
-for item in ["index.html", "styles.css", "app.js", "sick_playlist.js", "sick_playlist.json", "manifest.json", "sw.js", "icon-192.png", "icon-512.png", "favicon.png"]:
+for item in ["index.html", "styles.css", "app.js", "artists_data.js", "sick_playlist.js", "sick_playlist.json", "manifest.json", "sw.js", "icon-192.png", "icon-512.png", "favicon.png"]:
     src = os.path.join(BASE_DIR, item)
     if os.path.exists(src):
         shutil.copy2(src, os.path.join(assets_dir, item))
@@ -64,10 +64,12 @@ cmd = [
 subprocess.run(cmd, check=True)
 
 print("Step 3: Compiling Java source...")
-java_files = [
-    os.path.join(GEN_DIR, "com", "spotifyhifi", "app", "R.java"),
-    os.path.join(BASE_DIR, "android", "app", "src", "main", "java", "com", "spotifyhifi", "app", "MainActivity.java")
-]
+java_src_dir = os.path.join(BASE_DIR, "android", "app", "src", "main", "java", "com", "spotifyhifi", "app")
+java_files = [os.path.join(GEN_DIR, "com", "spotifyhifi", "app", "R.java")]
+for f in os.listdir(java_src_dir):
+    if f.endswith(".java"):
+        java_files.append(os.path.join(java_src_dir, f))
+
 cmd = [
     JAVAC,
     "-source", "8",
@@ -97,20 +99,23 @@ aligned_apk = os.path.join(BUILD_DIR, "aligned.apk")
 cmd = [ZIPALIGN, "-f", "-p", "4", unaligned_apk, aligned_apk]
 subprocess.run(cmd, check=True)
 
-print("Step 7: Creating debug keystore...")
-keystore_path = os.path.join(BUILD_DIR, "debug.keystore")
-cmd = [
-    KEYTOOL, "-genkeypair",
-    "-keystore", keystore_path,
-    "-storepass", "android",
-    "-alias", "androiddebugkey",
-    "-keypass", "android",
-    "-keyalg", "RSA",
-    "-keysize", "2048",
-    "-validity", "10000",
-    "-dname", "CN=Android Debug,O=Android,C=US"
-]
-subprocess.run(cmd, check=True)
+print("Step 7: Ensuring persistent release keystore...")
+keystore_path = os.path.join(BASE_DIR, "spotify_hifi.keystore")
+if not os.path.exists(keystore_path):
+    cmd = [
+        KEYTOOL, "-genkeypair",
+        "-keystore", keystore_path,
+        "-storepass", "android",
+        "-alias", "androiddebugkey",
+        "-keypass", "android",
+        "-keyalg", "RSA",
+        "-keysize", "2048",
+        "-validity", "10000",
+        "-dname", "CN=Spotify HiFi,O=Spotify,C=US"
+    ]
+    subprocess.run(cmd, check=True)
+else:
+    print(f"Using existing persistent keystore -> {keystore_path}")
 
 print("Step 8: Signing APK with apksigner...")
 final_apk = os.path.join(BASE_DIR, "Spotify-HiFi.apk")
