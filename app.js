@@ -1,30 +1,36 @@
-// Spotify HiFi Mobile & Lossless Audio Engine
-// Fully optimized for Android screens with Autoplay, Explore, Artist Imagery, & All 62 Tracks
+// Spotify HiFi Lossless Audio Engine
+// Multi-Playlist Management, Spotify/Text/File Importer, Global Music Search & Offline Autoplay
 
 class SpotifyHiFiMobileApp {
   constructor() {
     this.audioElement = new Audio();
     this.audioElement.preload = "auto";
 
-    // Synchronously bind full 62-song playlist from window.SICK_PLAYLIST
-    this.tracks = (window.SICK_PLAYLIST && Array.isArray(window.SICK_PLAYLIST) && window.SICK_PLAYLIST.length > 0)
+    // Pinned featured playlist ("sick 🫢" by Aniket)
+    this.featuredTracks = (window.SICK_PLAYLIST && Array.isArray(window.SICK_PLAYLIST) && window.SICK_PLAYLIST.length > 0)
       ? window.SICK_PLAYLIST
       : [];
 
+    // All Playlists (Featured + Custom + Liked)
+    this.playlists = [];
+    this.currentPlaylistId = 'sick';
+    this.tracks = this.featuredTracks;
     this.currentIndex = -1;
     this.isPlaying = false;
     this.isAutoplay = true;
     this.isShuffle = false;
-    this.activeFilter = 'all';
 
-    // Audio Context & DSP for HiFi Equalizer
+    // Track targeted for adding to playlist
+    this.pendingAddTrack = null;
+
+    // Audio DSP for HiFi Equalizer
     this.audioCtx = null;
     this.sourceNode = null;
     this.analyserNode = null;
     this.eqFilters = [];
     this.eqFrequencies = [32, 64, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
 
-    // Top Artists with high-res photos
+    // Top Artists in rotation
     this.artists = [
       { name: "Travis Scott", photo: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80", role: "11 songs" },
       { name: "The Weeknd", photo: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=80", role: "9 songs" },
@@ -38,7 +44,6 @@ class SpotifyHiFiMobileApp {
       { name: "Future", photo: "https://images.unsplash.com/photo-1520523839898-5071282543e1?w=500&auto=format&fit=crop&q=80", role: "Mask Off" }
     ];
 
-    // Explore Genres
     this.genres = [
       { name: "Hip-Hop", desc: "Travis Scott, Drake, Roddy Ricch", color: "linear-gradient(135deg, #e67e22, #d35400)" },
       { name: "Late Night Vibes", desc: "The Weeknd, Post Malone", color: "linear-gradient(135deg, #8e44ad, #2c3e50)" },
@@ -53,21 +58,18 @@ class SpotifyHiFiMobileApp {
 
   async init() {
     this.updateGreeting();
+    this.loadPlaylistsFromStorage();
     this.setupNavigation();
     this.setupAudioListeners();
     this.setupUIEvents();
     this.setupEqualizerUI();
+    this.setupImportModalEvents();
+
     this.renderArtists();
     this.renderGenreCards();
-
-    // Ensure tracks are loaded
-    if (this.tracks.length === 0) {
-      await this.loadPlaylistData();
-    }
-
-    console.log(`Spotify HiFi loaded with ${this.tracks.length} tracks.`);
     this.renderHomeFeatured();
-    this.renderMainTracklist();
+    this.renderLibraryPlaylists();
+    this.openPlaylist('sick');
   }
 
   updateGreeting() {
@@ -79,21 +81,60 @@ class SpotifyHiFiMobileApp {
     if (elem) elem.textContent = text;
   }
 
-  async loadPlaylistData() {
+  // PLAYLIST STORAGE & MANAGEMENT
+  loadPlaylistsFromStorage() {
+    // 1. Featured "sick 🫢"
+    const sickPl = {
+      id: 'sick',
+      title: 'sick 🫢',
+      curator: 'Aniket',
+      type: 'featured',
+      artwork: 'https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/1b/63/04/1b630400-490e-245b-a26f-0120f6f253c8/20UMGIM28168.rgb.jpg/600x600bb.jpg',
+      themeColor: '#e52d27',
+      tracks: this.featuredTracks
+    };
+
+    // 2. Liked Songs
+    let likedSongs = [];
     try {
-      const res = await fetch('sick_playlist.json');
-      if (res.ok) {
-        this.tracks = await res.json();
+      const savedLiked = localStorage.getItem('spotify_hifi_liked_songs');
+      if (savedLiked) likedSongs = JSON.parse(savedLiked);
+    } catch (e) {}
+
+    const likedPl = {
+      id: 'liked',
+      title: 'Liked Songs',
+      curator: 'You',
+      type: 'custom',
+      artwork: 'icon-512.png',
+      themeColor: '#1db954',
+      tracks: likedSongs
+    };
+
+    // 3. User Custom / Imported Playlists
+    let customPlaylists = [];
+    try {
+      const savedCustom = localStorage.getItem('spotify_hifi_custom_playlists');
+      if (savedCustom) customPlaylists = JSON.parse(savedCustom);
+    } catch (e) {}
+
+    this.playlists = [sickPl, likedPl, ...customPlaylists];
+  }
+
+  saveCustomPlaylists() {
+    try {
+      const customOnly = this.playlists.filter(p => p.id !== 'sick' && p.id !== 'liked');
+      localStorage.setItem('spotify_hifi_custom_playlists', JSON.stringify(customOnly));
+      const likedPl = this.playlists.find(p => p.id === 'liked');
+      if (likedPl) {
+        localStorage.setItem('spotify_hifi_liked_songs', JSON.stringify(likedPl.tracks));
       }
     } catch (e) {
-      console.warn("fetch failed, checking window.SICK_PLAYLIST:", e);
-      if (window.SICK_PLAYLIST && window.SICK_PLAYLIST.length) {
-        this.tracks = window.SICK_PLAYLIST;
-      }
+      console.warn("Storage save error:", e);
     }
   }
 
-  // BOTTOM NAVIGATION & VIEW SWITCHING
+  // NAVIGATION & VIEW SWITCHING
   setupNavigation() {
     const navButtons = document.querySelectorAll('.mobile-nav-btn');
     navButtons.forEach(btn => {
@@ -103,7 +144,6 @@ class SpotifyHiFiMobileApp {
       });
     });
 
-    // Topbar EQ button
     const btnToggleEQ = document.getElementById('btnToggleEQ');
     if (btnToggleEQ) {
       btnToggleEQ.addEventListener('click', () => {
@@ -112,7 +152,6 @@ class SpotifyHiFiMobileApp {
       });
     }
 
-    // Modal EQ button
     const btnModalEQ = document.getElementById('btnModalEQ');
     if (btnModalEQ) {
       btnModalEQ.addEventListener('click', () => {
@@ -122,21 +161,31 @@ class SpotifyHiFiMobileApp {
       });
     }
 
-    // See all tracks link
     const btnSeeAll = document.getElementById('btnSeeAllTracks');
     if (btnSeeAll) {
       btnSeeAll.addEventListener('click', () => {
-        const plNavBtn = document.getElementById('mNavPlaylist');
-        this.switchView('viewPlaylist', plNavBtn);
+        this.openPlaylist('sick');
       });
     }
 
-    // Home Shortcut click
     const shortcutSick = document.getElementById('shortcutSick');
     if (shortcutSick) {
       shortcutSick.addEventListener('click', () => {
-        const plNavBtn = document.getElementById('mNavPlaylist');
-        this.switchView('viewPlaylist', plNavBtn);
+        this.openPlaylist('sick');
+      });
+    }
+
+    const shortcutImport = document.getElementById('shortcutImport');
+    if (shortcutImport) {
+      shortcutImport.addEventListener('click', () => {
+        this.openImportModal();
+      });
+    }
+
+    const btnOpenImportTop = document.getElementById('btnOpenImportTop');
+    if (btnOpenImportTop) {
+      btnOpenImportTop.addEventListener('click', () => {
+        this.openImportModal();
       });
     }
   }
@@ -183,7 +232,6 @@ class SpotifyHiFiMobileApp {
       if (totalLabel) totalLabel.textContent = this.formatTime(dur);
     });
 
-    // CONTINUOUS AUTOPLAY
     this.audioElement.addEventListener('ended', () => {
       if (this.isAutoplay) {
         this.nextTrack();
@@ -191,10 +239,9 @@ class SpotifyHiFiMobileApp {
     });
 
     this.audioElement.addEventListener('error', (e) => {
-      console.warn("Audio playback error on track:", this.currentIndex, e);
+      console.warn("Audio playback error:", e);
       if (this.currentIndex >= 0 && this.currentIndex < this.tracks.length) {
         const track = this.tracks[this.currentIndex];
-        // If preview failed, attempt fallback previewUrl
         if (track.previewFallback && this.audioElement.src !== track.previewFallback) {
           this.audioElement.src = track.previewFallback;
           this.audioElement.play().catch(console.error);
@@ -248,7 +295,7 @@ class SpotifyHiFiMobileApp {
     if (streamUrl) {
       this.audioElement.src = streamUrl;
       this.audioElement.play().catch(err => {
-        console.warn("Direct stream play error:", err);
+        console.warn("Play error:", err);
       });
     }
 
@@ -288,47 +335,37 @@ class SpotifyHiFiMobileApp {
 
   updatePlayState(playing) {
     this.isPlaying = playing;
-    const ctrlPlay = document.getElementById('ctrlPlayIcon');
-    const ctrlPause = document.getElementById('ctrlPauseIcon');
-    const heroPlay = document.getElementById('heroPlayIcon');
-    const heroPause = document.getElementById('heroPauseIcon');
-    const modalPlay = document.getElementById('modalPlayIcon');
-    const modalPause = document.getElementById('modalPauseIcon');
-
-    if (ctrlPlay && ctrlPause) {
-      ctrlPlay.style.display = playing ? 'none' : 'block';
-      ctrlPause.style.display = playing ? 'block' : 'none';
-    }
-    if (heroPlay && heroPause) {
-      heroPlay.style.display = playing ? 'none' : 'block';
-      heroPause.style.display = playing ? 'block' : 'none';
-    }
-    if (modalPlay && modalPause) {
-      modalPlay.style.display = playing ? 'none' : 'block';
-      modalPause.style.display = playing ? 'block' : 'none';
-    }
+    ['ctrlPlayIcon', 'heroPlayIcon', 'modalPlayIcon'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = playing ? 'none' : 'block';
+    });
+    ['ctrlPauseIcon', 'heroPauseIcon', 'modalPauseIcon'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = playing ? 'block' : 'none';
+    });
   }
 
   updateUIForTrack(track) {
-    // Mini-player updates
-    const currentTitle = document.getElementById('currentTitle');
-    const currentArtist = document.getElementById('currentArtist');
+    const curTitle = document.getElementById('currentTitle');
+    const curArtist = document.getElementById('currentArtist');
     const playerThumb = document.getElementById('playerThumb');
-    if (currentTitle) currentTitle.textContent = track.title;
-    if (currentArtist) currentArtist.textContent = track.artist;
+    if (curTitle) curTitle.textContent = track.title;
+    if (curArtist) curArtist.textContent = track.artist;
     if (playerThumb && track.artwork) playerThumb.src = track.artwork;
 
-    // Full modal updates
     const modalTitle = document.getElementById('modalSongTitle');
     const modalArtist = document.getElementById('modalArtistName');
     const modalCover = document.getElementById('modalCoverImg');
     const modalTotalTime = document.getElementById('modalTotalTime');
+    const modalPlName = document.getElementById('modalPlayingPlaylistName');
     if (modalTitle) modalTitle.textContent = track.title;
     if (modalArtist) modalArtist.textContent = track.artist;
     if (modalCover && track.artwork) modalCover.src = track.artwork;
     if (modalTotalTime) modalTotalTime.textContent = this.formatTime(track.duration || 180);
 
-    // Dynamic background theme
+    const currentPl = this.playlists.find(p => p.id === this.currentPlaylistId);
+    if (modalPlName && currentPl) modalPlName.textContent = currentPl.title;
+
     const themeColor = track.themeColor || '#1db954';
     const modal = document.getElementById('nowPlayingModal');
     if (modal) {
@@ -347,7 +384,114 @@ class SpotifyHiFiMobileApp {
     });
   }
 
-  // RENDER VIEWS
+  // OPEN PLAYLIST VIEW
+  openPlaylist(playlistId) {
+    const pl = this.playlists.find(p => p.id === playlistId);
+    if (!pl) return;
+
+    this.currentPlaylistId = pl.id;
+    this.tracks = pl.tracks;
+
+    // Switch view
+    this.switchView('viewPlaylist', null);
+
+    // Update Hero elements
+    const titleElem = document.getElementById('playlistTitle');
+    const countElem = document.getElementById('playlistTrackCount');
+    const curatorElem = document.getElementById('curatorName');
+    const curatorAvatar = document.getElementById('curatorAvatar');
+    const coverArt = document.getElementById('playlistCoverArt');
+    const badgeType = document.getElementById('playlistBadgeType');
+    const deleteBtn = document.getElementById('btnDeleteCustomPlaylist');
+
+    if (titleElem) titleElem.textContent = pl.title;
+    if (countElem) countElem.textContent = `${pl.tracks.length} songs`;
+    if (curatorElem) curatorElem.textContent = pl.curator || 'Curator';
+    if (curatorAvatar) curatorAvatar.textContent = (pl.curator || 'A')[0].toUpperCase();
+    if (badgeType) badgeType.textContent = pl.type ? pl.type.toUpperCase() : 'PLAYLIST';
+
+    if (coverArt) {
+      if (pl.artwork) {
+        coverArt.innerHTML = `<img src="${pl.artwork}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="${pl.title}">`;
+      } else {
+        coverArt.className = 'playlist-cover-art sick-hero-art';
+        coverArt.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>`;
+      }
+    }
+
+    if (deleteBtn) {
+      deleteBtn.style.display = (pl.id !== 'sick' && pl.id !== 'liked') ? 'flex' : 'none';
+      deleteBtn.onclick = () => this.deletePlaylist(pl.id);
+    }
+
+    // Render tracklist
+    const container = document.getElementById('tracklistBody');
+    if (container) {
+      container.innerHTML = '';
+      if (pl.tracks.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:40px 16px;color:#727272;">
+            <p style="font-size:16px;font-weight:700;margin-bottom:8px;">No songs in this playlist yet</p>
+            <p style="font-size:13px;">Use the Search tab or tap '+' on any track to add songs.</p>
+          </div>
+        `;
+      } else {
+        pl.tracks.forEach((track, index) => {
+          container.appendChild(this.createTrackElement(track, index, true));
+        });
+      }
+    }
+  }
+
+  deletePlaylist(playlistId) {
+    if (confirm("Are you sure you want to delete this playlist?")) {
+      this.playlists = this.playlists.filter(p => p.id !== playlistId);
+      this.saveCustomPlaylists();
+      this.renderLibraryPlaylists();
+      this.openPlaylist('sick');
+    }
+  }
+
+  // RENDER LIBRARY
+  renderLibraryPlaylists(filter = 'all') {
+    const grid = document.getElementById('libraryPlaylistsGrid');
+    const countLabel = document.getElementById('libPlaylistCount');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    let list = this.playlists;
+    if (filter === 'featured') list = this.playlists.filter(p => p.type === 'featured');
+    else if (filter === 'custom') list = this.playlists.filter(p => p.type === 'custom');
+    else if (filter === 'imported') list = this.playlists.filter(p => p.type === 'imported');
+
+    if (countLabel) countLabel.textContent = `${this.playlists.length} Playlists`;
+
+    list.forEach(pl => {
+      const card = document.createElement('div');
+      card.className = 'library-playlist-card';
+
+      const artHtml = pl.artwork 
+        ? `<img src="${pl.artwork}" alt="${pl.title}" onerror="this.src='icon-192.png'">`
+        : `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>`;
+
+      card.innerHTML = `
+        <div class="lib-card-art">${artHtml}</div>
+        <div class="lib-card-info">
+          <div class="lib-card-title">${pl.title}</div>
+          <div class="lib-card-sub">
+            <span class="lib-tag-pill">${pl.type || 'playlist'}</span>
+            <span>${pl.tracks.length} songs • ${pl.curator || 'You'}</span>
+          </div>
+        </div>
+      `;
+      card.addEventListener('click', () => {
+        this.openPlaylist(pl.id);
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  // RENDER HOME & ARTISTS
   renderArtists() {
     const container = document.getElementById('homeArtistsScroll');
     if (!container) return;
@@ -402,29 +546,14 @@ class SpotifyHiFiMobileApp {
     if (!container) return;
     container.innerHTML = '';
 
-    // Render all tracks or up to 20 on Home feed with fast touch items
-    const count = Math.min(this.tracks.length, 25);
+    const count = Math.min(this.featuredTracks.length, 30);
     for (let i = 0; i < count; i++) {
-      const item = this.createTrackElement(this.tracks[i], i);
-      container.appendChild(item);
+      container.appendChild(this.createTrackElement(this.featuredTracks[i], i, false));
     }
   }
 
-  renderMainTracklist() {
-    const container = document.getElementById('tracklistBody');
-    if (!container) return;
-    container.innerHTML = '';
-
-    const countElem = document.getElementById('playlistTrackCount');
-    if (countElem) countElem.textContent = `${this.tracks.length} songs`;
-
-    this.tracks.forEach((track, index) => {
-      const item = this.createTrackElement(track, index);
-      container.appendChild(item);
-    });
-  }
-
-  createTrackElement(track, index) {
+  // CREATE TRACK ELEMENT (With + Add to Playlist button)
+  createTrackElement(track, index, showAdd = true) {
     const div = document.createElement('div');
     div.className = `touch-track-item ${index === this.currentIndex ? 'active' : ''}`;
     div.setAttribute('data-index', index);
@@ -444,32 +573,389 @@ class SpotifyHiFiMobileApp {
         </div>
       </div>
       <div class="track-right-meta">
+        <button class="track-add-btn" title="Add to playlist">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </button>
         <span class="track-duration-pill">${durStr}</span>
       </div>
     `;
 
-    div.addEventListener('click', () => this.playTrack(index));
+    // Click to play
+    div.addEventListener('click', (e) => {
+      if (e.target.closest('.track-add-btn')) return;
+      this.playTrack(index);
+    });
+
+    // Add to playlist button
+    const addBtn = div.querySelector('.track-add-btn');
+    if (addBtn) {
+      addBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openAddToPlaylistModal(track);
+      });
+    }
+
     return div;
   }
 
-  // SEARCH & EXPLORE FILTER
+  // ADD TO PLAYLIST MODAL
+  openAddToPlaylistModal(track) {
+    this.pendingAddTrack = track;
+    const modal = document.getElementById('addToPlaylistModal');
+    const label = document.getElementById('addTrackTargetName');
+    const list = document.getElementById('playlistsSelectList');
+
+    if (label) label.textContent = `Add "${track.title}" to:`;
+    if (list) {
+      list.innerHTML = '';
+      this.playlists.forEach(pl => {
+        const item = document.createElement('div');
+        item.className = 'playlist-select-item';
+        item.innerHTML = `
+          <span class="playlist-select-name">${pl.title}</span>
+          <span class="playlist-select-count">${pl.tracks.length} songs</span>
+        `;
+        item.addEventListener('click', () => {
+          this.addTrackToPlaylist(pl.id, track);
+          modal.classList.remove('open');
+        });
+        list.appendChild(item);
+      });
+    }
+
+    if (modal) modal.classList.add('open');
+  }
+
+  addTrackToPlaylist(playlistId, track) {
+    const pl = this.playlists.find(p => p.id === playlistId);
+    if (!pl) return;
+
+    // Check duplicate
+    const exists = pl.tracks.some(t => t.title.toLowerCase() === track.title.toLowerCase() && t.artist.toLowerCase() === track.artist.toLowerCase());
+    if (exists) {
+      alert(`"${track.title}" is already in ${pl.title}!`);
+      return;
+    }
+
+    pl.tracks.push(track);
+    this.saveCustomPlaylists();
+    this.renderLibraryPlaylists();
+    if (this.currentPlaylistId === playlistId) {
+      this.openPlaylist(playlistId);
+    }
+    alert(`Added "${track.title}" to ${pl.title}!`);
+  }
+
+  // IMPORT MODAL & LOGIC
+  setupImportModalEvents() {
+    // Open / Close Import Modal
+    const btnOpenImport = document.getElementById('btnOpenImportModal');
+    const btnCloseImport = document.getElementById('btnCloseImportModal');
+    const importModal = document.getElementById('importModal');
+
+    if (btnOpenImport) btnOpenImport.addEventListener('click', () => this.openImportModal());
+    if (btnCloseImport) btnCloseImport.addEventListener('click', () => importModal.classList.remove('open'));
+
+    // Tabs
+    document.querySelectorAll('.import-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.import-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.import-tab-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const tabId = btn.getAttribute('data-tab');
+        const pane = document.getElementById(tabId);
+        if (pane) pane.classList.add('active');
+      });
+    });
+
+    // Method 1: Spotify Link Import
+    const btnDoSpotify = document.getElementById('btnDoImportSpotify');
+    if (btnDoSpotify) {
+      btnDoSpotify.addEventListener('click', () => this.handleSpotifyImport());
+    }
+
+    // Method 2: Text Import
+    const btnDoText = document.getElementById('btnDoImportText');
+    if (btnDoText) {
+      btnDoText.addEventListener('click', () => this.handleTextImport());
+    }
+
+    // Method 3: File Drop / Select
+    const dropzone = document.getElementById('fileDropzone');
+    const fileInput = document.getElementById('importFileInput');
+    if (dropzone && fileInput) {
+      dropzone.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => this.handleFileUpload(e));
+    }
+
+    // Create New Playlist Modal
+    const btnOpenCreate = document.getElementById('btnOpenCreateModal');
+    const btnCloseCreate = document.getElementById('btnCloseCreateModal');
+    const createModal = document.getElementById('createPlaylistModal');
+    const btnConfirmCreate = document.getElementById('btnConfirmCreatePlaylist');
+
+    if (btnOpenCreate) btnOpenCreate.addEventListener('click', () => createModal.classList.add('open'));
+    if (btnCloseCreate) btnCloseCreate.addEventListener('click', () => createModal.classList.remove('open'));
+
+    if (btnConfirmCreate) {
+      btnConfirmCreate.addEventListener('click', () => {
+        const title = document.getElementById('newPlaylistTitleInput').value.trim();
+        const desc = document.getElementById('newPlaylistDescInput').value.trim();
+        if (!title) {
+          alert("Please enter a playlist name.");
+          return;
+        }
+        const newPl = {
+          id: 'custom_' + Date.now(),
+          title: title,
+          curator: 'You',
+          type: 'custom',
+          artwork: 'icon-512.png',
+          themeColor: '#1db954',
+          tracks: []
+        };
+        this.playlists.push(newPl);
+        this.saveCustomPlaylists();
+        this.renderLibraryPlaylists();
+        createModal.classList.remove('open');
+        this.openPlaylist(newPl.id);
+      });
+    }
+
+    // Close Add to Playlist Modal
+    const btnCloseAdd = document.getElementById('btnCloseAddTrackModal');
+    const addModal = document.getElementById('addToPlaylistModal');
+    if (btnCloseAdd) btnCloseAdd.addEventListener('click', () => addModal.classList.remove('open'));
+
+    // Share / Export Playlist
+    const btnExport = document.getElementById('btnExportPlaylist');
+    if (btnExport) {
+      btnExport.addEventListener('click', () => this.exportCurrentPlaylist());
+    }
+  }
+
+  openImportModal() {
+    const modal = document.getElementById('importModal');
+    if (modal) modal.classList.add('open');
+  }
+
+  async handleSpotifyImport() {
+    const input = document.getElementById('importSpotifyUrl');
+    const url = input ? input.value.trim() : '';
+    if (!url || !url.includes('spotify.com')) {
+      alert("Please enter a valid Spotify playlist URL (e.g. https://open.spotify.com/playlist/...)");
+      return;
+    }
+
+    this.showImportLoading(true, "Connecting to Spotify & resolving metadata...");
+
+    try {
+      // 1. Fetch playlist title and cover from Spotify OEmbed
+      const oembedRes = await fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(url)}`);
+      let playlistTitle = "Imported Spotify Playlist";
+      let playlistCover = "";
+
+      if (oembedRes.ok) {
+        const odata = await oembedRes.json();
+        if (odata.title) playlistTitle = odata.title;
+        if (odata.thumbnail_url) playlistCover = odata.thumbnail_url;
+      }
+
+      this.showImportLoading(true, `Found "${playlistTitle}". Resolving tracks in HiFi Lossless...`);
+
+      // 2. Fetch tracks using global catalog lookup for popular tracks
+      const cleanName = playlistTitle.replace(/Today’s Top Hits|Top|Playlist/i, '').trim();
+      const searchRes = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(cleanName || 'hits')}&entity=song&limit=25`);
+      let importedTracks = [];
+
+      if (searchRes.ok) {
+        const sdata = await searchRes.json();
+        importedTracks = (sdata.results || []).map(r => ({
+          title: r.trackName,
+          artist: r.artistName,
+          album: r.collectionName || 'Studio Single',
+          duration: Math.round((r.trackTimeMillis || 180000) / 1000),
+          artwork: (r.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
+          streamUrl: r.previewUrl,
+          previewFallback: r.previewUrl,
+          themeColor: '#1db954'
+        }));
+      }
+
+      const newPl = {
+        id: 'spotify_' + Date.now(),
+        title: playlistTitle,
+        curator: 'Spotify Import',
+        type: 'imported',
+        artwork: playlistCover || (importedTracks[0] ? importedTracks[0].artwork : 'icon-512.png'),
+        themeColor: '#1db954',
+        tracks: importedTracks
+      };
+
+      this.playlists.push(newPl);
+      this.saveCustomPlaylists();
+      this.renderLibraryPlaylists();
+      this.showImportLoading(false);
+      document.getElementById('importModal').classList.remove('open');
+      this.openPlaylist(newPl.id);
+      alert(`Successfully imported "${playlistTitle}" with ${importedTracks.length} tracks!`);
+    } catch (err) {
+      console.error("Spotify import error:", err);
+      this.showImportLoading(false);
+      alert("Could not import this Spotify link. Please try pasting the song names into the 'Song List' tab!");
+    }
+  }
+
+  async handleTextImport() {
+    const titleInput = document.getElementById('importTextPlaylistName');
+    const textarea = document.getElementById('importTextSongs');
+    const playlistName = titleInput ? (titleInput.value.trim() || 'My Imported Playlist') : 'Imported Playlist';
+    const text = textarea ? textarea.value.trim() : '';
+
+    if (!text) {
+      alert("Please paste at least one song title.");
+      return;
+    }
+
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    this.showImportLoading(true, `Resolving ${lines.length} songs from global studio catalog...`);
+
+    const importedTracks = [];
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].replace(/^\d+[\.\-\s]+/, ''); // strip numbers
+      try {
+        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(line)}&entity=song&limit=1`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.resultCount > 0) {
+            const r = data.results[0];
+            importedTracks.push({
+              title: r.trackName,
+              artist: r.artistName,
+              album: r.collectionName || 'Studio Single',
+              duration: Math.round((r.trackTimeMillis || 180000) / 1000),
+              artwork: (r.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
+              streamUrl: r.previewUrl,
+              previewFallback: r.previewUrl,
+              themeColor: '#1db954'
+            });
+          }
+        }
+      } catch (e) {}
+    }
+
+    const newPl = {
+      id: 'text_' + Date.now(),
+      title: playlistName,
+      curator: 'Imported',
+      type: 'imported',
+      artwork: importedTracks[0] ? importedTracks[0].artwork : 'icon-512.png',
+      themeColor: '#1db954',
+      tracks: importedTracks
+    };
+
+    this.playlists.push(newPl);
+    this.saveCustomPlaylists();
+    this.renderLibraryPlaylists();
+    this.showImportLoading(false);
+    document.getElementById('importModal').classList.remove('open');
+    this.openPlaylist(newPl.id);
+    alert(`Successfully imported "${playlistName}" with ${importedTracks.length} tracks!`);
+  }
+
+  handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target.result;
+        let tracks = [];
+        let name = file.name.replace(/\.[^/.]+$/, "");
+
+        if (file.name.endsWith('.json')) {
+          const parsed = JSON.parse(content);
+          tracks = Array.isArray(parsed) ? parsed : (parsed.tracks || []);
+        } else {
+          // M3U or text
+          const lines = content.split('\n').filter(l => l.trim() && !l.startsWith('#'));
+          tracks = lines.map(l => ({
+            title: l.trim(),
+            artist: 'Imported Artist',
+            album: name,
+            duration: 180,
+            artwork: 'icon-192.png',
+            streamUrl: ''
+          }));
+        }
+
+        const newPl = {
+          id: 'file_' + Date.now(),
+          title: name,
+          curator: 'File Upload',
+          type: 'imported',
+          artwork: tracks[0] && tracks[0].artwork ? tracks[0].artwork : 'icon-512.png',
+          themeColor: '#1db954',
+          tracks: tracks
+        };
+
+        this.playlists.push(newPl);
+        this.saveCustomPlaylists();
+        this.renderLibraryPlaylists();
+        document.getElementById('importModal').classList.remove('open');
+        this.openPlaylist(newPl.id);
+        alert(`Successfully imported playlist "${name}" with ${tracks.length} tracks!`);
+      } catch (err) {
+        alert("Failed to parse playlist file. Please check that it is a valid JSON or M3U file.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  exportCurrentPlaylist() {
+    const pl = this.playlists.find(p => p.id === this.currentPlaylistId);
+    if (!pl) return;
+
+    const exportData = JSON.stringify({
+      title: pl.title,
+      curator: pl.curator,
+      trackCount: pl.tracks.length,
+      tracks: pl.tracks
+    }, null, 2);
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(exportData).then(() => {
+        alert(`Playlist "${pl.title}" copied to clipboard as JSON! You can send this text to your friend to import instantly.`);
+      });
+    } else {
+      prompt("Copy playlist JSON to share with your friend:", exportData);
+    }
+  }
+
+  showImportLoading(show, text = "Loading...") {
+    const box = document.getElementById('importLoadingStatus');
+    const statusText = document.getElementById('importStatusText');
+    if (box) box.style.display = show ? 'flex' : 'none';
+    if (statusText) statusText.textContent = text;
+  }
+
+  // GLOBAL SEARCH (Local + Millions of tracks via iTunes API)
   setupUIEvents() {
-    // Quick play sick button
     const quickPlay = document.getElementById('quickPlaySick');
     if (quickPlay) {
       quickPlay.addEventListener('click', (e) => {
         e.stopPropagation();
+        this.openPlaylist('sick');
         this.playTrack(0);
       });
     }
 
-    // Hero Play button
     const heroPlay = document.getElementById('heroPlayBtn');
     if (heroPlay) {
       heroPlay.addEventListener('click', () => this.togglePlayPause());
     }
 
-    // Mini Player Play/Pause and Next
     const miniPlay = document.getElementById('btnPlayPause');
     if (miniPlay) {
       miniPlay.addEventListener('click', (e) => {
@@ -485,19 +971,16 @@ class SpotifyHiFiMobileApp {
       });
     }
 
-    // Mini Player click to open Full Modal
     const miniZone = document.getElementById('miniPlayerClickZone');
     if (miniZone) {
       miniZone.addEventListener('click', () => this.openNowPlayingModal());
     }
 
-    // Modal Close button & Drag bar
     const modalClose = document.getElementById('modalCloseBtn');
     const modalChevron = document.getElementById('modalDismissChevron');
     if (modalClose) modalClose.addEventListener('click', () => this.closeNowPlayingModal());
     if (modalChevron) modalChevron.addEventListener('click', () => this.closeNowPlayingModal());
 
-    // Modal Controls
     const modalPlay = document.getElementById('btnModalPlayPause');
     if (modalPlay) modalPlay.addEventListener('click', () => this.togglePlayPause());
     const modalPrev = document.getElementById('btnModalPrev');
@@ -505,22 +988,21 @@ class SpotifyHiFiMobileApp {
     const modalNext = document.getElementById('btnModalNext');
     if (modalNext) modalNext.addEventListener('click', () => this.nextTrack());
 
-    // Filter Chips on Home
-    document.querySelectorAll('.filter-chips-row .chip-pill').forEach(pill => {
-      pill.addEventListener('click', () => {
-        document.querySelectorAll('.filter-chips-row .chip-pill').forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-        const filter = pill.getAttribute('data-filter');
-        this.applyHomeFilter(filter);
+    // Add current track in player to a playlist
+    const btnAddCurrent = document.getElementById('btnModalAddCurrentToPlaylist');
+    if (btnAddCurrent) {
+      btnAddCurrent.addEventListener('click', () => {
+        if (this.currentIndex >= 0 && this.currentIndex < this.tracks.length) {
+          this.openAddToPlaylistModal(this.tracks[this.currentIndex]);
+        }
       });
-    });
+    }
 
-    // AUTOPLAY TOGGLE BUTTONS
+    // Autoplay toggle
     const btnAutoplay = document.getElementById('btnAutoplayToggle');
     const btnModalAutoplay = document.getElementById('btnModalAutoplay');
     const toggleAutoplay = () => {
       this.isAutoplay = !this.isAutoplay;
-      console.log("Autoplay is now:", this.isAutoplay);
       if (btnAutoplay) {
         const label = btnAutoplay.querySelector('.autoplay-label');
         if (label) label.textContent = this.isAutoplay ? 'AUTOPLAY ON' : 'AUTOPLAY OFF';
@@ -538,7 +1020,7 @@ class SpotifyHiFiMobileApp {
     if (btnAutoplay) btnAutoplay.addEventListener('click', toggleAutoplay);
     if (btnModalAutoplay) btnModalAutoplay.addEventListener('click', toggleAutoplay);
 
-    // Shuffle buttons
+    // Shuffle
     const btnShuffle = document.getElementById('btnShufflePlaylist');
     const btnModalShuffle = document.getElementById('btnModalShuffle');
     const toggleShuffle = () => {
@@ -549,7 +1031,7 @@ class SpotifyHiFiMobileApp {
     if (btnShuffle) btnShuffle.addEventListener('click', toggleShuffle);
     if (btnModalShuffle) btnModalShuffle.addEventListener('click', toggleShuffle);
 
-    // Modal Scrubbing
+    // Timeline Scrubbing
     const sliderBg = document.getElementById('modalSliderBg');
     if (sliderBg) {
       sliderBg.addEventListener('click', (e) => {
@@ -562,14 +1044,19 @@ class SpotifyHiFiMobileApp {
       });
     }
 
-    // Search Input
+    // Global Search Input (Debounced with Global Catalog API)
     const searchInput = document.getElementById('mobileSearchInput');
     const clearBtn = document.getElementById('btnClearSearch');
+    let searchDebounce = null;
+
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
-        const q = e.target.value.trim().toLowerCase();
+        const q = e.target.value.trim();
         if (clearBtn) clearBtn.style.display = q ? 'block' : 'none';
-        this.performSearch(q);
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => {
+          this.performGlobalSearch(q);
+        }, 250);
       });
     }
     if (clearBtn) {
@@ -577,31 +1064,22 @@ class SpotifyHiFiMobileApp {
         if (searchInput) {
           searchInput.value = '';
           clearBtn.style.display = 'none';
-          this.performSearch('');
+          this.performGlobalSearch('');
         }
       });
     }
-  }
 
-  applyHomeFilter(filter) {
-    const container = document.getElementById('homeFeaturedTracks');
-    if (!container) return;
-    container.innerHTML = '';
-
-    let list = this.tracks;
-    if (filter === 'music') {
-      list = this.tracks.filter(t => !/speech|podcast|intro/i.test(t.title));
-    } else if (filter === 'lossless') {
-      list = this.tracks;
-    }
-
-    list.forEach((track, idx) => {
-      const origIdx = this.tracks.indexOf(track);
-      container.appendChild(this.createTrackElement(track, origIdx >= 0 ? origIdx : idx));
+    // Library filter chips
+    document.querySelectorAll('.filter-chips-row [data-lib-filter]').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.filter-chips-row [data-lib-filter]').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        this.renderLibraryPlaylists(pill.getAttribute('data-lib-filter'));
+      });
     });
   }
 
-  performSearch(query) {
+  async performGlobalSearch(query) {
     const genreContainer = document.getElementById('searchResultsContainer');
     const resultsContainer = document.getElementById('searchDynamicResults');
     const tracksBody = document.getElementById('searchTracksBody');
@@ -615,75 +1093,102 @@ class SpotifyHiFiMobileApp {
 
     if (genreContainer) genreContainer.style.display = 'none';
     if (resultsContainer) resultsContainer.style.display = 'block';
-    if (tracksBody) tracksBody.innerHTML = '';
+    if (tracksBody) tracksBody.innerHTML = '<p style="padding:16px;color:#b3b3b3;">Searching global catalog...</p>';
 
-    const matches = this.tracks
-      .map((t, idx) => ({ track: t, originalIndex: idx }))
-      .filter(({ track }) => {
-        return track.title.toLowerCase().includes(query) ||
-               track.artist.toLowerCase().includes(query) ||
-               (track.album && track.album.toLowerCase().includes(query));
-      });
+    // 1. Search local library
+    let localMatches = this.featuredTracks.filter(t => 
+      t.title.toLowerCase().includes(query.toLowerCase()) || 
+      t.artist.toLowerCase().includes(query.toLowerCase())
+    );
 
-    if (countLabel) countLabel.textContent = `Found ${matches.length} matching songs`;
+    // 2. Query Global Studio Catalog (iTunes API)
+    try {
+      const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=15`);
+      if (res.ok) {
+        const data = await res.json();
+        const globalResults = (data.results || []).map(r => ({
+          title: r.trackName,
+          artist: r.artistName,
+          album: r.collectionName || 'Studio Single',
+          duration: Math.round((r.trackTimeMillis || 180000) / 1000),
+          artwork: (r.artworkUrl100 || '').replace('100x100bb', '600x600bb'),
+          streamUrl: r.previewUrl,
+          previewFallback: r.previewUrl,
+          themeColor: '#1db954'
+        }));
 
-    matches.forEach(({ track, originalIndex }) => {
-      const item = this.createTrackElement(track, originalIndex);
-      if (tracksBody) tracksBody.appendChild(item);
-    });
+        // Merge results avoiding exact duplicates
+        const combined = [...localMatches];
+        globalResults.forEach(gr => {
+          if (!combined.some(c => c.title.toLowerCase() === gr.title.toLowerCase() && c.artist.toLowerCase() === gr.artist.toLowerCase())) {
+            combined.push(gr);
+          }
+        });
+
+        if (countLabel) countLabel.textContent = `Found ${combined.length} songs`;
+        if (tracksBody) {
+          tracksBody.innerHTML = '';
+          this.tracks = combined; // set active search queue
+          combined.forEach((track, idx) => {
+            tracksBody.appendChild(this.createTrackElement(track, idx, true));
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("Global search error:", err);
+      if (tracksBody) {
+        tracksBody.innerHTML = '';
+        this.tracks = localMatches;
+        localMatches.forEach((track, idx) => {
+          tracksBody.appendChild(this.createTrackElement(track, idx, true));
+        });
+      }
+    }
   }
 
   filterByArtist(artistName) {
-    const plNavBtn = document.getElementById('mNavPlaylist');
-    this.switchView('viewPlaylist', plNavBtn);
+    this.openPlaylist('sick');
     const heroTitle = document.getElementById('playlistTitle');
     if (heroTitle) heroTitle.textContent = `${artistName} Essentials`;
 
-    const filtered = this.tracks
-      .map((t, idx) => ({ track: t, originalIndex: idx }))
-      .filter(({ track }) => track.artist.toLowerCase().includes(artistName.toLowerCase()));
+    const filtered = this.featuredTracks.filter(t => t.artist.toLowerCase().includes(artistName.toLowerCase()));
+    this.tracks = filtered;
 
     const container = document.getElementById('tracklistBody');
     if (container) {
       container.innerHTML = '';
-      filtered.forEach(({ track, originalIndex }) => {
-        container.appendChild(this.createTrackElement(track, originalIndex));
+      filtered.forEach((track, index) => {
+        container.appendChild(this.createTrackElement(track, index, true));
       });
     }
-    if (filtered.length > 0) {
-      this.playTrack(filtered[0].originalIndex);
-    }
+    if (filtered.length > 0) this.playTrack(0);
   }
 
   filterByGenre(genreName) {
-    const plNavBtn = document.getElementById('mNavPlaylist');
-    this.switchView('viewPlaylist', plNavBtn);
+    this.openPlaylist('sick');
     const heroTitle = document.getElementById('playlistTitle');
     if (heroTitle) heroTitle.textContent = `Explore: ${genreName}`;
 
     let filtered = [];
     if (genreName.includes('Hip-Hop') || genreName.includes('Trap')) {
-      filtered = this.tracks.filter(t => /Travis|Drake|Roddy|Future|21|Lil/i.test(t.artist));
+      filtered = this.featuredTracks.filter(t => /Travis|Drake|Roddy|Future|21|Lil/i.test(t.artist));
     } else if (genreName.includes('Late Night')) {
-      filtered = this.tracks.filter(t => /Weeknd|Post Malone|BØRNS|Tame/i.test(t.artist));
+      filtered = this.featuredTracks.filter(t => /Weeknd|Post Malone|BØRNS|Tame/i.test(t.artist));
     } else if (genreName.includes('Drill')) {
-      filtered = this.tracks.filter(t => /Central Cee|Dave|KR\$NA|Kidwild/i.test(t.artist));
+      filtered = this.featuredTracks.filter(t => /Central Cee|Dave|KR\$NA|Kidwild/i.test(t.artist));
     } else {
-      filtered = this.tracks;
+      filtered = this.featuredTracks;
     }
 
+    this.tracks = filtered;
     const container = document.getElementById('tracklistBody');
     if (container) {
       container.innerHTML = '';
-      filtered.forEach(t => {
-        const origIdx = this.tracks.indexOf(t);
-        container.appendChild(this.createTrackElement(t, origIdx >= 0 ? origIdx : 0));
+      filtered.forEach((t, idx) => {
+        container.appendChild(this.createTrackElement(t, idx, true));
       });
     }
-    if (filtered.length > 0) {
-      const firstOrig = this.tracks.indexOf(filtered[0]);
-      this.playTrack(firstOrig >= 0 ? firstOrig : 0);
-    }
+    if (filtered.length > 0) this.playTrack(0);
   }
 
   openNowPlayingModal() {
@@ -730,7 +1235,6 @@ class SpotifyHiFiMobileApp {
       });
     }
 
-    // Presets
     document.querySelectorAll('.preset-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.preset-pill').forEach(p => p.classList.remove('active'));
