@@ -1,12 +1,16 @@
 // Spotify HiFi Mobile & Lossless Audio Engine
-// Fully optimized for Android screens with Autoplay, Explore, Artist Imagery, & 62-Song Playlist
+// Fully optimized for Android screens with Autoplay, Explore, Artist Imagery, & All 62 Tracks
 
 class SpotifyHiFiMobileApp {
   constructor() {
     this.audioElement = new Audio();
     this.audioElement.preload = "auto";
 
-    this.tracks = [];
+    // Synchronously bind full 62-song playlist from window.SICK_PLAYLIST
+    this.tracks = (window.SICK_PLAYLIST && Array.isArray(window.SICK_PLAYLIST) && window.SICK_PLAYLIST.length > 0)
+      ? window.SICK_PLAYLIST
+      : [];
+
     this.currentIndex = -1;
     this.isPlaying = false;
     this.isAutoplay = true;
@@ -20,7 +24,7 @@ class SpotifyHiFiMobileApp {
     this.eqFilters = [];
     this.eqFrequencies = [32, 64, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
 
-    // Artist list with photos
+    // Top Artists with high-res photos
     this.artists = [
       { name: "Travis Scott", photo: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=80", role: "11 songs" },
       { name: "The Weeknd", photo: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&auto=format&fit=crop&q=80", role: "9 songs" },
@@ -34,6 +38,7 @@ class SpotifyHiFiMobileApp {
       { name: "Future", photo: "https://images.unsplash.com/photo-1520523839898-5071282543e1?w=500&auto=format&fit=crop&q=80", role: "Mask Off" }
     ];
 
+    // Explore Genres
     this.genres = [
       { name: "Hip-Hop", desc: "Travis Scott, Drake, Roddy Ricch", color: "linear-gradient(135deg, #e67e22, #d35400)" },
       { name: "Late Night Vibes", desc: "The Weeknd, Post Malone", color: "linear-gradient(135deg, #8e44ad, #2c3e50)" },
@@ -55,7 +60,12 @@ class SpotifyHiFiMobileApp {
     this.renderArtists();
     this.renderGenreCards();
 
-    await this.loadPlaylistData();
+    // Ensure tracks are loaded
+    if (this.tracks.length === 0) {
+      await this.loadPlaylistData();
+    }
+
+    console.log(`Spotify HiFi loaded with ${this.tracks.length} tracks.`);
     this.renderHomeFeatured();
     this.renderMainTracklist();
   }
@@ -76,30 +86,10 @@ class SpotifyHiFiMobileApp {
         this.tracks = await res.json();
       }
     } catch (e) {
-      console.warn("Using inline fallback playlist:", e);
-    }
-
-    if (!this.tracks || this.tracks.length === 0) {
-      this.tracks = [
-        {
-          title: "The Box",
-          artist: "Roddy Ricch",
-          album: "Please Excuse Me for Being Antisocial",
-          duration: 197,
-          artwork: "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/1b/63/04/1b630400-490e-245b-a26f-0120f6f253c8/20UMGIM28168.rgb.jpg/600x600bb.jpg",
-          streamUrl: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/95/55/30/9555307b-6009-136c-aa4e-c5fb157d8dae/mzaf_6166511402374037004.plus.aac.p.m4a",
-          themeColor: "#1db954"
-        },
-        {
-          title: "FE!N",
-          artist: "Travis Scott",
-          album: "UTOPIA",
-          duration: 192,
-          artwork: "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/7d/4f/94/7d4f9468-56e1-3a2d-7186-c8088170ef58/196871341899.jpg/600x600bb.jpg",
-          streamUrl: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ce/61/9a/ce619acc-40f8-5bf0-c6d8-5649dacc5d3c/mzaf_9048266760750013994.plus.aac.p.m4a",
-          themeColor: "#8a2be2"
-        }
-      ];
+      console.warn("fetch failed, checking window.SICK_PLAYLIST:", e);
+      if (window.SICK_PLAYLIST && window.SICK_PLAYLIST.length) {
+        this.tracks = window.SICK_PLAYLIST;
+      }
     }
   }
 
@@ -163,7 +153,6 @@ class SpotifyHiFiMobileApp {
     });
     if (activeBtn) activeBtn.classList.add('active');
 
-    // Scroll body back to top on view switch
     const body = document.querySelector('.spotify-body');
     if (body) body.scrollTop = 0;
   }
@@ -194,23 +183,20 @@ class SpotifyHiFiMobileApp {
       if (totalLabel) totalLabel.textContent = this.formatTime(dur);
     });
 
-    // CRITICAL: AUTOPLAY FEATURE (CONTINUOUS PLAYBACK)
+    // CONTINUOUS AUTOPLAY
     this.audioElement.addEventListener('ended', () => {
-      console.log("Track finished. Autoplay enabled:", this.isAutoplay);
       if (this.isAutoplay) {
         this.nextTrack();
       }
     });
 
     this.audioElement.addEventListener('error', (e) => {
-      console.warn("Audio element error on track:", this.currentIndex, e);
-      // Automatically attempt fallback stream
+      console.warn("Audio playback error on track:", this.currentIndex, e);
       if (this.currentIndex >= 0 && this.currentIndex < this.tracks.length) {
         const track = this.tracks[this.currentIndex];
-        const fallback = `http://10.179.29.129:8080/api/stream?q=${encodeURIComponent(track.artist + ' ' + track.title)}`;
-        if (this.audioElement.src !== fallback) {
-          console.log("Retrying with local streaming proxy:", fallback);
-          this.audioElement.src = fallback;
+        // If preview failed, attempt fallback previewUrl
+        if (track.previewFallback && this.audioElement.src !== track.previewFallback) {
+          this.audioElement.src = track.previewFallback;
           this.audioElement.play().catch(console.error);
         }
       }
@@ -226,7 +212,6 @@ class SpotifyHiFiMobileApp {
       this.analyserNode = this.audioCtx.createAnalyser();
       this.analyserNode.fftSize = 64;
 
-      // 10-Band EQ Filters
       let lastNode = this.sourceNode;
       this.eqFilters = this.eqFrequencies.map(freq => {
         const filter = this.audioCtx.createBiquadFilter();
@@ -259,20 +244,13 @@ class SpotifyHiFiMobileApp {
       this.audioCtx.resume();
     }
 
-    // Audio stream URL selection
-    let streamUrl = track.streamUrl || track.previewFallback;
-    if (!streamUrl) {
-      streamUrl = `http://10.179.29.129:8080/api/stream?q=${encodeURIComponent(track.artist + ' ' + track.title)}`;
+    const streamUrl = track.streamUrl || track.previewFallback;
+    if (streamUrl) {
+      this.audioElement.src = streamUrl;
+      this.audioElement.play().catch(err => {
+        console.warn("Direct stream play error:", err);
+      });
     }
-
-    this.audioElement.src = streamUrl;
-    this.audioElement.play().catch(err => {
-      console.warn("Direct stream play error:", err);
-      // Fallback
-      const proxyUrl = `http://10.179.29.129:8080/api/stream?q=${encodeURIComponent(track.artist + ' ' + track.title)}`;
-      this.audioElement.src = proxyUrl;
-      this.audioElement.play().catch(console.error);
-    });
 
     this.updateUIForTrack(track);
     this.highlightActiveTrack();
@@ -380,7 +358,7 @@ class SpotifyHiFiMobileApp {
       div.className = 'artist-circle-item';
       div.innerHTML = `
         <div class="artist-circle-img-wrap">
-          <img src="${artist.photo}" class="artist-circle-img" alt="${artist.name}" loading="lazy">
+          <img src="${artist.photo}" class="artist-circle-img" alt="${artist.name}" loading="lazy" onerror="this.src='icon-192.png'">
         </div>
         <span class="artist-circle-name">${artist.name}</span>
         <span class="artist-circle-role">${artist.role}</span>
@@ -411,7 +389,6 @@ class SpotifyHiFiMobileApp {
       grid.appendChild(card);
     });
 
-    // Also bind home explore category cards
     document.querySelectorAll('.explore-category-grid .category-card').forEach(card => {
       card.addEventListener('click', () => {
         const genre = card.getAttribute('data-genre');
@@ -425,12 +402,12 @@ class SpotifyHiFiMobileApp {
     if (!container) return;
     container.innerHTML = '';
 
-    // Take top 5 tracks for the home feed
-    const featured = this.tracks.slice(0, 5);
-    featured.forEach((track, index) => {
-      const item = this.createTrackElement(track, index);
+    // Render all tracks or up to 20 on Home feed with fast touch items
+    const count = Math.min(this.tracks.length, 25);
+    for (let i = 0; i < count; i++) {
+      const item = this.createTrackElement(this.tracks[i], i);
       container.appendChild(item);
-    });
+    }
   }
 
   renderMainTracklist() {
@@ -438,7 +415,8 @@ class SpotifyHiFiMobileApp {
     if (!container) return;
     container.innerHTML = '';
 
-    document.getElementById('playlistTrackCount').textContent = `${this.tracks.length} songs`;
+    const countElem = document.getElementById('playlistTrackCount');
+    if (countElem) countElem.textContent = `${this.tracks.length} songs`;
 
     this.tracks.forEach((track, index) => {
       const item = this.createTrackElement(track, index);
@@ -451,15 +429,15 @@ class SpotifyHiFiMobileApp {
     div.className = `touch-track-item ${index === this.currentIndex ? 'active' : ''}`;
     div.setAttribute('data-index', index);
 
-    const art = track.artwork || 'https://picsum.photos/seed/track/100/100';
+    const art = track.artwork || 'icon-192.png';
     const durStr = this.formatTime(track.duration || 180);
 
     div.innerHTML = `
       <div class="track-thumb-box">
-        <img src="${art}" class="track-thumb-img" alt="Cover" loading="lazy">
+        <img src="${art}" class="track-thumb-img" alt="Cover" loading="lazy" onerror="this.src='icon-192.png'">
       </div>
       <div class="track-info-col">
-        <div class="track-primary-title">${track.title}</div>
+        <div class="track-primary-title">${index + 1}. ${track.title}</div>
         <div class="track-secondary-desc">
           <span class="track-hifi-pill">HiFi</span>
           <span>${track.artist}</span>
@@ -526,6 +504,16 @@ class SpotifyHiFiMobileApp {
     if (modalPrev) modalPrev.addEventListener('click', () => this.prevTrack());
     const modalNext = document.getElementById('btnModalNext');
     if (modalNext) modalNext.addEventListener('click', () => this.nextTrack());
+
+    // Filter Chips on Home
+    document.querySelectorAll('.filter-chips-row .chip-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.filter-chips-row .chip-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const filter = pill.getAttribute('data-filter');
+        this.applyHomeFilter(filter);
+      });
+    });
 
     // AUTOPLAY TOGGLE BUTTONS
     const btnAutoplay = document.getElementById('btnAutoplayToggle');
@@ -595,6 +583,24 @@ class SpotifyHiFiMobileApp {
     }
   }
 
+  applyHomeFilter(filter) {
+    const container = document.getElementById('homeFeaturedTracks');
+    if (!container) return;
+    container.innerHTML = '';
+
+    let list = this.tracks;
+    if (filter === 'music') {
+      list = this.tracks.filter(t => !/speech|podcast|intro/i.test(t.title));
+    } else if (filter === 'lossless') {
+      list = this.tracks;
+    }
+
+    list.forEach((track, idx) => {
+      const origIdx = this.tracks.indexOf(track);
+      container.appendChild(this.createTrackElement(track, origIdx >= 0 ? origIdx : idx));
+    });
+  }
+
   performSearch(query) {
     const genreContainer = document.getElementById('searchResultsContainer');
     const resultsContainer = document.getElementById('searchDynamicResults');
@@ -655,7 +661,6 @@ class SpotifyHiFiMobileApp {
     const heroTitle = document.getElementById('playlistTitle');
     if (heroTitle) heroTitle.textContent = `Explore: ${genreName}`;
 
-    // Select suitable tracks
     let filtered = [];
     if (genreName.includes('Hip-Hop') || genreName.includes('Trap')) {
       filtered = this.tracks.filter(t => /Travis|Drake|Roddy|Future|21|Lil/i.test(t.artist));

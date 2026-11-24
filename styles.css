@@ -20,6 +20,7 @@
   padding: 0;
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 body {
@@ -31,6 +32,7 @@ body {
   overflow: hidden;
   user-select: none;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
 }
 
 .spotify-app {
@@ -149,7 +151,7 @@ body {
 }
 
 .spotify-main {
-  padding: 14px 16px 140px 16px;
+  padding: 14px 16px calc(150px + var(--safe-bottom)) 16px;
   max-width: 100%;
 }
 

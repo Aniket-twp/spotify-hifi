@@ -33,7 +33,7 @@ os.makedirs(OBJ_DIR, exist_ok=True)
 # Prepare assets for APK
 assets_dir = os.path.join(BASE_DIR, "android", "app", "src", "main", "assets", "www")
 os.makedirs(assets_dir, exist_ok=True)
-for item in ["index.html", "styles.css", "app.js", "sick_playlist.json", "manifest.json", "sw.js"]:
+for item in ["index.html", "styles.css", "app.js", "sick_playlist.js", "sick_playlist.json", "manifest.json", "sw.js", "icon-192.png", "icon-512.png", "favicon.png"]:
     src = os.path.join(BASE_DIR, item)
     if os.path.exists(src):
         shutil.copy2(src, os.path.join(assets_dir, item))
